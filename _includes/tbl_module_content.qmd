@@ -1,0 +1,85 @@
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-module-content
+#| tbl-cap: "Detailed description of the WBI content."
+#| html-table-processing: none
+
+# install.packages("gt")   # Uncomment if gt is not installed
+
+library(gt)
+
+# Create data frame with Markdown formatting in each cell
+modules_df <- data.frame(
+  Module = c(
+    "**Module 1** (Motivation Module)",
+    "**Module 2** (Supervision and Social Relationships Module)",
+    "**Module 3** (Emotion Management Module)",
+    "**Module 4** (Problem Solving Module)",
+    "**Module 5** (Offense-Supportive Attitudes Module)",
+    "**Module 6** (Sexuality Module)"
+  ),
+  Goal = c(
+    "Strengthen motivation for behavioral change before addressing criminogenic needs (*Ward et al.*, 51; 52; 53; 54; 55; 56).",
+    "Build positive social network, reduce resistance to rules/supervision (15; 57; 58).",
+    "Reduce impulsiveness and improve coping with stress/negative emotions (15; 58; *Knight & Thornton*, 61).",
+    "Improve social problem-solving skills; promote positive problem orientation and rational problem-solving style (15; 68; *D’Zurilla & Goldfried*, 69).",
+    "Change attitudes supporting sexual offending against children (15; 75–77; *Helmus et al.*, 78).",
+    "Reduce sexual preoccupation, emotional congruence with children, and sexual interest/fantasies about children (15; 16; 58; 59; 83–85)."
+  ),
+  Content = c(
+    "- Motivation as prerequisite for therapy progress and success\n- Works with ambivalence towards change\n- Focus on values and goals",
+    "- Psychoeducation on negative social influences and recidivism\n- Strategies to build new positive contacts and distance from negative influences<br>- Importance of stable emotionally intimate relationships with adults (15; 58; 59; 60)",
+    "- Address lifestyle impulsiveness and dysfunctional coping<br>- Learn alternatives to impulsive or sexualized coping",
+    "- Model: positive/negative problem orientation (PPO/NPO) and problem-solving styles (RPS, ICS, AS)<br>- ISAC show higher NPO and more ICS/AS behavior than general population (71)<br>- Importance of structured solution strategies",
+    "- Explain implicit cognitive theories<br>- Identify and reframe distorted beliefs<br>- Promote alternative, non-offense-supportive beliefs",
+    "- Psychoeducation on sexual risks<br>- Identify and avoid risky situations<br>- Promote emotional distance from children<br>- Replace deviant sexual interest with normative adult sexual interest"
+  ),
+  Methods = c(
+    "**Motivational Interviewing** (*Miller & Rollnick*, 50):<br>- Principles: express empathy, develop discrepancy, avoid arguments, support self-efficacy<br>- Techniques: open questions, reflective listening, appreciation, 'change talk' and 'confidence talk', resistance handling, summaries",
+    "**Psychoeducational** and **cognitive-behavioral techniques** to encourage network building and attitude change",
+    "**DBT** (*Linehan*, 62): emotion regulation, distress tolerance; evidence-based in forensic populations (64), effective web-based for stress reduction (65, 66)<br>**ACT** (*Hayes et al.*, 63): acceptance of negative experiences, meaningful life focus; effective in offender therapy (67) and web-based interventions (65, 66)",
+    "**Problem-Solving Therapy** (*PST*; Nezu et al., 74): training in positive problem orientation and rational problem-solving",
+    "**Cognitive Restructuring** (*Beck*, 75): identification, reframing, Socratic dialogue, comparison of new vs. old beliefs (79, 80)",
+    "**Cognitive-behavioral techniques** to influence sexual thoughts/fantasies and promote adult-oriented interests"
+  ),
+  Special_Evidence = c(
+    "Evidence shows link between motivation and therapy success/dropout; high dropout rate often before therapy starts (54, 55).",
+    "No studies on effectiveness of this module known (f2f or web-based).",
+    "Combination of two evidence-based approaches; proven effects in stress and impulsivity reduction.",
+    "Evidence that psychological treatment can improve poor problem-solving abilities (72, 73).",
+    "First web-based use with ISAC in @myTabu; no direct effectiveness data<br>Positive meta-analysis results for other disorders (81); online therapist guidance increases effectiveness (82).",
+    "Research unclear if sexual interests can change (16); techniques effective in f2f treatments (86, 87) and partly in web-based approaches for youth (88, 89)."
+  ),
+  stringsAsFactors = FALSE
+)
+
+# Build gt table with markdown processing for each cell
+modules_gt <- gt(modules_df) %>%
+  tab_header(
+    title = md("**Intervention Modules Overview**"),
+    subtitle = md("*Targets, contents, methods and evidence*")
+  ) %>%
+  cols_label(
+    Module = md("**Module**"),
+    Goal = md("**Goal**"),
+    Content = md("**Content**"),
+    Methods = md("**Methods**"),
+    Special_Evidence = md("**Special aspects / Evidence**")
+  ) %>%
+  # Render all cells as markdown
+  fmt_markdown(columns = c(Module, Goal, Content, Methods, Special_Evidence)) %>%
+  tab_options(
+    table.font.size = 12,
+    data_row.padding = px(5),
+    heading.align = "center"
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  )
+
+# Display table
+modules_gt
+```

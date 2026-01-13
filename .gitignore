@@ -1,0 +1,12 @@
+/.quarto/
+/_data/
+/_manuscript
+/renv/
+
+.Rhistory
+.Rproj.user
+.Rprofile
+
+/.luarc.json
+
+**/*.quarto_ipynb

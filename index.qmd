@@ -1,0 +1,121 @@
+---
+lightbox: true
+
+tbl-prefix: "Table A"       # Prefix für alle Tabellen
+fig-prefix: "Figure A"
+
+format:
+  html:
+    theme: [default, custom.scss]
+    number-sections: false
+    title-block-style: none
+    #embed-resources: true
+  docx: default
+  pdf: default
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-init
+
+#library(here)
+
+# run SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha)
+#source(here::here("_scripts/Fromberger_SAP.R"))
+
+# run analysis for secondary endpoints from MBSB
+#source(here::here("_resources/MBSB/analysis_secondary_endpoints.R"))
+
+# run sensitivity analysis for main endpoint
+#source(here::here("_resources/MBSB/rbmi.R"))
+
+# run script to remove outlier
+#source(here::here("_resources/MBSB/remove_outlier.R"))
+
+# load function to create tbl_mmrm
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/prim_mmrm_functions.R"))
+
+# # load functions to create diffscores and their tbls
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/prim_diffscore_functions.R"))
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/sec_diffscore_functions.R"))
+
+# # load functions to create pairwise tbls
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/prim_pairwise_functions.R"))
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/sec_pairwise_functions.R"))
+
+# # load functions for who-5
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/who_functions.R"))
+
+# # load functions for wai-sr
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/wai_functions.R"))
+
+# # load functions for mrq
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/mrq_functions_prepluspost.R"))
+# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/mrq_functions.R"))
+
+# # load functions for plots
+# source(here::here("                    _scripts/prim_plot_functions.R"))
+```
+
+```{=html}
+<div class="header-line">
+  Effectiveness of a web-based intervention for individuals who committed sexual offenses against children: a concealed, prospective, parallel group, placebo-controlled, randomized trial in Germany.
+</div>
+
+<div class="supp-title">Supplementary material</div>
+```
+
+
+
+## Trial registry
+
+```{=html}
+<p>
+    Please <a href="resources/GermanClinicalTrialsRegister.pdf">click here to
+    download the PDF file.</a>
+</p>
+```
+
+## Study protocol
+
+```{=html}
+<p>
+    Please <a href="resources/myTabu_frontiers_study_protocol.pdf">click here to
+    download the PDF file.</a>
+</p>
+```
+
+## Statistical analysis plan (SAP)
+
+```{=html}
+<p>
+    Please <a href="href=resources/myTabu_SAP_signed.pdf">click here to
+    download the PDF file.</a>
+</p>
+```
+
+## Method
+
+{{< include _includes/tbl_measurement_timepoints.qmd >}}
+
+{{< include _includes/tbl_module_content.qmd >}}
+
+## Action diagrams
+
+![Action diagram for guided tasks. A very big animal the elephant is.](resources/figures/mtDiagrams-act_Guided_Task.png){#fig-act-guided-task width=100%}
+
+![Action diagram for critical events. Frequency of recidivism or concrete preparations for recidivism as reported in in-app messages or during working on guided exercises have been assessed continuously. The diagram shows the actions taken to ensure the security of the society.](resources/figures/mtDiagrams-act_Critical_Event.png){#fig-act-guided-task width=100%}
+
+
+### Description of the WBI
+
+The content of the intervention arm focused exclusively on psychological meaningful risk factors [@mannAssessingRiskSexual2010; @setoEmpiricallybasedDynamicRisk2023]. Already established therapeutic concepts from in-face community-based treatment programs for individuals who committed sexual offenses against children [@brikenPraeventionSexuellenKindesmissbrauchs2017; @wildPreventionSexualChild2020] as well as cognitive-behavioral treatment concepts [see @frombergerMyTabuAPlaceboControlled2021 for more details] have been adapted for online use. Both programs have been designed for CSA as well as CSAM offenders. Parts relevant to the meaningful risk factors of both in-face programs have been digitalized and parts on risk factors not supported by empirical evidence have been skipped in order to shorten the HBI. Virtual participants ccompanied the participant, narrate about their experiences, and make suggestions from the perspective of someone who is also affected (scored by professional actor). All modules within the intervention arm comprised techniques of motivational interviewing [@rollnickMotivationalInterviewingTreatment2015] to enhance or maintain the motivation of the participants. The WBI is designed for female as well as male participants, but due to a lack of knowledge with regard to specific risk factors for female sex offenders at development of the HBI, the content remains identical for women and men. In order to make the HBI suitable for female participants, the used language was adapted and one female virtual participant has been designed and integrated.
+
+Tabelle: Content of WBI intervention arm and placebo arm on module level
+
+## References
+
+::: {#refs}
+:::

@@ -1,0 +1,85 @@
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-measurement-timepoints
+#| tbl-cap: "Measuremnt timepoints for all outcome measures. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ was assessed before and after each session resulting in 48 measurement timepoints."
+#| html-table-processing: none
+
+library(dplyr)
+library(gt)
+
+# Datensatz mit aktualisierten Gruppennamen
+df <- tribble(
+  ~Group,                   ~Measure,               ~Allocation, ~Intro_pre, ~Intro_post, ~M1_pre, ~M1_post, ~M2_pre, ~M2_post, ~M3_pre, ~M3_post, ~M4_pre, ~M4_post, ~M5_pre, ~M5_post, ~M6_pre, ~M6_post, ~FollowUp,
+  "BASELINE CHARACTERISTICS", "SSQ-P",                "",          "X",        "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "BASELINE CHARACTERISTICS", "SSQ-SO",               "",          "X",        "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "BASELINE CHARACTERISTICS", "SSQ-CF",               "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "BASELINE CHARACTERISTICS", "PHQ-D",                "",          "X",        "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "BASELINE CHARACTERISTICS", "SSQ-rSO",              "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "",
+  "BASELINE CHARACTERISTICS", "SSPI-2",               "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "BASELINE CHARACTERISTICS", "ICD-11-Screener",      "",          "X",        "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "PRIMARY OUTCOMES",         "CARES",                  "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "X",     "",
+  "PRIMARY OUTCOMES",         "official re-offences",   "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",
+  "SECONDARY OUTCOMES",      "CVTRQ",                  "X",         "",         "",          "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "RCQ",                    "",          "",         "",          "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "OQMPR",                  "",          "",         "",          "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "F-SozU",                 "",          "",         "",          "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "UCLA",                   "",          "",         "",          "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "DERS",                   "",          "",         "",          "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "NARQ",                   "",          "",         "",          "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "BIS-15",                 "",          "",         "",          "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "CUSI",                   "",          "",         "",          "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "SPSI-R",                 "",          "",         "",          "",      "",       "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",
+  "SECONDARY OUTCOMES",      "BMS",                    "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",      "",      "",       "",
+  "SECONDARY OUTCOMES",      "HBI-19",                 "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
+  "SECONDARY OUTCOMES",      "SSIC-Scale",             "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
+  "SECONDARY OUTCOMES",      "SOI-R",                  "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
+  "SECONDARY OUTCOMES",      "EKK-R",                  "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
+  "SECONDARY OUTCOMES",      "ESIQ",                   "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
+  "ANCILLARY OUTCOMES",      "SBV-R",                  "",          "X",        "",          "",      "",       "",      "",       "X",     "",       "",      "",       "X",     "",       "",      "X",     "",
+  "ANCILLARY OUTCOMES",      "ATQ",                    "X",         "",         "",          "",      "X",      "",      "",       "",      "",       "",      "X",      "",      "",       "",      "",      "",
+  "ANCILLARY OUTCOMES",      "WHO-5",                  "",          "",         "",          "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",     "",
+  "ANCILLARY OUTCOMES",      "QNP",                    "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",      ""
+)
+
+# GT-Tabelle erstellen
+tbl <- df %>%
+  gt(rowname_col = "Measure", groupname_col = "Group") %>%
+  tab_spanner(label = "Introduction", columns = c(Intro_pre, Intro_post)) %>%
+  tab_spanner(label = "Module 1", columns = c(M1_pre, M1_post)) %>%
+  tab_spanner(label = "Module 2", columns = c(M2_pre, M2_post)) %>%
+  tab_spanner(label = "Module 3", columns = c(M3_pre, M3_post)) %>%
+  tab_spanner(label = "Module 4", columns = c(M4_pre, M4_post)) %>%
+  tab_spanner(label = "Module 5", columns = c(M5_pre, M5_post)) %>%
+  tab_spanner(label = "Module 6", columns = c(M6_pre, M6_post)) %>%
+  cols_label(
+    Allocation = "Allocation",
+    Intro_pre = "pre", Intro_post = "post",
+    M1_pre = "pre", M1_post = "post",
+    M2_pre = "pre", M2_post = "post",
+    M3_pre = "pre", M3_post = "post",
+    M4_pre = "pre", M4_post = "post",
+    M5_pre = "pre", M5_post = "post",
+    M6_pre = "pre", M6_post = "post",
+    FollowUp = "Follow-Up"
+  ) %>%
+  tab_options(
+    table.font.names = "Source Sans Pro",
+    table.font.size = 16,
+    quarto.use_bootstrap = FALSE,
+    quarto.disable_processing = TRUE,
+    data_row.padding = px(2),
+    column_labels.font.weight = "bold",
+    row_group.font.weight = "bold",
+    row_group.background.color = "#F0F0F0"
+  )
+
+# save
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-measurement-timepoints.png")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-measurement-timepoints.docx")))
+
+# Ausgabe
+tbl
+```

@@ -1,0 +1,19 @@
+project:
+  type: manuscript
+  resources:
+    - /resources
+    - /resources/*.pdf
+
+manuscript:
+  article: index.qmd
+
+bibliography: references.bib
+csl: the-lancet.csl
+
+format:
+  html:
+    html-table-processing: none
+    tbl-cap-location: bottom
+
+    toc: true
+    toc-depth: 3
