@@ -1,8 +1,79 @@
+
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-module-content
+#| tbl-cap: "Detailed description of the WBI content."
+#| html-table-processing: none
+#| 
+
+library(here)
+library(gt)
+library(readr)
+library(dplyr)
+
+# Set the path to your CSV files
+# Adjust these paths according to your actual file locations
+wide_csv_path <- "_data/WBI_CONTENT/CONTENT_INTERVENTION_SUMMARIES/summaries_wide_gt_INTERVENTION.csv"
+summary_csv_path <- "summaries_hierarchical/summaries_wide_summary_INTERVENTION.csv"
+
+# Read the wide CSV file
+intervention_all <- read_csv(wide_csv_path)
+
+wide_table <- intervention_all %>%
+  gt() %>%
+  tab_header(
+    title = "Wide Format Summary Data",
+    subtitle = "Module, Session, and Lection Summaries"
+  ) %>%
+  cols_label(
+    module_nr = "Module Number",
+    session_nr = "Session Number", 
+    lection_rank = "Lection Rank",
+    lection_summary = "Lection Summary",
+    session_summary = "Session Summary",
+    module_summary = "Module Summary"
+  ) %>%
+  fmt_missing(columns = everything(), missing_text = "N/A") %>%
+  # Add styling for publication readiness
+  tab_style(
+    style = list(
+      cell_text(weight = "bold"),
+      cell_borders(sides = "bottom", weight = 2)
+    ),
+    locations = list(
+      cells_column_labels(columns = everything())
+    )
+  ) %>%
+  tab_style(
+    style = list(
+      cell_text(size = 10),
+      cell_borders(sides = "all", weight = 1)
+    ),
+    locations = list(
+      cells_body(columns = everything())
+    )
+  ) %>%
+  # Set table width to fit page
+  tab_options(
+    table.width = pct(100),
+    table.font.size = 10,
+    heading.title.font.size = 12,
+    heading.subtitle.font.size = 10
+  )
+```
+
+
+
+
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-module-description-from-frontiers
 #| tbl-cap: "Detailed description of the WBI content."
 #| html-table-processing: none
 
