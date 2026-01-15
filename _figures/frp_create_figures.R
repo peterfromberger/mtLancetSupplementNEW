@@ -49,8 +49,10 @@ library(emmeans)
 emm <- emmeans(fit2, ~ treatment | timepoint)
 emm_df <- as.data.frame(emm)
 
+datt <- dat_clean %>% filter(!client_id %in% c(253, 396) & !is.na(client_group))
+
 # Get sample sizes by treatment and timepoint, excluding missing values in IoD_reduced
-filtered_data <- data[!is.na(data$IoD_reduced), ]
+filtered_data <- datt %>% filter(!is.na(IoD_reduced))
 sample_sizes_filtered <- table(filtered_data$treatment, filtered_data$timepoint)
 sample_sizes_df_filtered <- as.data.frame(sample_sizes_filtered)
 colnames(sample_sizes_df_filtered) <- c("treatment", "timepoint", "n")
@@ -211,3 +213,10 @@ ggsave(
   width = 16,
   height = 8,
 )
+
+sample_sizes_both <- table(dat_complete$treatment, dat_complete$timepoint)
+sample_sizes_df_both <- as.data.frame(sample_sizes_both)
+colnames(sample_sizes_df_both) <- c("treatment", "timepoint", "n")
+
+print("Sample sizes by treatment and timepoint:")
+print(sample_sizes_df_both)

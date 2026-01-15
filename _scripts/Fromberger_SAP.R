@@ -987,7 +987,7 @@ if (verbose) clcl
 matching <-
   clcl %>%
   inner_join(pseudonyms) %>%
-  dplyr::select(ID = mnpaid, client_id = id, client_group)
+  dplyr::select(ID = mnpaid, client_id = id, client_group, excluded_at, status)
 if (verbose) matching
 
 #################
@@ -2116,7 +2116,7 @@ if (verbose) tab_exclusions$reason %>% table
 
 
 ## status labels
-status_labels <- c('Ja', 'Nein')
+status_labels <- c('Yes', 'No')
 status_levels = c(1,2)
 
 q_exclusion <-
