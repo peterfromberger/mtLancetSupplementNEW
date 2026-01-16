@@ -1,0 +1,174 @@
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-description-outcomes
+#| tbl-cap: "Structured description of outcome measures."
+#| html-table-processing: none
+
+library(dplyr)
+library(gt)
+
+df <- data.frame(
+  Group = c("BASELINE CHARACTERISTICS","BASELINE CHARACTERISTICS","BASELINE CHARACTERISTICS",
+    "BASELINE CHARACTERISTICS","BASELINE CHARACTERISTICS","BASELINE CHARACTERISTICS",
+    "BASELINE CHARACTERISTICS",
+    "PRIMARY OUTCOMES","PRIMARY OUTCOMES",
+    "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
+    "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
+    "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
+    "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
+    "ANCILLARY OUTCOMES","ANCILLARY OUTCOMES","ANCILLARY OUTCOMES","ANCILLARY OUTCOMES"),
+  Measure = c(
+    "Sample Specifications Questionnaire for the Participant",
+    "Sample Specifications Questionnaire for the Supervision Officer",
+    "Sample Specifications Questionnaire based on the Court File",
+    "Patient Health Questionnaire",
+    "Repeated Sample Specifications Questionnaire for the Supervision Officer",
+    "Revised Scale for Pedophilic Interests",
+    "ICD-11-Sexuality-Screener",
+
+    "Child Sexual Abuse Risk Evaluation Self-Report scale",
+    "Officially registered re-offenses",
+
+    "Corrections Victoria Treatment Readiness Questionnaire",
+    "Readiness to Change Questionnaire",
+    "Optimized Questionnaire for the Measurement of Psychological Reactance",
+    "Social Support Questionnaire",
+    "University of California Los Angeles Loneliness Scale",
+    "Difficulties in Emotion Regulation Scale—Sub-scale Impulsivity",
+    "Negative Affect Repair Questionnaire",
+    "Barratt Impulsiveness Scale-15",
+    "Coping Using Sex Inventory",
+    "Social Problem-Solving Inventory Revised",
+    "Bumby Molest Scale",
+    "Hypersexual Behavior Inventory-19",
+    "Specific self-efficacy for modifying Sexual Interest in Children",
+    "Sexual Outlet Inventory-Revised",
+    "Questionnaire on Emotional Congruence with Children-Revised",
+    "The Explicit Sexual Interest Questionnaire",
+    "Questionnaire of Subjective Therapy Preconditions",
+    "Questionnaire for Acceptance of Technology",
+    "WHO-5 Well-Being Index",
+    "Questionnaire of Non-Participation"
+  ),
+  Abbreviation = c(
+    "SSQ-P",
+    "SSQ-SO",
+    "SSQ-CF",
+    "PHQ-D",
+    "SSQ-rSO",
+    "SSPI-2",
+    "ICD-11-Screener",
+
+    "CARES",
+    "Official re-offences",
+    
+    "CVTRQ",
+    "RCQ",
+    "OQMPR",
+    "F-SozU",
+    "UCLA",
+    "DERS",
+    "NARQ",
+    "BIS-15",
+    "CUSI",
+    "SPSI-R",
+    "BMS",
+    "HBI-19",
+    "SSIC",
+    "SOI-R",
+    "EKK-R",
+    "ESIQ",
+    "SBV-R",
+    "ATQ",
+    "WHO-5",
+    "QNP"
+  ),
+  outcome_variable = c(
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Total score",
+    "",
+
+    "Total score",
+    "Frequency",
+    
+    "Total score",
+    "Total score",
+    "Total score",
+    "Total score",
+    "Total score",
+    "Subscale impulsivity",
+    "Subscale impulse control difficulties",
+    "Total score",
+    "Total score",
+    "Total score",
+    "Total score",
+    "Total score",
+    "Total score",
+    "Item 2a",
+    "Total score",
+    "Total score",
+    "Total score",
+    "Total score",
+    "Total score",
+    ""
+  ),
+  Description = c(
+    "The SSQ-P is a self developed online questionnaire asking the participants about their demographics, lifestyle, current and former therapeutic treatments and offending history.",
+    "The SSQ-SO is an online questionnaire for the SO concerning the current living condition, offending and clinical history, and index offense of the participant.",
+    "The SSQ-CF is a checklist for coding court files. Information from the court files is coded with the SSQ-CF by the study investigators to determine whether the participant meets the study inclusion criteria. This includes information on the probation period, index offense, and former offenses. In case that items of the SSQ-CF cannot be filled out adequately by utilizing court files, the participants was interviewed directly.",
+    "The PHQ-D [@graefeScreeningPsychischerStoerungen2004] is a screening tool for mental disorders. Classification of results generally takes place on a syndrome level. Syndromes examined are: Somatoform disorders, major depressive syndrome, other depressive syndrome, panic syndrome, other anxiety syndromes, eating disorder syndrome, alcohol abuse. Tests are scored using a stencil. Utilizing a sum score for each syndrome, conclusions pertaining to the severity of each syndrome can be drawn. The measure shows good to very good diagnostic validity, especially regarding panic disorder and major depression (45).",
+    "The SSQ-rSO is an online questionnaire asking the SO frequently about the participant’s conduct during probation period.",
+    "The SSPI-2 [@setoRevisedScreeningScale2017a] is a structured rating scale of assessing pedophilic interests based on the offending behavior. It comprises five items (number, age, gender, relationship of victims, and child pornography) and is significantly associated with phallometrically assessed sexual arousal to children. The SSPI-2 is derived from information of the participants as well as the SO.",
+    "The ICD-11-Sexuality-Screener [@screenerInstituteSexResearch2019] is a self-assessment procedure to ascertain indications for the presence of sexual dysfunction, gender dysphoria, or paraphilic disorder. However, the instrument is not suitable for diagnosis. It is assumed that the ICD-11-Sexuality-Screener can identify individuals who have the disorders described above. The ICD-11-Screener is not validated yet.",
+    "The CARES is a composite instrument integrating the CARES-A, which assesses acute dynamic risk factors, and the CARES-S, which measures stable dynamic risk factors [@sonjaetzlerDevelopmentInitialValidationsubmitted]. The CARES total score is calculated by summing the CARES-A and CARES-S total scores, producing a range from 0 to 102, with higher scores indicating greater severity of both acute and stable dynamic risk factors.\nThe CARES-A scale evaluates seven acute dynamic risk factors associated with sexual reoffending in individuals convicted of at least one (contact or non-contact) sexual offense against children: (1) Preoccupation with Potential Victims, (2) Hostility, (3) Hypersexuality, (4) Rejection of Control Measures, (5) Emotional Crisis, (6) Loss of Social Support, and (7) Substance Use. Comprising 21 items, the CARES-A yields scores from 0 to 42; higher scores denote more pronounced acute dynamic risk. Reliability coefficients for the CARES-A range from α = .79 to α = .83. Analyses of social desirability revealed no significant correlations between CARES-A scores and either the Exaggeration of Positive Qualities or Negative Qualities [@sonjaetzlerDevelopmentInitialValidationsubmitted].\nThe CARES-S scale assesses six stable dynamic predictors of sexual recidivism. It consists of 30 items covering: (1) Problematic Sexual Interests, (2) Problematic Emotion-Regulation, (3) Lack of Problem-Solving Skills, (4) Offense-Supportive Cognitions, and (5) Lack of Social Support. Five of these subscales correspond to empirically supported psychological risk factors for sexual recidivism [@mannAssessingRiskSexual2010; @setoEmpiricallybasedDynamicRisk2023]. The CARES-S total score ranges from 0 to 60; higher scores indicate stronger stable dynamic risk factors. The reduced CARES-S achieved an internal consistency of α = .53. As with the CARES-A, no significant correlations with social desirability measures were found in the evaluation study [@sonjaetzlerDevelopmentInitialValidationsubmitted].",
+    "Officially registered re-offenses will be assessed five years after last-patient-out (September 2030).",
+    "The Corrections Victoria Treatment Readiness Questionnaire [CVTRQ; (91)] is a self-report measure designed to assess treatment readiness in offenders who have been referred to a cognitive skills program. It comprises 20 items and consists of four scales: (1) Attitudes and motivation, (2) emotional reaction, (3) offending beliefs, and (4) efficacy. Each item has to be answered on a five-point Likert-scale. The CVTRQ shows an acceptable convergent validity, discriminant validity as well as predictive validity (91). To the best of our knowledge, there is no validated German version of the CVTRQ. @myTabu translated the CVTRQ. The translation was checked and translated back into English. Resulting differences due to adaptation were inspected and discussed in terms of item content.",
+    "The RCQ [@rollnickDevelopmentShortReadiness1992] is a 12 item questionnaire originally designed to identify the stage of change reached by individuals who excessively drink alcohol. The German version (RCQ-D)[@hannoverReadinessChangeQuestionnaire2002] was adapted within the project by changing the questions regarding drinking of alcohol in questions regarding CSA and CSEM offenses. Responses are made on a five-point Likert-scale. The RCQ-D as well as the RCQ shows good psychometric properties [@hannoverReadinessChangeQuestionnaire2002]. Psychometric properties of the version adapted for ISAC and ICCSEM are not available yet.",
+    "The QMPR [@merzQuestionnaireMeasurementPsychological1983] is a questionnaire for the assessment of psychological reactance defined as the theory that people resist attempts to constrain either their thoughts or their behaviors. The Optimized Questionnaire for the Measurement of Psychological Reactance (OQMPR)[@herzbergZurPsychometrischenOptimierung2002] is a German variant of the QMPR. The OQMPR consists of 12 statements on a five-point Likert-scale. It has a test-retest-reliability of rtt = 0.85 [@herzbergZurPsychometrischenOptimierung2002].",
+    "The seven-item short version of F-SozU is an efficient questionnaire to assess perceived social support [@dunkelEvaluationShortformSocial2005]. Each item comprises a five-point Likertscale. Internal consistency of the original long version showed Cronbach’s α between 0.81 and 0.93)[@fydrichFragebogenZurSozialen].",
+    "The UCLA [@russellUCLALonelinessScale1996] consists of 20 items in order to assess subjective feelings of loneliness. The German short version [@doringPsychometrischeEinsamkeitsforschungDeutsche1993] consists of 12 items on a four-point Likert-scale. A German study with CSA and CSEM offenders demonstrated a high reliability of α = 0.92. [@neutzeUndetectedDetectedChild2012]",
+    "The DERS [@gratzMultidimensionalAssessmentEmotion2004] is a self-report questionnaire to assess emotion dysregulation. The sub-scale “impulse control difficulties” is used as outcome measure and comprises five items on a five-point Likert-scale. The German version is used, which shows a good internal consistency, construct and predictive validity [@ehringCharacteristicsEmotionRegulation2008].",
+    "The NARQ [@schererNegativeAffectRepair2013] is a self-report questionnaire to assess strategies to regulate negative affect in a systematic manner. It consists of 17 items on a five-point Likert-scale and provides a good construct validity. Reliability scores (Cronbach’s α) for the three NARQ scales ranged between 0.71 and 0.80 [@schererNegativeAffectRepair2013].",
+    "The BIS [@pattonFactorStructureBarratt1995] is a questionnaire developed to assess the personality/behavioral construct of impulsiveness. It consists of 30 items on a four-point Likert-scale. The German short version BIS-15 [@meulePsychometrischeEvaluationDeutschen2011] consisting of 15 items is used in the clinical trial. The BIS-15 is an efficient measure of impulsiveness with good internal consistency of α = 0.81 [@meulePsychometrischeEvaluationDeutschen2011].",
+    "The CUSI [@cortoniSexCopingStrategy2001] is a questionnaire to assess the presence of and the degree to which sex was used to deal with problematic situations. It consists of 16 items on a fivepoint Likert-scale with a satisfying internal consistency [@cortoniSexCopingStrategy2001]. The translation was checked and translated back into English by the authors. Resulting differences due to adaptation were inspected and discussed in terms of item content.",
+    "The SPSI-R [@dzurillaSocialProblemSolving2004] is a self-report questionnaire for the assessment of the five dimensions in the social problem-solving model: (1) positive problem orientation, (2) negative problem orientation, (3) rational problem solving, (4) impulsivity/carelessness style, and (5) avoidance style. The SPSI-R consists of 52 items on a five-point Likert-scale. It shows good psychometric properties for individuals who have sexually offended [@wakelingPsychometricValidationSocial2007]. The validated German version is a short form consisting of 25 items [@grafPsychometrischeUeberpruefungDeutschsprachigen2003].",
+    "The BMS [@bumbyAssessingCognitiveDistortions] is a self-report questionnaire which assesses offense supportive cognitions of CSA or CSEM offenders (German Version: [@feelgoodKVMSkalaZurErfassung2009]). It consists of 38 items on a four-point Likert-scale. The German version shows good construct validity, internal consistency, and test-retest reliability [@feelgoodKVMSkalaZurErfassung2009].",
+    "Sexual preoccupation is assessed by the HBI-19 [@kleinValidierungsstudieDeutschenVersion2013]. The HBI-19 is a three-factor measure (coping, control, and consequences) developed to assess hypersexual behavior. The instrument consists of 19 items (e.g., 'I use sex to forget sorrows of everyday life.') answered on a scale from 1 (never) to 5 (very often). The maximum score is 95, with higher scores indicating a higher level of sexual preoccupation. The questionnaire was shown to have good reliability (α = 0.90) and validity [@kleinValidierungsstudieDeutschenVersion2013].",
+    "The SSIC [@tozdanSpezifischeSelbstwirksamkeitZur2015] comprises six items on the participant’s conviction regarding the ability to change their sexual interest in children (e.g., 'I can succeed in reducing my sexual interest in children') were answered on a scale from 1 (do not agree at all) to 5 (totally agree). The maximum score is 30, with higher scores indicating a higher level of selfefficacy. The instrument was shown to have good reliability (α = 0.87) and validity [@tozdanSpezifischeSelbstwirksamkeitZur2015].",
+    "The Item 2a of the SOI-R [@brikenSexualOutletInventory2010] which assesses the desire for sexual activity involving children on a visual analog scale from 0 (desire is absent) to 100 (I have to act to satisfy the desire). Higher values on the scale indicate a stronger sexual interest in children [@brikenSexualOutletInventory2010].",
+    "Emotional congruence with children is assessed by the EKK-R [@mackEmotionaleKongruenzMit2012] including three factors (special relationship to children, immaturity, and emotional closeness to children). Twenty items are answered on a four-point scale. The questionnaire demonstrated good reliability (α = 0.80) and validity [@mackEmotionaleKongruenzMit2012].",
+    "The ESIQ [@banseIndirectMeasuresSexual2010] directly assesses pedophilic interest. It consists of two scales measuring sexual behavior (20 items, e.g., 'I enjoyed orally stimulating a man.') and sexual fantasies (20 items, e.g., 'I find it attractive to imagine a little boy sexually stimulating me.'). All items are answered on a scale from 1 (totally disagree) to 5 (totally agree). The reliability of the instrument ranges between 0.86 and 0.97 [@banseIndirectMeasuresSexual2010].",
+    "The SBV-R [@endresFragebogenSubjektivenBehandlungsvoraussetzungen2010] measures the multidimensional construct of therapy and treatment preconditions in offenders. In this study, the only sub-scale used is “pressure of pain.” The pressure of pain is defined as an aversive state in which the person affected recognizes conflicts as lying within him or her [@dahleTherapiemotivationInhaftierterStraftaeter2003]. The eight items of this sub-scale are rated on a five-point scale. The internal consistency (Cronbach’s α) of the sub-scale pressure of pain is 0.75 [@endresFragebogenSubjektivenBehandlungsvoraussetzungen2010].",
+    "The ATQ is based on the Unified Theory of Acceptance and Use of Technology (UTAUT) which defines acceptance as behavioral intention of using a certain technology. According to the model, predictors of this intention are performance expectancy, effort expectancy, and social influence. Predictors of actual technology usage are facilitating conditions, such as organizational or technical preconditions [@venkateshUserAcceptanceInformation2003]. The ATQ comprises items which measure acceptance and the previously named predictors from the UTAUT model as well as additional items concerning following extended predictors: internet anxiety, attitude toward using technology, planning, and importance of monetary compensation. The items of the ATQ were either self-constructed or derived from questionnaires used in former studies and adapted if conceptually required [@zarskiTurningGoodIntentions2018; @apolinario-hagenDeterminantFactorsPublic2019; @baumeisterImpactAcceptanceFacilitating2015]. Internal consistency (Cronbach’s α) of the original scale ranges from 0.68 to 0.92. To control for effects of compensation, two items concerning importance of study compensation were self-constructed.",
+    "The WHO-5 [@bechMeasuringDimensionPsychological2004] is a questionnaire that measures current mental well-being with five items. The items are rated on a six-point Likert-scale ranging from 0 (at no time) to 5 (all of the time). The WHO-5 has shown good validity in measuring subjective well-being in clinical studies [@toppWHO5WellbeingIndex2015].",
+    "The Questionnaire of Non-Participation (QNP) was developed to assess reasons for not taking part in the study. It comprises eleven items on a six-point Likert-scale. Items are e.g., 'I will not take part in the study because I do not need any further help.' or 'I will not take part in the study because I am afraid of negative consequences if my SO gets additional information about me.' The QNP will only be administered if a potential participant will not take part in the study but has given informed consent to fill out this questionnaire."
+    )
+)
+
+tbl <- df %>%
+  gt(rowname_col = "Measure", groupname_col = "Group") %>%
+  cols_label(
+    Measure = "Outcome",
+    Abbreviation = "Abreviation",
+    outcome_variable = "Variable"
+
+  ) %>%
+  tab_options(
+    table.font.names = "Source Sans Pro",
+    table.font.size = 10,
+    quarto.use_bootstrap = FALSE,
+    quarto.disable_processing = TRUE,
+    data_row.padding = px(2),
+    column_labels.font.weight = "bold",
+    row_group.font.weight = "bold",
+    row_group.background.color = "#F0F0F0"
+  )
+
+tbl
+```
