@@ -3,7 +3,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-description-outcomes
-#| tbl-cap: "Structured description of outcome measures."
+#| tbl-cap: "Structured description of outcome measures.  The WHO-5 has not been mentioned in the SAP due to a mistake by the PI."
 #| html-table-processing: none
 
 library(dplyr)
@@ -18,7 +18,7 @@ df <- data.frame(
     "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
     "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
     "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
-    "ANCILLARY OUTCOMES","ANCILLARY OUTCOMES","ANCILLARY OUTCOMES","ANCILLARY OUTCOMES"),
+    "ANCILLARY OUTCOMES","ANCILLARY OUTCOMES","ANCILLARY OUTCOMES","ANCILLARY OUTCOMES", "ANCILLARY OUTCOMES", "ANCILLARY OUTCOMES"),
   Measure = c(
     "Sample Specifications Questionnaire for the Participant",
     "Sample Specifications Questionnaire for the Supervision Officer",
@@ -50,7 +50,9 @@ df <- data.frame(
     "Questionnaire of Subjective Therapy Preconditions",
     "Questionnaire for Acceptance of Technology",
     "WHO-5 Well-Being Index",
-    "Questionnaire of Non-Participation"
+    "Questionnaire of Non-Participation",
+    "Mood and Risk Questionnaire",
+    "Working Alliance Inventory-Short Revised"
   ),
   Abbreviation = c(
     "SSQ-P",
@@ -80,10 +82,13 @@ df <- data.frame(
     "SOI-R",
     "EKK-R",
     "ESIQ",
+
     "SBV-R",
     "ATQ",
     "WHO-5",
-    "QNP"
+    "QNP",
+    "MRQ",
+    "WAI-SR"
   ),
   outcome_variable = c(
     "",
@@ -116,17 +121,19 @@ df <- data.frame(
     "Total score",
     "Total score",
     "Total score",
-    ""
+    "",
+    "Frequencies of answers for all subscales",
+    "Total score"
   ),
   prespecified = c(
     "Yes","Yes","Yes","Yes","Yes","Yes","Yes",
     "Yes","Yes",
-    "Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes"
+    "Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes", "Yes", "Yes"
   ),
   in_sap = c(
     "No","No","No","Yes","No","Yes","No",
     "Yes","Yes",
-    "Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","No","No","No"
+    "Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","No","No","No", "No", "No"
   ),
   Description = c(
     "The SSQ-P is a self developed online questionnaire asking the participants about their demographics, lifestyle, current and former therapeutic treatments and offending history.",
@@ -157,7 +164,9 @@ df <- data.frame(
     "The SBV-R [@endresFragebogenSubjektivenBehandlungsvoraussetzungen2010] measures the multidimensional construct of therapy and treatment preconditions in offenders. In this study, the only sub-scale used is “pressure of pain.” The pressure of pain is defined as an aversive state in which the person affected recognizes conflicts as lying within him or her [@dahleTherapiemotivationInhaftierterStraftaeter2003]. The eight items of this sub-scale are rated on a five-point scale. The internal consistency (Cronbach’s α) of the sub-scale pressure of pain is 0.75 [@endresFragebogenSubjektivenBehandlungsvoraussetzungen2010].",
     "The ATQ is based on the Unified Theory of Acceptance and Use of Technology (UTAUT) which defines acceptance as behavioral intention of using a certain technology. According to the model, predictors of this intention are performance expectancy, effort expectancy, and social influence. Predictors of actual technology usage are facilitating conditions, such as organizational or technical preconditions [@venkateshUserAcceptanceInformation2003]. The ATQ comprises items which measure acceptance and the previously named predictors from the UTAUT model as well as additional items concerning following extended predictors: internet anxiety, attitude toward using technology, planning, and importance of monetary compensation. The items of the ATQ were either self-constructed or derived from questionnaires used in former studies and adapted if conceptually required [@zarskiTurningGoodIntentions2018; @apolinario-hagenDeterminantFactorsPublic2019; @baumeisterImpactAcceptanceFacilitating2015]. Internal consistency (Cronbach’s α) of the original scale ranges from 0.68 to 0.92. To control for effects of compensation, two items concerning importance of study compensation were self-constructed.",
     "The WHO-5 [@bechMeasuringDimensionPsychological2004] is a questionnaire that measures current mental well-being with five items. The items are rated on a six-point Likert-scale ranging from 0 (at no time) to 5 (all of the time). The WHO-5 has shown good validity in measuring subjective well-being in clinical studies [@toppWHO5WellbeingIndex2015].",
-    "The Questionnaire of Non-Participation (QNP) was developed to assess reasons for not taking part in the study. It comprises eleven items on a six-point Likert-scale. Items are e.g., 'I will not take part in the study because I do not need any further help.' or 'I will not take part in the study because I am afraid of negative consequences if my SO gets additional information about me.' The QNP will only be administered if a potential participant will not take part in the study but has given informed consent to fill out this questionnaire."
+    "The Questionnaire of Non-Participation (QNP) was developed to assess reasons for not taking part in the study. It comprises eleven items on a six-point Likert-scale. Items are e.g., 'I will not take part in the study because I do not need any further help.' or 'I will not take part in the study because I am afraid of negative consequences if my SO gets additional information about me.' The QNP will only be administered if a potential participant will not take part in the study but has given informed consent to fill out this questionnaire.",
+    "The MRQ consists of ten self-developed items, of which six are asking about thoughts and behaviors associated with potential re-offenses and four asking about the psychological and emotional state of the participant. The MRQ has been assessed before and after each session of the HBI. The MRQ differs between the items in the pre and post measurements: all items of the pre measurement refer explicitly to the time between finishing last post measurement and before starting the new session (time not working on the HBI). The post measurement explicitly asks for the time during working on the session.....",
+    "The WAI-SR [@wilmersDeutschsprachigeVersionWorking2008; @horvathDevelopmentWorkingAlliance1986] measures three dimensions of therapeutic alliance: (a) bond, (b) task, and (c) goal. For the purpose of this study, the original items of the German version [@wilmersDeutschsprachigeVersionWorking2008] were adapted to be suitable for a web-based intervention. The items have to be rated on a five-point Likertscale ranging from 1 (never) to 5 (always). It was adapted to suit to the online-coach as well as the SO resulting in 16 items. Internal consistency (Cronbach’s α) of the original questionnaire ranges from 0.82 to 0.90 [@wilmersDeutschsprachigeVersionWorking2008]."
     )
 )
 

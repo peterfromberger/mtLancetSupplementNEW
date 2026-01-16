@@ -41,7 +41,8 @@ df <- tribble(
   "ANCILLARY OUTCOMES",      "SBV-R",                  "",          "X",        "",          "",      "",       "",      "",       "X",     "",       "",      "",       "X",     "",       "",      "X",     "",
   "ANCILLARY OUTCOMES",      "ATQ",                    "X",         "",         "",          "",      "X",      "",      "",       "",      "",       "",      "X",      "",      "",       "",      "",      "",
   "ANCILLARY OUTCOMES",      "WHO-5",                  "",          "",         "",          "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",     "",
-  "ANCILLARY OUTCOMES",      "QNP",                    "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",      ""
+  "ANCILLARY OUTCOMES",      "QNP",                    "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",      "",
+  "ANCILLARY OUTCOMES",         "WAI-SR",                  "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",     "",
 )
 
 # GT-Tabelle erstellen
