@@ -118,6 +118,16 @@ df <- data.frame(
     "Total score",
     ""
   ),
+  prespecified = c(
+    "Yes","Yes","Yes","Yes","Yes","Yes","Yes",
+    "Yes","Yes",
+    "Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes"
+  ),
+  in_sap = c(
+    "No","No","No","Yes","No","Yes","No",
+    "Yes","Yes",
+    "Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","Yes","No","No","No","No"
+  ),
   Description = c(
     "The SSQ-P is a self developed online questionnaire asking the participants about their demographics, lifestyle, current and former therapeutic treatments and offending history.",
     "The SSQ-SO is an online questionnaire for the SO concerning the current living condition, offending and clinical history, and index offense of the participant.",
@@ -156,7 +166,9 @@ tbl <- df %>%
   cols_label(
     Measure = "Outcome",
     Abbreviation = "Abreviation",
-    outcome_variable = "Variable"
+    outcome_variable = "Variable",
+    prespecified = "Pre-specified",
+    in_sap = "In SAP"
 
   ) %>%
   tab_options(
