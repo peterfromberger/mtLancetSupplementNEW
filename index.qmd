@@ -1,15 +1,18 @@
 ---
+title: "Supplementary materials"
+
 lightbox: true
 
-tbl-prefix: "Table A"       # Prefix für alle Tabellen
-fig-prefix: "Figure A"
+
 
 format:
   html:
-    theme: [default, custom.scss]
-    number-sections: false
-    title-block-style: none
+    theme: default
+    #number-sections: false
+    #title-block-style: none
     #embed-resources: true
+    tbl-prefix: "Table A"       # Prefix für alle Tabellen
+    fig-prefix: "Figure A"
   docx: default
   pdf: default
 ---
@@ -20,16 +23,16 @@ format:
 #| warning: false
 #| label: r-init
 
-#library(here)
+library(here)
 
 # run SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha)
-#source(here::here("_scripts/Fromberger_SAP.R"))
+source(here::here("_scripts/Fromberger_SAP.R"))
 
 # run analysis for secondary endpoints from MBSB
 #source(here::here("_resources/MBSB/analysis_secondary_endpoints.R"))
 
 # run sensitivity analysis for main endpoint
-#source(here::here("_resources/MBSB/rbmi.R"))
+source(here::here("_scripts/rbmi.R"))
 
 # run script to remove outlier
 #source(here::here("_resources/MBSB/remove_outlier.R"))
@@ -54,21 +57,13 @@ format:
 # # load functions for mrq
 # source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/mrq_functions_prepluspost.R"))
 # source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/mrq_functions.R"))
-
-# # load functions for plots
-# source(here::here("                    _scripts/prim_plot_functions.R"))
 ```
 
-```{=html}
-<div class="header-line">
-  Effectiveness of a web-based intervention for individuals who committed sexual offenses against children: a concealed, prospective, parallel group, placebo-controlled, randomized trial in Germany.
-</div>
-
-<div class="supp-title">Supplementary material</div>
-```
-
-
-
+<!-- 
+##################
+# TRIAL registration
+##################
+-->
 ## Trial registry
 
 ```{=html}
@@ -78,76 +73,76 @@ format:
 </p>
 ```
 
-## Study protocol
+<!-- 
+##################
+# WBI description
+##################
+-->
+## The \\@myTabu framework
 
-```{=html}
-<p>
-    Please <a href="resources/myTabu_frontiers_study_protocol.pdf">click here to
-    download the PDF file.</a>
-</p>
-```
+{{< include _includes/apx_WBI_DESCRIPTION.qmd >}}
 
+<!-- 
+##################
+# OUTCOME measures
+##################
+-->
 ## Statistical analysis plan (SAP)
 
 ```{=html}
 <p>
-    Please <a href="href=resources/myTabu_SAP_signed.pdf">click here to
-    download the PDF file.</a>
+    Please <a href="href=resources/myTabu_SAP_signed.pdf">click here</a> to
+    download the PDF file.
 </p>
 ```
 
-## Method
+## Outcomes and measurement timepoints
 
-[Procedures]
-
-::: {.callout-important}
-Figure A1: Overview of the WBI + Riskfactors + Timing
-:::
-
-::: {.callout-important}
-Table A1: Content of the WBI
-:::
-{{< include _tables/tbl_module_content.qmd >}}
-
-::: {.callout-important}
-Figure A2: Features of the WBI
-:::
-
-Figure A 3
-
-![Action diagram for guided tasks. A very big animal the elephant is.](resources/figures/mtDiagrams-act_Guided_Task.png){#fig-act-guided-task width=100%}
-
-
-
-[Outcomes]
-
-Table A2
 {{< include _tables/tbl_measurement_timepoints.qmd >}}
 
-Table A3
 {{< include _tables/tbl_description_outcomes.qmd >}}
 
+<!-- 
+##################
+# RESULTS Section
+##################
+-->
+## Baseline characteristics
 
+{{< include _includes/apx_BASELINE_CHARACTERISTICS.qmd >}}
 
-## Action diagrams
+## Protocol deviations
 
-![Action diagram for guided tasks. A very big animal the elephant is.](resources/figures/mtDiagrams-act_Guided_Task.png){#fig-act-guided-task width=100%}
+{{< include _includes/apx_PROTOCOL_DEVIATIONS.qmd >}}
 
-![Action diagram for critical events. Frequency of recidivism or concrete preparations for recidivism as reported in in-app messages or during working on guided exercises have been assessed continuously. The diagram shows the actions taken to ensure the security of the society.](resources/figures/mtDiagrams-act_Critical_Event.png){#fig-act-guided-task width=100%}
+## Primary Outcomes
 
+{{< include _includes/apx_PRIMARY_OUTCOMES.qmd >}}
 
-### Description of the WBI
+## Secondary Outcomes
 
-The content of the intervention arm focused exclusively on psychological meaningful risk factors [@mannAssessingRiskSexual2010; @setoEmpiricallybasedDynamicRisk2023]. Already established therapeutic concepts from in-face community-based treatment programs for individuals who committed sexual offenses against children [@brikenPraeventionSexuellenKindesmissbrauchs2017; @wildPreventionSexualChild2020] as well as cognitive-behavioral treatment concepts [see @frombergerMyTabuAPlaceboControlled2021 for more details] have been adapted for online use. Both programs have been designed for CSA as well as CSAM offenders. Parts relevant to the meaningful risk factors of both in-face programs have been digitalized and parts on risk factors not supported by empirical evidence have been skipped in order to shorten the HBI. Virtual participants ccompanied the participant, narrate about their experiences, and make suggestions from the perspective of someone who is also affected (scored by professional actor). All modules within the intervention arm comprised techniques of motivational interviewing [@rollnickMotivationalInterviewingTreatment2015] to enhance or maintain the motivation of the participants. The WBI is designed for female as well as male participants, but due to a lack of knowledge with regard to specific risk factors for female sex offenders at development of the HBI, the content remains identical for women and men. In order to make the HBI suitable for female participants, the used language was adapted and one female virtual participant has been designed and integrated.
+{{< include _includes/apx_SECONDARY_OUTCOMES.qmd >}}
 
-To achieve a reduction in re-offenses, it seems to be most promising to target dynamic factors, which are changeable and strong associated with recidivism [@setoEmpiricallybasedDynamicRisk2023]. @mannAssessingRiskSexual2010 introduced the term meaningful psychological risk factors for sexual offending by identifying those risk factors in the literature, which are dynamic and therefore changeable by treatment and are empirically proved in enhancing the risk for recidivism. Recently, @setoEmpiricallybasedDynamicRisk2023 replicated the findings of Mann et al. and proofed the meaningful risk factors with a broader and more recent literature basis. Meaningful risk factors can be sorted into four risk domains, which are defined by concrete dynamic risk variables: (1) Atypical sexuality umfasst sexual preoccupation and paraphilic sexual interests; (2) Self-regulation problems, defined as impulsivity, lifestyle instability and emotion regulation deficits; (3) antisocial cognitions like offense-supportive attitudes and beliefs, hostile masculinity and non-compliance with interventions; and (4) relationship problems, defined as a low capacity for adult intimacy, existing emotional congruence with children, and negative social influences (see also @tbl-sec-outcomes). The emprirical basis for risk factors for CSAM-exclusive offences is not as broad as for sexual offending in the sense of in-person offences. @babchishinChildSexualExploitation2018 elaborated in their review risk factors for CSEM-exclusive offenders. Atypical sexual interests, sexual pre-occupation, sexual arousal, access to the internet and children, and distorted cognitions are assumed to play a key role in recidivism. Thus, there is a overlap between risk factors for CSA offenses and risk factors for CSAM offenses [@reichelReviewRiskFactors2024]. But it is assumed, that e.g. the content of offense-supportive attitudes differs from the content of offense-supportive attitudes for mixed offenders or CSA-exclusive offenders. Access to children or the internet is a so-called facilitating factor in the sense of the Motivation-Facilitation Model of sexual offending and therefore only indirect changeable by treatment [@setoMotivationFacilitationModelSexual2019]. Some of the dynamic risk assessment tools developed for hands-on and mixed offenders seems to be also valid for CSAM-exclusive offenders, also highlighting the overlap of risk factors [@babchishinACUTE2007STABLE2007Predict2023]. On the other side, forementioned small treatment effects for CSAM-exclusive offenders may reflect the fact, that some specific risk variables are not considered in an sufficient amount in current prevention programs.
+## Harms
 
-Two main theoretical frameworks behind treatment programs can be identified: the RNR framework and the GLM framework \[LIT\]. Both frameworks address the same risk factors but with different therapeutical haltungen as well as different techniques (e.g. DBT elements, etc.) and from a practioniar point of view, most programs seems to be eklektik....The same seems to be true for treatment programs for CSA and CSAM: slightly different contents but all treatment programs addressing the same risk factors.....
+{{< include _includes/apx_HARMS.qmd >}}
 
-----> basicData == Need-Principle! ---> Module 5 == Need-Principle]
+## Ancillary Outcomes
 
-Tabelle: Content of WBI intervention arm and placebo arm on module level
+{{< include _includes/apx_ANCILLARY_OUTCOMES.qmd >}}
 
+<!-- 
+##################
+# CONSORT flowchart
+##################
+-->
+## CONSORT flowchart
+
+<!-- 
+##################
+# SUPP References
+##################
+-->
 ## References
 
 ::: {#refs}

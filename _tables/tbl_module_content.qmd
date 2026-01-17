@@ -7,53 +7,30 @@
 #| tbl-cap: "Detailed description of the WBI content."
 #| html-table-processing: none
 #| 
-
 library(here)
 library(gt)
 library(readr)
 library(dplyr)
 
-# Set the path to your CSV files
-# Adjust these paths according to your actual file locations
-wide_csv_path <- "_data/WBI_CONTENT/CONTENT_INTERVENTION_SUMMARIES/summaries_wide_gt_INTERVENTION.csv"
-summary_csv_path <- "summaries_hierarchical/summaries_wide_summary_INTERVENTION.csv"
+# Intervention
+wide_csv_path <- "_data/WBI_CONTENT/CONTENT_INTERVENTION_SUMMARIZED/summaries_wide_gt.csv"
+summary_csv_path <- "_data/WBI_CONTENT/CONTENT_INTERVENTION_SUMMARIZED/summaries_wide_summary.csv"
+intervention_all <- read_csv(summary_csv_path) %>% filter(is.na(lection_rank) & is.na(session_nr)) %>% select(module_nr, summary)
 
-# Read the wide CSV file
-intervention_all <- read_csv(wide_csv_path)
+# Placebo
+wide_csv_path <- "_data/WBI_CONTENT/CONTENT_PLACEBO_SUMMARIZED/summaries_wide_gt.csv"
+summary_csv_path <- "_data/WBI_CONTENT/CONTENT_PLACEBO_SUMMARIZED/summaries_wide_summary.csv"
+placebo_all <- read_csv(summary_csv_path) %>% filter(is.na(lection_rank) & is.na(session_nr)) %>% select(module_nr, summary)
 
-wide_table <- intervention_all %>%
-  gt() %>%
-  tab_header(
-    title = "Wide Format Summary Data",
-    subtitle = "Module, Session, and Lection Summaries"
-  ) %>%
+tbl_dat <- intervention_all %>%
+  left_join(placebo_all, by = c("module_nr" = "module_nr"))
+
+tbl <- gt(tbl_dat) %>%
+  fmt_markdown(columns = vars(everything())) %>%
   cols_label(
     module_nr = "Module Number",
-    session_nr = "Session Number", 
-    lection_rank = "Lection Rank",
-    lection_summary = "Lection Summary",
-    session_summary = "Session Summary",
-    module_summary = "Module Summary"
-  ) %>%
-  fmt_missing(columns = everything(), missing_text = "N/A") %>%
-  # Add styling for publication readiness
-  tab_style(
-    style = list(
-      cell_text(weight = "bold"),
-      cell_borders(sides = "bottom", weight = 2)
-    ),
-    locations = list(
-      cells_column_labels(columns = everything())
-    )
-  ) %>%
-  tab_style(
-    style = list(
-      cell_text(size = 10),
-      cell_borders(sides = "all", weight = 1)
-    ),
-    locations = list(
-      cells_body(columns = everything())
-    )
+    summary.x = "Intervention",
+    summary.y = "Placebo"
   ) %>%
   # Set table width to fit page
   tab_options(
@@ -62,6 +39,8 @@ wide_table <- intervention_all %>%
     heading.title.font.size = 12,
     heading.subtitle.font.size = 10
   )
+
+tbl
 ```
 
 
@@ -74,7 +53,7 @@ wide_table <- intervention_all %>%
 #| message: false
 #| warning: false
 #| label: tbl-module-description-from-frontiers
-#| tbl-cap: "Detailed description of the WBI content."
+#| tbl-cap: "Description of psychotherapeutic techniques."
 #| html-table-processing: none
 
 # install.packages("gt")   # Uncomment if gt is not installed

@@ -19,41 +19,6 @@ df <- data.frame(
     "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
     "SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES","SECONDARY OUTCOMES",
     "ANCILLARY OUTCOMES","ANCILLARY OUTCOMES","ANCILLARY OUTCOMES","ANCILLARY OUTCOMES", "ANCILLARY OUTCOMES", "ANCILLARY OUTCOMES"),
-  Measure = c(
-    "Sample Specifications Questionnaire for the Participant",
-    "Sample Specifications Questionnaire for the Supervision Officer",
-    "Sample Specifications Questionnaire based on the Court File",
-    "Patient Health Questionnaire",
-    "Repeated Sample Specifications Questionnaire for the Supervision Officer",
-    "Revised Scale for Pedophilic Interests",
-    "ICD-11-Sexuality-Screener",
-
-    "Child Sexual Abuse Risk Evaluation Self-Report scale",
-    "Officially registered re-offenses",
-
-    "Corrections Victoria Treatment Readiness Questionnaire",
-    "Readiness to Change Questionnaire",
-    "Optimized Questionnaire for the Measurement of Psychological Reactance",
-    "Social Support Questionnaire",
-    "University of California Los Angeles Loneliness Scale",
-    "Difficulties in Emotion Regulation Scale—Sub-scale Impulsivity",
-    "Negative Affect Repair Questionnaire",
-    "Barratt Impulsiveness Scale-15",
-    "Coping Using Sex Inventory",
-    "Social Problem-Solving Inventory Revised",
-    "Bumby Molest Scale",
-    "Hypersexual Behavior Inventory-19",
-    "Specific self-efficacy for modifying Sexual Interest in Children",
-    "Sexual Outlet Inventory-Revised",
-    "Questionnaire on Emotional Congruence with Children-Revised",
-    "The Explicit Sexual Interest Questionnaire",
-    "Questionnaire of Subjective Therapy Preconditions",
-    "Questionnaire for Acceptance of Technology",
-    "WHO-5 Well-Being Index",
-    "Questionnaire of Non-Participation",
-    "Mood and Risk Questionnaire",
-    "Working Alliance Inventory-Short Revised"
-  ),
   Abbreviation = c(
     "SSQ-P",
     "SSQ-SO",
@@ -89,6 +54,41 @@ df <- data.frame(
     "QNP",
     "MRQ",
     "WAI-SR"
+  ),
+  Measure = c(
+    "Sample Specifications Questionnaire for the Participant",
+    "Sample Specifications Questionnaire for the Supervision Officer",
+    "Sample Specifications Questionnaire based on the Court File",
+    "Patient Health Questionnaire",
+    "Repeated Sample Specifications Questionnaire for the Supervision Officer",
+    "Revised Scale for Pedophilic Interests",
+    "ICD-11-Sexuality-Screener",
+
+    "Child Sexual Abuse Risk Evaluation Self-Report scale",
+    "Officially registered re-offenses",
+
+    "Corrections Victoria Treatment Readiness Questionnaire",
+    "Readiness to Change Questionnaire",
+    "Optimized Questionnaire for the Measurement of Psychological Reactance",
+    "Social Support Questionnaire",
+    "University of California Los Angeles Loneliness Scale",
+    "Difficulties in Emotion Regulation Scale—Sub-scale Impulsivity",
+    "Negative Affect Repair Questionnaire",
+    "Barratt Impulsiveness Scale-15",
+    "Coping Using Sex Inventory",
+    "Social Problem-Solving Inventory Revised",
+    "Bumby Molest Scale",
+    "Hypersexual Behavior Inventory-19",
+    "Specific self-efficacy for modifying Sexual Interest in Children",
+    "Sexual Outlet Inventory-Revised",
+    "Questionnaire on Emotional Congruence with Children-Revised",
+    "The Explicit Sexual Interest Questionnaire",
+    "Questionnaire of Subjective Therapy Preconditions",
+    "Questionnaire for Acceptance of Technology",
+    "WHO-5 Well-Being Index",
+    "Questionnaire of Non-Participation",
+    "Mood and Risk Questionnaire",
+    "Working Alliance Inventory-Short Revised"
   ),
   outcome_variable = c(
     "",
@@ -173,18 +173,17 @@ df <- data.frame(
 tbl <- df %>%
   gt(rowname_col = "Measure", groupname_col = "Group") %>%
   cols_label(
+    Abbreviation = "Outcome",
     Measure = "Outcome",
-    Abbreviation = "Abreviation",
-    outcome_variable = "Variable",
-    prespecified = "Pre-specified",
-    in_sap = "In SAP"
+    outcome_variable = "Outcome variable",
+    prespecified = "Usage prespecified",
+    in_sap = "Statistical analyisis prespecified"
 
   ) %>%
   tab_options(
     table.font.names = "Source Sans Pro",
     table.font.size = 10,
     quarto.use_bootstrap = FALSE,
-    quarto.disable_processing = TRUE,
     data_row.padding = px(2),
     column_labels.font.weight = "bold",
     row_group.font.weight = "bold",

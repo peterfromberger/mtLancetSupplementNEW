@@ -14,6 +14,9 @@ library(flextable)
 library(stringr)
 library(gtsummary)
 
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
 # read in data
 data <- readRDS(here::here("_data/finalData/randomizedMaster.Rds"))
 
@@ -153,10 +156,23 @@ tbl_eq_short <- tmp %>%
   italicize_labels() %>%
   add_overall() %>%
   add_p() %>%
-  add_q()
+  add_q() %>%
+  as_gt() %>%
+  gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = gt::px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
 
-gt::gtsave(as_gt(tbl_eq), file = file.path(here::here("paper/clinical_trial_LancetDigitalHealth/tables/tbl-exclusion-reasons-itt.png")))
-gt::gtsave(as_gt(tbl_eq_short), file = file.path(here::here("paper/clinical_trial_LancetDigitalHealth/tables/tbl-exclusion-reasons-itt-short.png")))
+gt::gtsave(tbl_eq, file = file.path(here::here("paper/clinical_trial_LancetDigitalHealth/tables/tbl-exclusion-reasons-itt.png")))
+gt::gtsave(tbl_eq_short, file = file.path(here::here("paper/clinical_trial_LancetDigitalHealth/tables/tbl-exclusion-reasons-itt-short.png")))
 
 tbl_eq
 ```

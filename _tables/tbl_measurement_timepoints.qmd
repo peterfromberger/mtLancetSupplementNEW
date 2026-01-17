@@ -67,18 +67,24 @@ tbl <- df %>%
     FollowUp = "Follow-Up"
   ) %>%
   tab_options(
-    table.font.names = "Source Sans Pro",
-    table.font.size = 16,
+    #table.font.names = "Source Sans Pro",
+    table.font.size = 12,
     quarto.use_bootstrap = FALSE,
     quarto.disable_processing = TRUE,
-    data_row.padding = px(2),
+    data_row.padding = gt::px(2),
+    summary_row.padding = gt::px(2),
+    grand_summary_row.padding = gt::px(2),
+    #footnotes.padding = gt::px(2),
+    #source_notes.padding = gt::px(2),
+    row_group.padding = gt::px(2),
     column_labels.font.weight = "bold",
-    row_group.font.weight = "bold",
-    row_group.background.color = "#F0F0F0"
+    row_group.font.weight = "bold"
+    #row_group.background.color = "#F0F0F0"
   )
 
 # save
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-measurement-timepoints.png")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-measurement-timepoints.pdf")))
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-measurement-timepoints.docx")))
 
 # Ausgabe
