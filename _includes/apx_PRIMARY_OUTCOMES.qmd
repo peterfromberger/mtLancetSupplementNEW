@@ -12,7 +12,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-prim-cares-mmrm-time-since-baseline
-#| tbl-cap: "Explorative MMRM for CARES total score with the covariable time since beginning of the first module. Additionally to the strata the time difference between the baseline measure and the respective consecutive timepoints is added as covariable to the MMRM. StGB = German penalty law."
+#| tbl-cap: "Explorative MMRM for CARES total score with the covariable time since beginning of the first module. Time since beginning of the first module is defined as the time between the Baseline measurement and the respective consecutive measurement timepoint. Static recidivism risk was assessed with the modified Static-99 [LIT]. Additional treatment refers to community supervision as usual including in-face psychotherapeutical and/or medical treatment. Hands-on offence is defined as at least one convictione .... StGB = German penalty law."
 #| html-table-processing: none
 
 library(gtsummary)
@@ -34,7 +34,7 @@ tbl <- fit2_c %>%
         Zeit_seit_Beginn_Modul_1_in_Jahren = "Time since baseline (years)",
         treatment = "Treatment",
         timepoint = "Timepoint",
-        `Timepoint * treatment` = "Timepoint * Treatment"
+        `Timepoint * treatment` = "Timepoint * treatment"
       )
     ) %>%
     modify_header(label ~ "**Variable**") %>%
@@ -246,7 +246,7 @@ tbl
 ```
 
 <!-- ESTIMATED MARGINAL MEANS -->
-![Estimated marginal means of the MMRM for the IoD total score. The pre-specified MMRM considers all strata as covariables.](_figures/fig-iod-estimated-marginal-means.png){#fig-iod-rainplot width=100%}
+![Estimated marginal means of the MMRM for the IoD total score. The pre-specified MMRM considers all strata as well as the baseline value of the IoD total score as covariables.](_figures/fig-iod-estimated-marginal-means.png){#fig-iod-rainplot width=100%}
 
 <!-- MMRM: TIME SINCE BASELINE -->
 ```{r}

@@ -24,18 +24,19 @@ format:
 #| label: r-init
 
 library(here)
+library(glue)
 
-# run SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha)
+# SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): primary outcomes
 source(here::here("_scripts/Fromberger_SAP.R"))
 
-# run analysis for secondary endpoints from MBSB
-#source(here::here("_resources/MBSB/analysis_secondary_endpoints.R"))
+# SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): secodary outcomes
+source(here::here("_scripts/analysis_secondary_endpoints.R"))
 
-# run sensitivity analysis for main endpoint
+# SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): sensitivity analysis for primary outcomes
 source(here::here("_scripts/rbmi.R"))
 
-# run script to remove outlier
-#source(here::here("_resources/MBSB/remove_outlier.R"))
+# SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): remove outlier
+source(here::here("_scripts/remove_outlier.R"))
 
 # load function to create tbl_mmrm
 # source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/prim_mmrm_functions.R"))
@@ -113,7 +114,7 @@ source(here::here("_scripts/rbmi.R"))
 
 ## Protocol deviations
 
-{{< include _includes/apx_PROTOCOL_DEVIATIONS.qmd >}}
+<!-- {{< include _includes/apx_PROTOCOL_DEVIATIONS.qmd >}} -->
 
 ## Primary Outcomes
 
@@ -133,10 +134,110 @@ source(here::here("_scripts/rbmi.R"))
 
 <!-- 
 ##################
-# CONSORT flowchart
+# CONSORT checklist
 ##################
 -->
-## CONSORT flowchart
+## CONSORT checklist
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-consort-checklist
+#| tbl-cap: "CONSORT 2025 expanded checklist [@hopewellCONSORT2025Statement2025]. The table shows all important information for a randomized clinical trial which should be mentioned in the report. The column Page shows the page number where the information can be found in the manuscript."
+
+library(gt)
+library(tibble)
+library(dplyr)
+
+consort_data <- tibble::tribble(
+  ~Section, ~Subsection, ~Number, ~Description, ~Page,
+  # Title and abstract
+  "Title and abstract", NA, NA, NA, NA,
+  NA, "Title and structured abstract", "1a", "Identification as a randomised trial", "",
+  NA, "", "1b", "Structured summary of the trial design, methods, results, and conclusions", "",
+  # Open science
+  "Open science", NA, NA, NA, NA,
+  NA, "Trial registration", "2", "Name of trial registry, identifying number (with URL) and date of registration", "",
+  NA, "Protocol and statistical analysis plan", "3", "Where the trial protocol and statistical analysis plan can be accessed", "",
+  NA, "Data sharing", "4", "Where and how the individual de-identified participant data (including data dictionary), statistical code, and any other materials can be accessed", "",
+  NA, "Funding and conflicts of interest", "5a", "Sources of funding and other support (eg, supply of drugs), and role of funders in the design, conduct, analysis, and reporting of the trial", "",
+  NA, "", "5b", "Financial and other conflicts of interest of the manuscript authors", "",
+  # Introduction
+  "Introduction", NA, NA, NA, NA,
+  NA, "Background and rationale", "6", "Scientific background and rationale", "",
+  NA, "Objectives", "7", "Specific objectives related to benefits and harms", "",
+  # Methods
+  "Methods", NA, NA, NA, NA,
+  NA, "Patient and public involvement", "8", "Details of patient or public involvement in the design, conduct, and reporting of the trial", "",
+  NA, "Trial design", "9", "Description of trial design including type of trial (eg, parallel group, crossover), allocation ratio, and framework (eg, superiority, equivalence, non-inferiority, or exploratory)", "",
+  NA, "Changes to trial protocol", "10", "Important changes to the trial after it commenced including any outcomes or analyses that were not prespecified, with reason", "",
+  NA, "Trial setting", "11", "Settings (eg, community, hospital) and locations (eg, countries, sites) where the trial was conducted", "",
+  NA, "Eligibility criteria", "12a", "Eligibility criteria for participants", "",
+  NA, "", "12b", "If applicable, eligibility criteria for sites and for individuals delivering the interventions (eg, surgeons, physiotherapists)", "",
+  NA, "Intervention and comparator", "13", "Intervention and comparator with sufficient details to allow replication. If relevant, where additional materials describing the intervention and comparator (eg, intervention manual) can be accessed", "",
+  NA, "Outcomes", "14", "Prespecified primary and secondary outcomes, including the specific measurement variable (eg, systolic blood pressure), analysis metric (eg, change from baseline, final value, time to event), method of aggregation (eg, median, proportion), and timepoint for each outcome", "",
+  NA, "Harms", "15", "How harms were defined and assessed (eg, systematically, non-systematically)", "",
+  NA, "Sample size", "16a", "How sample size was determined, including all assumptions supporting the sample size calculation", "",
+  NA, "", "16b", "Explanation of any interim analyses and stopping guidelines", "",
+  # Randomisation
+  "Randomisation", NA, NA, NA, NA,
+  NA, "Sequence generation", "17a", "Who generated the random allocation sequence and the method used", "",
+  NA, "", "17b", "Type of randomisation and details of any restriction (eg, stratification, blocking and block size)", "",
+  NA, "Allocation concealment mechanism", "18", "Mechanism used to implement the random allocation sequence (eg, central computer/telephone; sequentially numbered, opaque, sealed containers), describing any steps to conceal the sequence until interventions were assigned", "",
+  NA, "Implementation", "19", "Whether the personnel who enrolled and those who assigned participants to the interventions had access to the random allocation sequence", "",
+  NA, "Blinding", "20a", "Who was blinded after assignment to interventions (eg, participants, care providers, outcome assessors, data analysts)", "",
+  NA, "", "20b", "If blinded, how blinding was achieved and description of the similarity of interventions", "",
+  NA, "Statistical methods", "21a", "Statistical methods used to compare groups for primary and secondary outcomes, including harms", "",
+  NA, "", "21b", "Definition of who is included in each analysis (eg, all randomised participants), and in which group", "",
+  NA, "", "21c", "How missing data were handled in the analysis", "",
+  NA, "", "21d", "Methods for any additional analyses (eg, subgroup and sensitivity analyses), distinguishing prespecified from post hoc", "",
+  # Results
+  "Results", NA, NA, NA, NA,
+  NA, "Participant flow, including flow diagram", "22a", "For each group, the numbers of participants who were randomly assigned, received intended intervention, and were analysed for the primary outcome", "",
+  NA, "", "22b", "For each group, losses and exclusions after randomisation, together with reasons", "",
+  NA, "Recruitment", "23a", "Dates defining the periods of recruitment and follow-up for outcomes of benefits and harms", "",
+  NA, "", "23b", "If relevant, why the trial ended or was stopped", "",
+  NA, "Intervention and comparator delivery", "24a", "Intervention and comparator as they were actually administered (eg, where appropriate, who delivered the intervention/comparator, how participants adhered, whether they were delivered as intended [fidelity])", "",
+  NA, "", "24b", "Concomitant care received during the trial for each group", "",
+  NA, "Baseline data", "25", "A table showing baseline demographic and clinical characteristics for each group", "",
+  NA, "Numbers analysed, outcomes and estimation", "26", "For each primary and secondary outcome, by group: •the number of participants included in the analysis •the number of participants with available data at the outcome timepoint •result for each group, and the estimated effect size and its precision (such as 95% confidence interval) •for binary outcomes, presentation of both absolute and relative effect size", "",
+  NA, "Harms", "27", "All harms or unintended events in each group", "",
+  NA, "Ancillary analyses", "28", "Any other analyses performed, including subgroup and sensitivity analyses, distinguishing prespecified from post hoc", "",
+  # Discussion
+  "Discussion", NA, NA, NA, NA,
+  NA, "Interpretation", "29", "Interpretation consistent with results, balancing benefits and harms, and considering other relevant evidence", "",
+  NA, "Limitations", "30", "Trial limitations, addressing sources of potential bias, imprecision, generalisability, and, if relevant, multiplicity of analyses", ""
+)
+
+# Markiere die Überschriften-Zeilen (wo Section nicht NA)
+header_rows <- which(!is.na(consort_data$Section))
+# gt bauen
+consort_data %>%
+  gt() %>%
+    tab_header(
+    title = "CONSORT 2025 checklist"
+  ) %>%
+  cols_label(
+    Subsection = "",
+    Section = "",
+    Number = "Number",
+    Page = "Page"
+  ) %>%
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_body(rows = header_rows)
+  ) %>%
+  fmt_missing(
+    columns = everything(), # NA überall durch "" ersetzen
+    missing_text = ""
+  ) %>%
+  gt::  tab_source_note(
+    source_note = md(
+      "Source: @hopewellCONSORT2025Statement2025."
+    )
+  )
+```
 
 <!-- 
 ##################

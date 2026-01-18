@@ -1,0 +1,525 @@
+### Mood and Risk Questionnaire (MRQ)
+
+<!-- MRQ Post-->
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-mrq-frequency-highest-value-post
+#| tbl-cap: "Frequencies of adverse events during working on the WBI. For each participant, we identified whether they reported the highest possible score for each one-item self-rport scale of the Mood and Risk Questionnaire (MRQ; 'Often' for items 1–8, 'Strongly agree' for item 9, or 'Very bad' for item 10) at least once during the post-intervention assessment. These binary indicators were then used to calculate frequencies and percentages across treatment groups. The MRQ post questionnaire explicitly asks for the time during working on the WBI, whereas the MRQ pre questionnaire eclusiviely asks for the last week before measurement timepoint. Please note, that the occurence of a report of the highest possible score was defined as adverse event post-hoc."
+#| html-table-processing: none
+
+library(gtsummary)
+library(gt)
+library(dplyr)
+library(tidyr)
+library(glue)
+library(stringr)
+
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
+cramers_v <- function(tab) {
+  chi2 <- suppressWarnings(chisq.test(tab, correct = FALSE)$statistic)
+  n <- sum(tab)
+  min_dim <- min(dim(tab)) - 1
+  v <- sqrt(chi2 / (n * min_dim))
+  return(as.numeric(v))
+}
+
+fishers_test <- function(data, variable, by, ...) {
+
+  # Kreuztabelle erzeugen
+  tab <- table(data[[by]], data[[variable]])
+
+  # Fisher's Exact Test
+  fl <- stats::fisher.test(tab)
+
+  # 2×2: Odds Ratio + CI, sonst Cramér's V
+
+  estimate <- cramers_v(tab)
+
+  # Ergebnis als data.frame zurück für gtsummary
+  df <- data.frame(
+    estimate = estimate,
+    p.value = fl$p.value
+  )
+
+  return(df)
+}
+
+get_mrq_data <- function() {
+
+  make_timepoint <- function(df) {
+    df %>%
+      mutate(
+        timepoint = case_when(
+          current_module_nr == 0 & current_session_nr == 0 ~ "Baseline",
+          TRUE ~ glue("Module {current_module_nr}-Sitzung {current_session_nr}")
+        )
+      )
+  }
+
+  factor_flashlight <- function(df, prefix) {
+
+    df %>%
+      mutate(
+        across(
+          all_of(paste0(prefix, "_", 1:8)),
+          ~ factor(.x, levels = c(0, 1, 2),
+                   labels = c("No", "Sometimes", "Often"))
+        ),
+        !!paste0(prefix, "_9") := factor(
+          .data[[paste0(prefix, "_9")]],
+          levels = 1:5,
+          labels = c("Strongly disagree", "Disagree",
+                     "Partly agree", "Agree", "Strongly agree")
+        ),
+        !!paste0(prefix, "_10") := factor(
+          .data[[paste0(prefix, "_10")]],
+          levels = 1:6,
+          labels = c("Very good", "Good", "Rather good",
+                     "Rather bad", "Bad", "Very bad")
+        )
+      )
+  }
+
+  read_flashlight <- function(file, prefix, q_type) {
+    readRDS(file) %>%
+      as_tibble() %>%
+      make_timepoint() %>%
+      factor_flashlight(prefix) %>%
+      select(client_id, timepoint, starts_with(prefix)) %>%
+      pivot_longer(
+        cols = starts_with(prefix),
+        names_to = "item",
+        values_to = "value"
+      ) %>%
+      mutate(
+        q_type = q_type,
+        item = str_replace(item, paste0(prefix, "_"), "flashlight_")
+      )
+  }
+
+  fl_pre <- read_flashlight(
+    file = file.path(exportDirmyTabu, "questionnaires_api_flashlightpre.rds"),
+    prefix = "flashlight_pre",
+    q_type = "pre"
+  )
+
+  fl_post <- read_flashlight(
+    file = file.path(exportDirmyTabu, "questionnaires_api_flashlightpost.rds"),
+    prefix = "flashlight_post",
+    q_type = "post"
+  )
+
+  fl <- bind_rows(fl_pre, fl_post) %>%
+    pivot_wider(
+      id_cols = c(client_id, timepoint, q_type),
+      names_from = item,
+      values_from = value
+    ) %>%
+    arrange(client_id, timepoint, q_type)
+
+  return(fl)
+}
+
+dat_mrq <- get_mrq_data()
+
+mrq_at_least_one_highest_score <- dat_mrq %>%
+  mutate(
+    across(starts_with("flashlight_"), ~ factor(.x, ordered = TRUE))
+  ) %>%
+  group_by(client_id, q_type) %>%
+  summarise(
+    # Item 1 bis 8: höchste Antwort = "Often"
+    flashlight_1_max_once = any(flashlight_1 == "Often"),
+    flashlight_2_max_once = any(flashlight_2 == "Often"),
+    flashlight_3_max_once = any(flashlight_3 == "Often"),
+    flashlight_4_max_once = any(flashlight_4 == "Often"),
+    flashlight_5_max_once = any(flashlight_5 == "Often"),
+    flashlight_6_max_once = any(flashlight_6 == "Often"),
+    flashlight_7_max_once = any(flashlight_7 == "Often"),
+    flashlight_8_max_once = any(flashlight_8 == "Often"),
+
+    # Item 9: höchste Antwort = "Strongly agree"
+    flashlight_9_max_once = any(flashlight_9 == "Strongly agree"),
+
+    # Item 10: extrem niedrig = "Very bad" (also extrem negativ, aber relevant)
+    flashlight_10_max_once = any(flashlight_10 == "Very bad"),
+
+    .groups = "drop"
+  )
+
+dat_clean_tmp_unique <- dat_clean %>%
+  dplyr::select(client_id, treatment, static99_modified_calc, "Indexdelikt", "Aktuelle_Betreuung", "Aktuelle_zusatzliche_Behandlung") %>%
+  group_by(client_id) %>%
+  slice_max(order_by = row_number(), n = 1) %>%  # oder slice_min(), je nach Bedarf
+  ungroup()
+
+mrq_at_least_one_highest_score_group <- mrq_at_least_one_highest_score %>%
+    mutate(
+        client_id = factor(client_id)
+    ) %>%
+    right_join(dat_clean_tmp_unique, by=c("client_id"))
+
+# Dann tbl_summary mit diesen umkodierten Spalten
+tbl <- mrq_at_least_one_highest_score_group %>%
+    filter(q_type == "post") %>%
+    tbl_summary(
+        by = treatment,
+        include = starts_with("flashlight_"),
+        #type = everything() ~ "categorical",
+        label = list(
+            flashlight_1_max_once ~ "...have you thought about how to best make contact with a child? (Contact planning)",
+            flashlight_2_max_once ~ "...have you made preparations to be able to make contact with a child? (Contact preparation)",
+            flashlight_3_max_once ~ "...have you felt that you must commit a sexual act with a child? (Urge for CSA)",
+            flashlight_4_max_once ~ "...have you felt that you might soon (again) watch child sexual abuse material? (Urge for CSAM)",
+            flashlight_5_max_once ~ "...have you felt that sexual tension has built up within you? (Sexual tension)",
+            flashlight_6_max_once ~ "...have you felt that it is difficult for you to control your sexual thoughts and activities? (Control of sexual thoughts and activity)",
+            flashlight_7_max_once ~ "...have you felt that you can no longer endure burdens? (Unable to cope with the mental burden)",
+            flashlight_8_max_once ~ "...have you thought about taking your own life? (Suicidal ideations)",
+            flashlight_9_max_once ~ "At present, I feel that my behavior and experience are impaired due to mental problems. (Mental crisis)",
+            flashlight_10_max_once ~ "How do you feel at the moment? (Very bad current mood)"
+        ),
+        missing = "no"
+    ) %>%
+    add_stat(fns = everything() ~ fishers_test) %>%
+    add_q(method = "holm") %>%
+    modify_header(
+        label = "**MRQ subscale**",
+        estimate = "**Effect size**",
+        p.value = "**p-value**"
+    ) %>%
+    add_q(method = "holm") %>%
+    add_overall() %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.png")))
+
+tbl
+```
+
+<!-- MRQ Post-->
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-mrq-frequency-highest-value-pre
+#| tbl-cap: "Frequencies of adverse events between working on sessions of the WBI. Adverse events have been assessed with the The Mood and Risk Questionnaire (MRQ) assess acute changes with regard to emotional well-being (suicidal ideations, mental crisis) and thoughts associated with potential re-offenses.  For each participant, we identified whether they reported the highest possible score on a scale of the Mood and Risk Questionnaire (MRQ; 'Often' for items 1–8, 'Strongly agree' for item 9, or 'Very bad' for item 10) at least once during the post-intervention assessment. These binary indicators were then used to calculate frequencies and percentages across treatment groups. The MRQ pre questionnaire explicitly asks asks for the last week before beginning a new session. Please note, that the occurence of a report of the highest possible score was defined as adverse event post-hoc."
+#| html-table-processing: none
+
+tbl <- mrq_at_least_one_highest_score_group %>%
+    filter(q_type == "pre") %>%
+    tbl_summary(
+        by = treatment,
+        include = starts_with("flashlight_"),
+        #type = everything() ~ "categorical",
+        label = list(
+            flashlight_1_max_once ~ "...have you thought about how to best make contact with a child? (Contact planning)",
+            flashlight_2_max_once ~ "...have you made preparations to be able to make contact with a child? (Contact preparation)",
+            flashlight_3_max_once ~ "...have you felt that you must commit a sexual act with a child? (Urge for CSA)",
+            flashlight_4_max_once ~ "...have you felt that you might soon (again) watch child sexual abuse material? (Urge for CSAM)",
+            flashlight_5_max_once ~ "...have you felt that sexual tension has built up within you? (Sexual tension)",
+            flashlight_6_max_once ~ "...have you felt that it is difficult for you to control your sexual thoughts and activities? (Control of sexual thoughts and activity)",
+            flashlight_7_max_once ~ "...have you felt that you can no longer endure burdens? (Unable to cope with the mental burden)",
+            flashlight_8_max_once ~ "...have you thought about taking your own life? (Suicidal ideations)",
+            flashlight_9_max_once ~ "At present, I feel that my behavior and experience are impaired due to mental problems. (Mental crisis)",
+            flashlight_10_max_once ~ "How do you feel at the moment? (Very bad current mood)"
+        ),
+        missing = "no"
+    ) %>%
+    add_stat(fns = everything() ~ fishers_test) %>%
+    add_q(method = "holm") %>%
+    modify_header(
+        label = "**MRQ subscale**",
+        estimate = "**Effect size**",
+        p.value = "**p-value**"
+    ) %>%
+    add_q(method = "holm") %>%
+    add_overall() %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.png")))
+
+tbl
+```
+
+### Adverse events reported by supervision officers
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-exclusion-questionnaire
+#| tbl-cap: "Frequencies of adverse events as mentioned by the supervision officer at exclusion."
+#| html-table-processing: none
+
+library(dplyr)
+library(tidyr)
+library(gt)
+library(gtsummary)
+library(purrr)
+
+cramers_v <- function(tab) {
+  chi2 <- suppressWarnings(chisq.test(tab, correct = FALSE)$statistic)
+  n <- sum(tab)
+  min_dim <- min(dim(tab)) - 1
+  v <- sqrt(chi2 / (n * min_dim))
+  return(as.numeric(v))
+}
+
+fishers_test <- function(data, variable, by, ...) {
+
+  # Kreuztabelle erzeugen
+  tab <- table(data[[by]], data[[variable]])
+
+  # Fisher's Exact Test
+  fl <- stats::fisher.test(tab)
+
+  # 2×2: Odds Ratio + CI, sonst Cramér's V
+
+  estimate <- round(cramers_v(tab), 2)
+
+  # Ergebnis als data.frame zurück für gtsummary
+  df <- data.frame(
+    estimate = estimate,
+    p.value = fl$p.value
+  )
+
+  return(df)
+}
+
+# exclusion reasons by timepoint and treatment
+get_exclusion_reason_timepointxtreatment <- function() {
+
+  dat_exclusion_2 <- q_exclusion %>%
+    right_join(matching) %>%
+    left_join((randdat %>% dplyr::select(ID, treatment, `4.2 Bundesland:`))) %>%
+    filter(!is.na(treatment)) %>%
+    mutate(
+      Category = `Welche Gründe (Bitte Auflistung mittels KOMMA trennen)?` %>% sapply(categorize_reason) %>% factor(),
+      `recidivism` = if_else(`Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen`=="Yes" | `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Yes" |
+                                                      (`Verstoß gegen Weisungen`=="Yes" & `Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?` %in% c("erneute Straftaten", "Kontakt zu Kindern unter 16 Jahren", "Kontaktaufnahme zum Kind am Sportplatz ( darf sich nicht an Plätzen wie Sportstätten etc. aufhalten)", "Sich nicht an Plätzen aufzuhalten, die üblicherweise von Kindern und Jugendlichen frequentiert werden, keinerlei Tätigkeiten auszuüben, die im Zusammenhang mit der Betreuung von Kindern und Jugendlichen stehen.") & `Kam es zu einer Verurteilung?`=="Yes"), "Yes", "No"),
+      `evidence_for_recidivism` = if_else(`Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen`=="Yes" | `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Yes" |
+                                    (`Verstoß gegen Weisungen`=="Yes" & `Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?` %in% c("erneute Straftaten", "Kontakt zu Kindern unter 16 Jahren", "Kontaktaufnahme zum Kind am Sportplatz ( darf sich nicht an Plätzen wie Sportstätten etc. aufhalten)", "Sich nicht an Plätzen aufzuhalten, die üblicherweise von Kindern und Jugendlichen frequentiert werden, keinerlei Tätigkeiten auszuüben, die im Zusammenhang mit der Betreuung von Kindern und Jugendlichen stehen.") & `Kam es zu einer Verurteilung?`=="Yes") | `Welche Gründe (Bitte Auflistung mittels KOMMA trennen)?` %in% c("Handy seit mehreren Monaten bei der Polizei, weitere Straftaten unklar, arbeitet nicht mit", "Aufgrund neuer Strafanzeigen in U-Haft, Gerichtsverhandlung noch ausstehend", "Anordnung Untersuchungshaft"#, "Schwebendes Verfahren (bereits vor Aufnahme) ist abgeurteilt (Straftat nach 184b)"
+                                  ), "Yes", "No"),
+      status = ifelse(excluded_at >= as.Date('2024-10-02') & status == 7,9,status)
+    ) %>%
+    mutate(
+      client_status = factor(as.numeric(status),
+                                  levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                                  labels = c('active - logged in', 'Aktive Teilnahme (Einführung abgeschlossen)', 'Aktive Teilnahme am Programm', 'Inhalt abgeschlossen', 'Programm abgeschlossen', 'Ausschluss beantragt', 'Ausgeschlossen', 'In Datenbank registriert', 'Klinischer Trial beendet vor Abschluss'))
+    )
+
+  dat_excl <- dat_exclusion_2 %>%
+    filter(
+      client_status == "Ausgeschlossen" | client_status == 'Klinischer Trial beendet vor Abschluss'
+    ) %>%
+    mutate(
+      end_of_trial = factor(
+        ifelse(
+          excluded_at >= "2024-10-02",
+          "Yes",
+          "No"
+        ),
+        levels = c("Yes", "No")
+      ),
+      mixed_offense = factor(
+        ifelse(`Klient hat eine Straftat gemäß § 184b StGB begangen` == "Yes" & `Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen` == "Yes", "Yes", "No"),
+        levels = c("Yes", "No")
+      )
+    ) %>%
+    mutate(
+      csem_offense_only = case_when(
+          `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Yes" & mixed_offense == "Yes" ~ "No",
+          `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Yes" & mixed_offense == "No" ~ "Yes",
+          `Klient hat eine Straftat gemäß § 184b StGB begangen` == "No" ~ "No"
+        ),
+      csa_offense_only = case_when(
+          `Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen` == "Yes" & mixed_offense == "Yes" ~ "No",
+          `Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen` == "Yes" & mixed_offense == "No" ~ "Yes",
+          `Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen` == "No" ~ "No"
+        ),
+      violation_probation_conditions = factor(ifelse(
+        `Verstoß gegen Weisungen` == "Yes" | `Verstoß gegen Auflagen` == "Yes",
+        "Yes",
+        "No"),
+        levels = c("Yes", "No")
+      )
+    ) %>%
+    dplyr::select(
+      client_id,
+      treatment,
+      end_of_trial,
+      recidivism,
+      `Widerruf der Einverständniserklärung`,
+      `Die Zeit der Bewährungsaufsicht/Führungsaufsicht ist abgelaufen`,
+      `Klient hat eine andere Straftat begangen (nicht gemäß §§ 176, 176a, 176b oder 184b StGB)`,
+      `akute Selbstgefährdung des Klienten (z.B. konkrete Suizidplanung)`,
+      `andere Gründe als die bisher genannten Gründe`,
+      mixed_offense,
+      csem_offense_only,
+      csa_offense_only,
+      violation_probation_conditions
+    ) %>%
+    rename(
+      "Withdrawal of informed consent" = `Widerruf der Einverständniserklärung`,
+      "Probationary supervision expired" = `Die Zeit der Bewährungsaufsicht/Führungsaufsicht ist abgelaufen`,
+      "Other offense (not CSA or CSEM)" = `Klient hat eine andere Straftat begangen (nicht gemäß §§ 176, 176a, 176b oder 184b StGB)`,
+      "Acute suicide risk" = `akute Selbstgefährdung des Klienten (z.B. konkrete Suizidplanung)`,
+      "Other reasons" = `andere Gründe als die bisher genannten Gründe`,
+      "End of RCT" = end_of_trial,
+      "CSA and CSEM offense" = mixed_offense,
+      "CSEM offense" = csem_offense_only,
+      "CSA offense" = csa_offense_only,
+      "Violation of probation conditions" = violation_probation_conditions
+    ) %>%
+    # we reduce number of multiple answers by logical thinking: einige Kombinationen bieten keinen zusätzlichen iNfogehalt und sind logische Konsequenz des eigentlichen Grundes
+    # withdrawal of informed consent ist dann nicht relevant, wenn mit offense, Probationary supervision expired, kombiniert, da offense einen ausschluss automatisch nach sich zieht
+    mutate(
+      `Withdrawal of informed consent` = case_when(
+        `Withdrawal of informed consent` == "Yes" & `CSA and CSEM offense` == "Yes" ~ "No",
+        `Withdrawal of informed consent` == "Yes" & `CSA offense` == "Yes" ~ "No",
+        `Withdrawal of informed consent` == "Yes" & `CSEM offense` == "Yes" ~ "No",
+        `Withdrawal of informed consent` == "Yes" & `Other offense (not CSA or CSEM)` == "Yes" ~ "No",
+        `Withdrawal of informed consent` == "Yes" & `Violation of probation conditions` == "Yes" ~ "No",
+        `Withdrawal of informed consent` == "Yes" & `Probationary supervision expired` == "Yes" ~ "No",
+        TRUE ~ `Withdrawal of informed consent`
+      ),
+      # withdrawal of informed consent ist dann nicht relevant, wenn mit offense kombiniert, da offense automatisch einen Verstoß gegen probation conditions bedeutet
+      `Violation of probation conditions` = case_when(
+        `Violation of probation conditions` == "Yes" & `CSA and CSEM offense` == "Yes" ~ "No",
+        `Violation of probation conditions` == "Yes" & `CSA offense` == "Yes" ~ "No",
+        `Violation of probation conditions` == "Yes" & `CSEM offense` == "Yes" ~ "No",
+        `Violation of probation conditions` == "Yes" & `Other offense (not CSA or CSEM)` == "Yes" ~ "No",
+        TRUE ~ `Violation of probation conditions`
+      ),
+      # see above
+      `Probationary supervision expired` = case_when(
+        `Probationary supervision expired` == "Yes" & `CSA and CSEM offense` == "Yes" ~ "No",
+        `Probationary supervision expired` == "Yes" & `CSA offense` == "Yes" ~ "No",
+        `Probationary supervision expired` == "Yes" & `CSEM offense` == "Yes" ~ "No",
+        `Probationary supervision expired` == "Yes" & `Other offense (not CSA or CSEM)` == "Yes" ~ "No",
+        `Probationary supervision expired` == "Yes" & `End of RCT` == "Yes" ~ "No",
+        TRUE ~ `Probationary supervision expired`
+      )
+
+    )
+
+  # all NAs are in the sense of "No"
+  dat_excl[is.na(dat_excl)] <- "No"
+
+  dat_excl <- dat_excl %>%
+    filter(!client_id %in% c(253, 396)) %>%
+    mutate(
+      exclusion_reason_count = rowSums(across(c(
+        `Withdrawal of informed consent`,
+        `Probationary supervision expired`,
+        `Violation of probation conditions`,
+        `Other offense (not CSA or CSEM)`,
+        `CSA and CSEM offense`,
+        `CSEM offense`,
+        `CSA offense`,
+        `Acute suicide risk`,
+        `Other reasons`,
+        `End of RCT`), 
+        ~ . == "Yes")),
+      exclusion_reasons_list = apply(dplyr::select(., 
+        `Withdrawal of informed consent`,
+        `Probationary supervision expired`,
+        `Violation of probation conditions`,
+        `CSA and CSEM offense`,
+        `CSEM offense`,
+        `CSA offense`,
+        `Other offense (not CSA or CSEM)`,
+        `Acute suicide risk`,
+        `Other reasons`,
+        `End of RCT`),
+        1, 
+        function(row) {
+          yes_cols <- names(row[row == "Yes"])
+          paste(yes_cols, collapse = ", ")
+        })
+    )
+
+    return(dat_excl)
+}
+
+tmp <- get_exclusion_reason_timepointxtreatment()
+
+tmp_wide <- tmp %>%
+  select(client_id, treatment, exclusion_reasons_list) %>%
+  unnest(exclusion_reasons_list) %>%
+  mutate(value = "Yes") %>%
+  pivot_wider(
+    names_from = exclusion_reasons_list,
+    values_from = value,
+    values_fill = "No"
+  )
+
+tbl <- tmp_wide %>%
+    filter(client_id %in% client_list) %>%
+    select(-client_id, -`Violation of probation conditions`, -`Violation of probation conditions, Acute suicide risk`, -`CSEM offense, Acute suicide risk`, -`CSA offense, Other offense (not CSA or CSEM), Acute suicide risk`) %>%
+    tbl_summary(
+        by = treatment
+        #type = everything() ~ "categorical"
+    ) %>%
+    add_stat(fns = everything() ~ fishers_test) %>%
+    add_q(method = "holm") %>%
+    modify_header(
+        label = "**Exclusion reason**",
+        estimate = "**Cramer's V**",
+        p.value = "**p-value**"
+    ) %>%
+    add_q(method = "holm") %>%
+    add_overall() %>%
+    as_gt() %>%
+    gt::tab_options(
+        #table.font.names = "Source Sans Pro",
+        table.font.size = 12,
+        quarto.use_bootstrap = FALSE,
+        quarto.disable_processing = TRUE,
+        data_row.padding = px(2),
+        summary_row.padding = gt::px(2),
+        grand_summary_row.padding = gt::px(2),
+        #footnotes.padding = gt::px(2),
+        #source_notes.padding = gt::px(2),
+        row_group.padding = gt::px(2)
+    )
+
+tbl
+```
+

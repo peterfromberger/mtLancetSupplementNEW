@@ -1,0 +1,196 @@
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-init-time-calculations
+
+library(gtsummary)
+library(dplyr)
+library(tidyr)
+library(stringr)
+
+df <- readRDS(here::here("_data/finalData/randomizedMaster.Rds"))
+
+df <- df[, -grep("^index\\d+dat\\d*_pos\\d+$", names(df))]
+
+#date_vars <- vapply(df, function(x) inherits(x, c("Date", "POSIXct", "POSIXlt")))
+date_vars <- names(df)[vapply(df, function(x) {
+  is.atomic(x) && inherits(x, c("Date", "POSIXct", "POSIXlt"))
+}, logical(1))]
+
+# only itt
+df <- df %>%
+    filter(m1s4l7_calc_lession_finished == TRUE) %>%
+    filter(client_id != 194)
+
+
+df <- df %>%
+  dplyr::select(client_id, client_group, all_of(date_vars), strataindex, stratabehandl, stratabetreu, static99_modified_calc)
+
+df <- df %>% mutate(fu.date = if_else(!is.na(excluded_at), excluded_at, finished_at))
+
+tmp <- df
+
+# -----
+# duration of each lection!
+# -----
+
+# Alle Variablen, die mit create_time oder update_time beginnen
+create_cols <- grep("^create_time", names(df), value = TRUE)
+update_cols <- grep("^update_time", names(df), value = TRUE)
+
+# Schlüssel extrahieren
+extract_key <- function(x) {
+  x %>%
+    str_replace("^create_time_", "") %>%
+    str_replace("^update_time_", "") %>%
+    str_replace("_calc$", "")
+}
+
+create_keys <- setNames(create_cols, sapply(create_cols, extract_key))
+update_keys <- setNames(update_cols, sapply(update_cols, extract_key))
+
+# calculate working on content time for each module
+
+for (key in names(create_keys)) {
+  if (key %in% names(update_keys)) {
+    new_col <- paste0("reineBearbeitungsdauer_duration_", key, "_hours")
+    df[[new_col]] <- as.numeric(df[[update_keys[[key]]]] - df[[create_keys[[key]]]], units = "days")
+  }
+}
+
+cols_m1 <- grep("reineBearbeitungsdauer_duration_1", names(df), value = TRUE)
+
+cols_m2_int <- grep("reineBearbeitungsdauer_duration_2", names(df), value = TRUE)
+
+# 2_3_8, 2_4_7 gibt es nicht bei placebo
+cols_m2_pla <- c("reineBearbeitungsdauer_duration_2_3_1_hours", "reineBearbeitungsdauer_duration_2_4_1_hours",
+"reineBearbeitungsdauer_duration_2_1_1_hours", "reineBearbeitungsdauer_duration_2_2_1_hours",
+"reineBearbeitungsdauer_duration_2_2_2_hours", "reineBearbeitungsdauer_duration_2_4_6_hours",
+"reineBearbeitungsdauer_duration_2_1_2_hours", "reineBearbeitungsdauer_duration_2_2_3_hours",
+"reineBearbeitungsdauer_duration_2_1_3_hours", "reineBearbeitungsdauer_duration_2_1_4_hours",
+"reineBearbeitungsdauer_duration_2_1_5_hours", "reineBearbeitungsdauer_duration_2_2_4_hours",
+"reineBearbeitungsdauer_duration_2_1_6_hours", "reineBearbeitungsdauer_duration_2_2_5_hours",
+"reineBearbeitungsdauer_duration_2_2_6_hours", "reineBearbeitungsdauer_duration_2_3_2_hours",
+"reineBearbeitungsdauer_duration_2_3_3_hours", "reineBearbeitungsdauer_duration_2_3_4_hours",
+"reineBearbeitungsdauer_duration_2_3_5_hours", "reineBearbeitungsdauer_duration_2_3_6_hours",
+"reineBearbeitungsdauer_duration_2_3_7_hours", "reineBearbeitungsdauer_duration_2_4_2_hours",
+"reineBearbeitungsdauer_duration_2_4_3_hours", "reineBearbeitungsdauer_duration_2_4_4_hours",
+"reineBearbeitungsdauer_duration_2_4_5_hours")
+
+cols_m3 <- grep("reineBearbeitungsdauer_duration_3", names(df), value = TRUE)
+
+cols_m4 <- grep("reineBearbeitungsdauer_duration_4", names(df), value = TRUE)
+
+cols_m5 <- grep("reineBearbeitungsdauer_duration_5", names(df), value = TRUE)
+
+cols_m6_int <- grep("reineBearbeitungsdauer_duration_6", names(df), value = TRUE)
+
+# 6_2_7 gibt es nicht bei placebo
+cols_m6_pla <- c("reineBearbeitungsdauer_duration_6_3_1_hours", "reineBearbeitungsdauer_duration_6_2_1_hours",
+"reineBearbeitungsdauer_duration_6_2_6_hours", "reineBearbeitungsdauer_duration_6_4_1_hours",
+"reineBearbeitungsdauer_duration_6_3_6_hours", "reineBearbeitungsdauer_duration_6_2_2_hours",
+"reineBearbeitungsdauer_duration_6_3_2_hours", "reineBearbeitungsdauer_duration_6_3_3_hours",
+"reineBearbeitungsdauer_duration_6_4_2_hours", "reineBearbeitungsdauer_duration_6_3_4_hours",
+"reineBearbeitungsdauer_duration_6_3_5_hours", "reineBearbeitungsdauer_duration_6_3_7_hours",
+"reineBearbeitungsdauer_duration_6_2_3_hours", "reineBearbeitungsdauer_duration_6_2_4_hours",
+"reineBearbeitungsdauer_duration_6_2_5_hours", "reineBearbeitungsdauer_duration_6_4_3_hours",
+"reineBearbeitungsdauer_duration_6_4_4_hours", "reineBearbeitungsdauer_duration_6_4_5_hours",
+"reineBearbeitungsdauer_duration_6_4_6_hours", "reineBearbeitungsdauer_duration_6_4_7_hours",
+"reineBearbeitungsdauer_duration_6_1_1_hours", "reineBearbeitungsdauer_duration_6_1_2_hours",
+"reineBearbeitungsdauer_duration_6_1_3_hours", "reineBearbeitungsdauer_duration_6_1_4_hours",
+"reineBearbeitungsdauer_duration_6_1_5_hours", "reineBearbeitungsdauer_duration_6_1_6_hours",
+"reineBearbeitungsdauer_duration_6_1_7_hours"
+)
+
+df <- df %>%
+  mutate(
+    working_time_m1 = rowSums(across(all_of(cols_m1))),
+    working_time_m2 = if_else(
+      client_group == "Intervention",
+      rowSums(across(all_of(cols_m2_int))),
+      rowSums(across(all_of(cols_m2_pla)))
+    ),
+    working_time_m3 = rowSums(across(all_of(cols_m3))),
+    working_time_m4 = rowSums(across(all_of(cols_m4))),
+    working_time_m5 = rowSums(across(all_of(cols_m5))),
+    working_time_m6 = if_else(
+      client_group == "Intervention",
+      rowSums(across(all_of(cols_m6_int))),
+      rowSums(across(all_of(cols_m6_pla)))
+    )
+  )
+
+# duration first to last login
+df <- df %>%
+  mutate(
+    excluded_at = as.Date(excluded_at),
+    finished_at = as.Date(finished_at)
+  )  %>%
+  mutate(
+    duration_firstTolast_login_GesamtdauerAKTIVImProgramm_weeks = as.numeric(client_last_login - client_first_login, units = "weeks"),
+    duration_visitTofirst_login_weeks = as.numeric(as.Date(client_first_login) - mnpvisstartdate, units = "weeks"),
+    duration_visitTofu_GesamtdauerTeilnahme_weeks = as.numeric(as.Date(fu.date) - as.Date(mnpvisstartdate), units = "weeks"),
+    duration_client_create_timeTofu_weeks = as.numeric(as.Date(fu.date) - as.Date(client_create_time), units = "weeks"),
+    duration_client_first_loginTofu_weeks = as.numeric(as.Date(fu.date) - as.Date(client_first_login), units = "weeks"),
+    duration_client_last_loginTofu_weeks = as.numeric(as.Date(fu.date) - as.Date(client_last_login), units = "weeks"),
+
+    # duration module 1-6
+    # m1-5: 28 days + 1 week waiting
+    # m6: 28 days (7 days/session)
+    duration_module1_days = as.numeric(as.Date(acute_create_time_m2s1) - as.Date(acute_create_time_m1s1), units = "days"),
+    duration_module2_days = as.numeric(as.Date(acute_create_time_m3s1) - as.Date(acute_create_time_m2s1), units = "days"),
+    duration_module3_days = as.numeric(as.Date(acute_create_time_m4s1) - as.Date(acute_create_time_m3s1), units = "days"),
+    duration_module4_days = as.numeric(as.Date(acute_create_time_m5s1) - as.Date(acute_create_time_m4s1), units = "days"),
+    duration_module5_days = as.numeric(as.Date(acute_create_time_m6s1) - as.Date(acute_create_time_m5s1), units = "days"),
+    duration_module6_days = as.numeric(as.Date(acute_create_time_m6s4) - as.Date(acute_create_time_m6s1), units = "days"),
+
+    start_m1_to_end_module1_days = as.numeric(as.Date(acute_create_time_m2s1) - as.Date(acute_create_time_m1s1), units = "days"),
+    start_m1_to_end_module2_days = as.numeric(as.Date(acute_create_time_m3s1) - as.Date(acute_create_time_m1s1), units = "days"),
+    start_m1_to_end_module3_days = as.numeric(as.Date(acute_create_time_m4s1) - as.Date(acute_create_time_m1s1), units = "days"),
+    start_m1_to_end_module4_days = as.numeric(as.Date(acute_create_time_m5s1) - as.Date(acute_create_time_m1s1), units = "days"),
+    start_m1_to_end_module5_days = as.numeric(as.Date(acute_create_time_m6s1) - as.Date(acute_create_time_m1s1), units = "days"),
+    start_m1_to_end_module6_days = as.numeric(as.Date(acute_create_time_m6s4) - as.Date(acute_create_time_m1s1), units = "days")#,
+
+  #   end_content_to_end_module1_days = as.numeric(as.Date(acute_create_time_m2s1) - as.Date(finish_content_module1), units = "days"),
+  #   end_content_to_end_module2_days = as.numeric(as.Date(acute_create_time_m3s1) - as.Date(finish_content_module2), units = "days"),
+  #   end_content_to_end_module3_days = as.numeric(as.Date(acute_create_time_m4s1) - as.Date(finish_content_module3), units = "days"),
+  #   end_content_to_end_module4_days = as.numeric(as.Date(acute_create_time_m5s1) - as.Date(finish_content_module4), units = "days"),
+  #   end_content_to_end_module5_days = as.numeric(as.Date(acute_create_time_m6s1) - as.Date(finish_content_module5), units = "days"),
+  #   end_content_to_end_module6_days = as.numeric(as.Date(acute_create_time_m6s4) - as.Date(finish_content_module6), units = "days"),
+  )
+
+aaa <- df
+
+
+# delete unnecessary cols
+
+exclude_cols <- grep("email", names(df), value = TRUE)
+
+df <- df %>% dplyr::select(-all_of(c(exclude_cols)))
+
+exclude_cols <- grep("repeated_sample_supervisor", names(df), value = TRUE)
+
+df <- df %>% dplyr::select(-all_of(c(exclude_cols)))
+
+exclude_cols <- grep("supervisor", names(df), value = TRUE)
+
+df <- df %>% dplyr::select(-all_of(c(exclude_cols)))
+
+exclude_cols <- grep("coach", names(df), value = TRUE)
+
+df <- df %>% dplyr::select(-all_of(c(exclude_cols)))
+
+
+include_cols_fu <- grep("start_m1_to_end", names(df), value = TRUE)
+
+df_m1toEndModule <- df %>% dplyr::select(client_id, client_group, all_of(include_cols_fu))
+
+include_cols_module_duration <- grep("duration", names(df), value = TRUE)
+
+df_module_duration <- df %>% dplyr::select(client_id, client_group, all_of(include_cols_module_duration))
+
+include_cols_working_time <- grep("working_time", names(df), value = TRUE)
+
+df_working_time <- df %>% dplyr::select(client_id, client_group, all_of(include_cols_working_time))
+```

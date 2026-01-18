@@ -1,0 +1,1559 @@
+### Differences from baseline
+
+Differences (from pre to post) of secondary endpoints have been compared between the treatment groups using the Brunner-Munzel test for unpaired data. [Table @tbl-sec-diffscore] shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: init-tbl-sec-diffscore
+
+library(here)
+library(dplyr)
+library(purrr)
+library(rlang)
+library(gtsummary)
+library(gt)
+library(glue)
+
+source(here::here("_scripts/sec_diffscore_functions.R"))
+source(here::here("_scripts/sec_pairwise_functions.R"))
+
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
+
+dvs_mbsb <- c(
+  "cvtrq_calc_total",
+  "rcq_calc_total",
+  "fsozu_calc_total",
+  "ors_calc_total",
+  "ucla_calc_total",
+  "bis_calc_total",
+  "cusi_calc_total",
+  "ders_calc_imp",
+  "narq_calc_ris",
+  "spsi_calc_total",
+  "kvm_score",
+  "esiq_calc_total",
+  "soi_total_score",
+  "ssik_calc_total",
+  "ekk_calc_total",
+  "hbi_calc_total"
+)
+
+dvs <- c(
+  "cvtrq_calc_total",
+  "rcq_calc_total",
+  "fsozu_calc_total",
+  "ors_calc_total",
+  "ucla_calc_total",
+  "bis_calc_total",
+  "cusi_calc_total",
+  "ders_calc_imp",
+  "narq_calc_ris",
+  "spsi_calc_total",
+  "kvm_calc_total",
+  "esiq_calc_total",
+  "soi_total_score",
+  "ssik_calc_total",
+  "ekk_calc_total",
+  "hbi_calc_total"
+  
+)
+
+labels <- c(
+  "CVTRQ (total score)",
+  "RCQ (total score)",
+  "F-Soz-U (total score)",
+  "OQMPR (total score)",
+  "UCLA (total score)",
+  "BIS-15 (total score)",
+  "CUSI (total score)",
+  "DERS (subscale impulsivity)",
+  "NARQ (subscale externalizing strategies)",
+  "SPSI-R (total score)",
+  "BMS (total score)",
+  "ESIQ (total score)",
+  "SOI (Item 2a)",
+  "SSIC (total score)",
+  "EKK-R (total score)",
+  "HBI-19 (total score)"
+)
+
+types <- c(
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2",
+  "continuous2"
+)
+
+abbreviations <- c(
+  "*CVTRQ* = Corrections Victoria Treatment Readiness Questionnaire [@caseyAssessingSuitabilityOffender2007]",
+  "*RCQ* = Readiness to Change Questionnaire [@rollnickDevelopmentShortReadiness1992] - German version [@hannoverReadinessChangeQuestionnaire2002] adapted for individuals who committed sexual offenses against children by project team",
+  "*F-Soz-U* = Seven-item short version of the Social Support Questionnaire [@dunkelEvaluationShortformSocial2005]",
+  "*OQMPR* = Questionnaire for the Measurement of Psychological Reactance [@merzQuestionnaireMeasurementPsychological1983]",
+  "*UCLA* = UCLA Loneliness Scale [@russell_ucla_1996] - German short version [@bilskySocialSupportLoneliness1998]",
+  "*BIS-15* = Barratt Impulsiveness Scale-15 [@pattonFactorStructureBarratt1995]",
+  "*CUSI* = Coping Using Sex Inventory [@cortoniSexCopingStrategy2001]",
+  "*DERS* = Difficulties in Emotion Regulation Scale [@gratzMultidimensionalAssessmentEmotion2003]",
+  "*NARQ* = Negative Affect Repair Questionnaire [@schererNegativeAffectRepair2013]",
+  "*SPSI-R* = Social Problem-Solving Inventory Revised [@dzurillaManualSocialProblemSolving2002]",
+  "*BMS* = Bumby Molest Scale [@bumbyAssessingCognitiveDistortions]",
+  "*EKK-R* = Questionnaire on Emotional Congruence with Children-Revised [@mackEmotionaleKongruenzMit2012]",
+  "*ESIQ* = Explicit Sexual Interest Questionnaire [@banseIndirectMeasuresSexual2010]",
+  "*SOI-R* = Sexual Outlet Inventory revised, subscale desire for sexual activity with children [@bbrikenSexualOutletInventory2010]",
+  "*HBI-19* = Hypersexual Behavior Inventory-19 [@kleinValidierungsstudieDeutschenVersion2013]",
+  "*SSIC* = Specific self-efficacy for modifying Sexual Interest in Children [@tozdanSpezifischeSelbstwirksamkeitZur2015]"
+)
+```
+ 
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-sec-diffscore
+#| tbl-cap: "Difference between before (pre) and after (post) for each secondary endpoint."
+
+mbsb <- TRUE
+sample_str <- "itt"
+
+tbl <- create_tbl_diffscore_bm_unpaired(mbsb, sample_str, dvs, dvs_mbsb, labels, types, abbreviations)
+
+tbl <- tbl %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.png")))
+
+tbl
+```
+
+<!-- CVTRQ -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-cvtrq-total-score
+var <- "cvtrq_calc_total"
+var_nice <- "cvtrq-calc-total"
+q_name <- "CVTRQ (total score)"
+fit <- fit_cvtrq_calc_total
+lm_table <- lm_Table_cvtrq_calc_total
+module <- "module one (motivation)"
+tbl_cap <- paste0("Linear regression model for ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the CVTRQ (total score).](_figures/fig-sec-rainplot-cvtrq-calc-total.png){#fig-sec-rainplot-cvtrq width=100%}
+
+```{r}
+#| label: fig-sec-lm-cvtrq-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+library(knitr)
+
+d_plot_tmp <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-cvtrq-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.png")))
+
+tbl
+```
+
+<!-- RCQ -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-rcq-total-score
+var <- "rcq_calc_total"
+var_nice <- "rcq-calc-total"
+q_name <- "RCQ (total score)"
+fit1 <- fit_rcq_calc_total
+fit2 <- fit_rcq_calc_total3
+lm_table <- lm_Table_rcq_calc_total
+module <- "module one (motivation)"
+tbl_cap <- paste0("Linear regression model for ", q_name, "; Number of observations: ", as.character(nobs(fit1)), ").")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the RCQ (total score).](_figures/fig-sec-rainplot-rcq-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total width=100%}
+
+```{r}
+#| label: fig-sec-lm-rcq-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_compare(list(fit1, fit2), plots = c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 16,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 16
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-rcq-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.png")))
+
+tbl
+```
+
+<!-- Fsoz-U -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-fsozu-total-score
+var <- "fsozu_calc_total"
+var_nice <- "fsozu-calc-total"
+q_name <- "F-Soz-U (total score)"
+fit <- fit_fsozu_calc_total
+lm_table <- lm_Table_fsozu_calc_total
+module <- "module two (supervision and social relationship)"
+tbl_cap <- paste0("Linear regression model for ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the F-Soz-U (total score).](_figures/fig-sec-rainplot-fsozu-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total width=100%}
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-sec-lm-fsozu-calc-total
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-sec-lm-fsozu-calc-total
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.png")))
+
+tbl
+```
+
+<!-- OQMPR -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-ors-total-score
+var <- "ors_calc_total"
+var_nice <- "ors-calc-total"
+q_name <- "OQMPR (total score)"
+fit <- fit_ors_calc_total
+lm_table <- lm_Table_ors_calc_total
+module <- "module two (supervision and social relationship)"
+tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the OQMPR (total score).](_figures/fig-sec-rainplot-ors-calc-total.png){#fig-sec-rainplot-ors-total-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-ors-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-ors-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.png")))
+
+tbl
+```
+
+<!-- SOI -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-soi-total-score
+var <- "soi_total_score"
+var_nice <- "soi-total-score"
+q_name <- "SOI (subscale desire for sexual activity with children)"
+fit <- fit_soi_calc_total
+#lm_table <- lm_Table_soi_calc_total
+module <- "module six (sexuality)"
+tbl_cap <- paste0("Linear regression model for ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the SOI (Item 2a).](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score width=100%}
+
+
+```{r}
+#| label: fig-sec-lm-soi-total-score
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-soi-total-score
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+#lm_table
+```
+
+<!-- UCLA -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-ucla-total-score
+var <- "ucla_calc_total"
+var_nice <- "ucla-calc-total"
+q_name <- "UCLA (total score)"
+fit1 <- fit_ucla_calc_total
+fit2 <- fit_ucla_calc_total3
+lm_table <- lm_Table_ucla_calc_total
+module <- "module two (supervision and social relationship)"
+tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the UCLA (total score).](_figures/fig-sec-rainplot-ucla-calc-total.png){#fig-sec-rainplot-ucla-total-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-ucla-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_compare(list(fit1, fit2), plots = c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 16,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 16
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-ucla-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.png")))
+
+tbl
+```
+
+<!-- BIS -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-bis-total-score
+var <- "bis_calc_total"
+var_nice <- "bis-calc-total"
+q_name <- "BIS-15 (total score)"
+fit1 <- fit_bis_calc_total2
+fit2 <- fit_bis_calc_total
+lm_table <- lm_Table_bis_calc_total
+module <- "module three (emotion management)"
+tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the score was log-transformed.")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the BIS-15 (total score).](_figures/fig-sec-rainplot-bis-calc-total.png){#fig-sec-rainplot-bis-total-score width=100%}
+
+
+```{r}
+#| label: fig-sec-lm-bis-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_compare(list(fit1, fit2), plots = c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 16,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 16
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-bis-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.png")))
+
+tbl
+```
+
+<!-- CUSI -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-cusi-total-score
+var <- "cusi_calc_total"
+var_nice <- "cusi-calc-total"
+q_name <- "CUSI (total score)"
+fit1 <- fit_cusi_calc_total
+fit2 <- fit_cusi_calc_total3
+lm_table <- lm_Table_cusi_calc_total
+module <- "module two (supervision and social relationship)"
+tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the CUSI (total score).](_figures/fig-sec-rainplot-cusi-calc-total.png){#fig-sec-rainplot-cusi-total-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-cusi-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_compare(list(fit1, fit2), plots = c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 16,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 16
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-cusi-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.png")))
+
+tbl
+```
+
+<!-- SPSI-R -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-spsi-total-score
+var <- "spsi_calc_total"
+var_nice <- "spsi-calc-total"
+q_name <- "SPSI-R (total score)"
+fit <- fit_spsi_calc_total
+lm_table <- lm_Table_spsi_calc_total
+module <- "module four (problem solving)"
+tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the SPSI-R (total score).](_figures/fig-sec-rainplot-spsi-calc-total.png){#fig-sec-rainplot-spsi-total-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-spsi-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-spsi-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.png")))
+
+tbl
+```
+
+<!-- EKK-R -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-ekk-calc-total
+var <- "ekk_calc_total"
+var_nice <- "ekk-calc-total"
+q_name <- "EKK-R (total score)"
+fit <- fit_ekk_calc_total
+module <- "module six (sexuality)"
+lm_table <- lm_Table_ekk_calc_total
+tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+```
+
+### `r q_name`
+
+Exploratively, the effect of `r module` on the `r q_name` was further analyzed by fitting a linear model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], all assumptions of a linear model are met; [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the EKK-R (total score).](_figures/fig-sec-rainplot-ekk-calc-total.png){#fig-sec-rainplot-ekk-total-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-ekk-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-ekk-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.png")))
+
+tbl
+```
+
+<!-- DERS -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-ders-imp
+var <- "ders_calc_imp"
+var_nice <- "ders-calc-imp"
+q_name <- "DERS (subscore impulsivity)"
+fit1 <- fit_ders_calc_imp_ordinal
+fit2 <- fit_ders_calc_imp
+lm_table <- glm_Table_ders_calc_imp
+module <- "module three (emotion management)"
+tbl_cap <- paste0("Ordinal regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values greater than 9 were merged into a single category.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". As shown, prerequisites of an linear regression model are not met.")
+```
+
+### `r q_name`
+
+As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], the assumptions of a linear model with `r q_name` are not met. Thus, the effect of `r module` on the `r q_name` was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. For the dependent variable, values greater than 9 were merged into a single category. [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the DERS (subscale impulsivity).](_figures/fig-sec-rainplot-ders-calc-imp.png){#fig-sec-rainplot-ders-imp-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-ders-calc-imp
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-ders-calc-imp
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.png")))
+
+tbl
+```
+
+<!-- NARQ -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-narq-calc-ris
+var <- "narq_calc_ris"
+var_nice <- "narq-calc-ris"
+q_name <- "NARQ (subscale externalizing strategies)"
+fit1 <- fit_narq_calc_ris_ordinal
+fit2 <- fit_narq_calc_ris
+lm_table <- glm_Table_narq_calc_ris
+module <- "module three (emotion management)"
+tbl_cap <- paste0("Ordinal regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values greater than 4 were merged into a single category.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+```
+
+### `r q_name`
+
+As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], the assumptions of a linear model with `r q_name` are not met. Thus, the effect of `r module` on the `r q_name` was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. For the dependent variable, values greater than 4 were merged into a single category. [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the NARQ (subscale externalizing strategies).](_figures/fig-sec-rainplot-narq-calc-ris.png){#fig-sec-rainplot-narq-ris-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-narq-calc-ris
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-narq-calc-ris
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.png")))
+
+tbl
+```
+
+<!-- ESIQ -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-esiq-calc-total
+var <- "esiq_calc_total"
+var_nice <- "esiq-calc-total"
+q_name <- "ESIQ (total score)"
+fit1 <- fit_esiq_calc_total_ordinal_diff
+fit2 <- fit_esiq_calc_total
+lm_table <- glm_Table_esiq_calc_total_ordinal_diff
+module <- "module six (sexuality)"
+tbl_cap <- paste0("Ordinal regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. The dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
+fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+```
+
+### `r q_name`
+
+As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], the assumptions of a linear model with `r q_name` are not met. Thus, the effect of `r module` on the `r q_name` was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. For the dependent variable, values have been categorized into three categories: worsening (increase), no change, improvement (decrease). [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the ESIQ (total score).](_figures/fig-sec-rainplot-esiq-calc-total.png){#fig-sec-rainplot-esiq-calc-total width=100%}
+
+```{r}
+#| label: fig-sec-lm-esiq-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-esiq-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total.png")))
+
+tbl
+```
+
+<!-- BMS -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-kvm-score
+var <- "kvm_score"
+var_nice <- "kvm-score"
+q_name <- "BMS (total score)"
+fit1 <- fit_kvm_score_logistic
+fit2 <- fit_kvm_score
+lm_table <- glm_Table_kvm_score
+module <- "module five (offense-supportive attitudes)"
+tbl_cap <- paste0("Logistic regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+```
+
+### `r q_name`
+
+As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], the assumptions of a linear model with `r q_name` are not met. Thus, the effect of `r module` on the `r q_name` was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. For the dependent variable, values greater than 4 were merged into a single category. [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the BMS (total score).](_figures/fig-sec-rainplot-kvm-score.png){#fig-sec-rainplot-kvm-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-kvm-score
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-kvm-score
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.png")))
+
+tbl
+```
+
+<!-- HBI-19 -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-hbi-total
+var <- "hbi_calc_total"
+var_nice <- "hbi-calc-total"
+q_name <- "HBI-19 (total score)"
+fit1 <- fit_hbi_calc_total_logistic
+fit2 <- fit_hbi_calc_total
+lm_table <- glm_Table_hbi_calc_total
+module <- "module six (sexuality)"
+tbl_cap <- paste0("Logistic regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+```
+
+### `r q_name`
+
+As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], the assumptions of a linear model with `r q_name` are not met. Thus, the effect of `r module` on the `r q_name` was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. or the dependent variable, values were dichotomized based on the cut-off greater or equal to 24. [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the HBI-19 (total score).](_figures/fig-sec-rainplot-hbi-calc-total.png){#fig-sec-rainplot-hbi-total-score width=100%}
+
+```{r}
+#| label: fig-sec-lm-hbi-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-hbi-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.png")))
+
+tbl
+```
+
+<!-- SSIC -->
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: sec-init-ssik-total-score
+var <- "ssik_calc_total"
+var_nice <- "ssik-calc-total"
+q_name <- "SSIC (total score)"
+fit1 <- fit_ssik_calc_total_logistic
+fit2 <- fit_ssik_calc_total
+module <- "module six (sexuality)"
+lm_table <- glm_Table_ssik_calc_total
+tbl_cap <- paste0("Logistic regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+```
+
+### `r q_name`
+
+As shown in [`r glue::glue('@fig-sec-lm-{var_nice}')`], the assumptions of a linear model with `r q_name` are not met. Thus, the effect of `r module` on the `r q_name` was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. or the dependent variable, values were dichotomized based on the cut-off greater or equal to 30. [`r glue::glue('@tbl-sec-lm-{var_nice}')`] shows the results of the linear model.
+
+<!-- RAIN PLOT -->
+![Rainplot of the SSIC (total score).](_figures/fig-sec-rainplot-ssik-calc-total.png){#fig-sec-rainplot-ssik-calc-total width=100%}
+
+```{r}
+#| label: fig-sec-lm-ssik-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: !expr 'fig_cap'
+
+library(ggResidpanel)
+d_plot_tmp <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+
+name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
+name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = d_plot_tmp,
+    dpi = 300,
+    width = 16,
+    height = 8
+)
+
+knitr::include_graphics(
+  here::here(name_png)
+)
+```
+
+```{r}
+#| label: tbl-sec-lm-ssik-calc-total
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: !expr 'tbl_cap'
+
+tbl <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.png")))
+
+tbl
+```
