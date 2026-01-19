@@ -1,0 +1,1860 @@
+### WHO-5
+
+The norm in Germany is M = 65.7 (all) (65.1 (female), 66.3 (male)). Values below 50 are used to diagnose depression. The threshold for a clinically relevant change on the WHO-5 is considered to be 10 points difference [@toppWHO5WellbeingIndex2015].
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: r-init-who
+
+get_who_data <- function() {
+  infile <- file.path(exportDirmyTabu, "questionnaires_api_who.rds")
+  who <- readRDS(infile) %>% as_tibble
+
+  # the who was assessed before and after each module (not only before m1 and then after the module)
+  #
+  who <-
+    who %>%
+    mutate(timepoint = case_when(
+      current_module_nr == 1 & current_session_nr == 1 ~ 'Baseline',
+      current_module_nr == 1 & current_session_nr == 4 ~ 'Module 1 (post)',
+      current_module_nr == 2 & current_session_nr == 1 ~ 'Module 2 (before)',
+      current_module_nr == 2 & current_session_nr == 4 ~ 'Module 2 (post)',
+      current_module_nr == 3 & current_session_nr == 1 ~ 'Module 3 (before)',
+      current_module_nr == 3 & current_session_nr == 4 ~ 'Module 3 (post)',
+      current_module_nr == 4 & current_session_nr == 1 ~ 'Module 4 (before)',
+      current_module_nr == 4 & current_session_nr == 4 ~ 'Module 4 (post)',
+      current_module_nr == 5 & current_session_nr == 1 ~ 'Module 5 (before)',
+      current_module_nr == 5 & current_session_nr == 4 ~ 'Module 5 (post)',
+      current_module_nr == 6 & current_session_nr == 1 ~ 'Module 6 (before)',
+      current_module_nr == 6 & current_session_nr == 4 ~ 'Module 6 (post)'),
+      timepoint = factor(
+        timepoint),
+      client_id = factor(client_id))
+
+  who$who_calc_total <- rowSums(who[, c('who_1', 'who_2', 'who_3', 'who_4', 'who_5')], na.rm = TRUE)*4
+
+  who_tmp <- who %>% dplyr::select(client_id, timepoint, who_calc_total)
+
+  dat_clean_tmp <- dat_clean %>%
+    filter(timepoint == "Baseline")
+
+  dat_clean_tmp <- dat_clean_tmp %>%
+    select(client_id, treatment, static99_modified_calc, "Indexdelikt", "Aktuelle_Betreuung", "Aktuelle_zusatzliche_Behandlung")
+
+  who_complete <- who_tmp %>% left_join(dat_clean_tmp, by="client_id")
+
+  who_baseline <- who_complete %>%
+    filter(timepoint == "Baseline") %>%
+    select(
+      client_id,
+      who_calc_total
+    ) %>%
+    rename(
+      who_calc_total_baseline = who_calc_total
+    )
+
+  who_clean <- merge(
+        who_complete, who_baseline, by="client_id", all=TRUE
+      ) %>%
+      mutate(client_id = as.factor(client_id)) %>%
+      filter(!client_id %in% c(194, 412, 511) & !is.na(client_id)) %>%
+      filter(client_id %in% client_list)
+
+  who_clean <- who_clean %>% janitor::clean_names(case="none") %>%
+    filter(client_id %in% client_list)
+
+  who_clean <- who_clean %>%
+        dplyr::mutate_if(~inherits(., "ordered"), ~factor(., ordered = FALSE))
+
+  return(who_clean)
+}
+
+who_clean <- get_who_data()
+
+variable <- "who_calc_total"
+var_name <- "WHO-5"
+
+formular <- as.formula(
+    paste(
+        variable, "~", paste0(variable, "_baseline"), "+ timepoint + treatment:timepoint + `Indexdelikt` + `Aktuelle_Betreuung` + `Aktuelle_zusatzliche_Behandlung` + `static99_modified_calc` +
+            us(timepoint | client_id)"
+    )
+)
+
+fit_who <- mmrm(
+        formula = formular,
+        data = who_clean %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+            dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
+    )
+
+create_who_mmrm_table <- function() {
+
+    who_clean <- get_who_data()
+
+    variable <- "who_calc_total"
+    var_name <- "WHO-5"
+
+    formular <- as.formula(
+        paste(
+            variable, "~", paste0(variable, "_baseline"), "+ timepoint + treatment:timepoint + `Indexdelikt` + `Aktuelle_Betreuung` + `Aktuelle_zusatzliche_Behandlung` + `static99_modified_calc` +
+                us(timepoint | client_id)"
+        )
+    )
+
+    fit1_model <- mmrm(
+            formula = formular,
+            data = who_clean %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+                dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
+        )
+
+    dynamic_label_text <- paste0("Baseline value (",  var_name, ")")
+    variable_baseline_name <- paste0(variable, "_baseline")
+    dynamic_entry <- setNames(list(dynamic_label_text), variable_baseline_name)
+
+    label_list <- c(
+        list(
+            static99_modified_calc = "Static recidivism risk (baseline)",
+            Aktuelle_Betreuung = "Type of supervision",
+            Aktuelle_zusatzliche_Behandlung = "Additional treatment",
+            Indexdelikt = "Offense type",
+            treatment = "Treatment",
+            timepoint = "Timepoint",
+            `Timepoint * treatment` = "Timepoint * Treatment"
+        ),
+        dynamic_entry   # hier wird dynamisch angehängt
+    )
+
+    lm_Table <- fit1_model %>%
+        tbl_regression(
+            add_estimate_to_reference_rows = TRUE,
+            intercept = TRUE,
+            label = label_list
+        ) %>%
+        modify_header(label ~ "**Variable**") %>%
+        modify_table_styling(
+            columns = c(estimate, conf.low, conf.high),
+            rows = reference_row %in% TRUE,
+            missing_symbol = "Ref."
+        ) %>%
+        #modify_footnote(abbreviation = TRUE) %>%
+        bold_labels() #%>%
+        # italic_p(t = 0.05) %>%
+        # # CI in round brackets:
+        # modify_column_merge(pattern = "({conf.low}, {conf.high})",
+        #                     rows =  conf.low!="") %>%
+        # modify_header(estimate ~ "**Beta**")
+
+    lm_Table$table_body %<>% distinct
+
+    return(lm_Table)
+}
+
+create_who_pairwise_dataframe <- function(variable = "who_calc_total") {
+
+  # Paired tests for IoD:
+  df <- who_clean %>%
+    dplyr::filter(!is.na(.data[[variable]]))
+
+  dat_complete_module1_iod <- df %>% dplyr::filter(timepoint %in% c("Baseline", "Module 1 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Baseline" ~ "pre",
+                                "Module 1 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 1` = variable)
+
+  dat_complete_module2_iod <- df %>% dplyr::filter(timepoint %in% c("Module 2 (before)", "Module 2 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 2 (before)" ~ "pre",
+                                "Module 2 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 2` = variable)
+  dat_complete_module3_iod <- df %>% dplyr::filter(timepoint %in% c("Module 3 (before)", "Module 3 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 3 (before)" ~ "pre",
+                                "Module 3 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 3` = variable)
+  dat_complete_module4_iod <- df %>% dplyr::filter(timepoint %in% c("Module 4 (before)", "Module 4 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 4 (before)" ~ "pre",
+                                "Module 4 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 4` = variable)
+  dat_complete_module5_iod <- df %>% dplyr::filter(timepoint %in% c("Module 5 (before)", "Module 5 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 5 (before)" ~ "pre",
+                                "Module 5 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 5` = variable)
+  dat_complete_module6_iod <- df %>% dplyr::filter(timepoint %in% c("Module 6 (before)", "Module 6 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 6 (before)" ~ "pre",
+                                "Module 6 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 6` = variable)
+
+  df <- dat_complete_module1_iod %>%
+    dplyr::select(contains("pre/post"), client_id, timepoint, treatment) %>%
+    dplyr::filter(!client_id %in% c(253, 396)) %>%
+    merge(.,
+          dat_complete_module2_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module3_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module4_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module5_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module6_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    arrange(client_id, desc(timepoint)) %>%
+    dplyr::filter(!is.na(timepoint)) %>%
+    dplyr::mutate(timepoint = relevel(timepoint, "pre"))
+
+    return(df)
+}
+
+create_who_pairwise_tbls <- function(
+  subgroup_str = "Intervention"
+) {
+
+  dvs <- c(
+    "Module 1",
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5",
+    "Module 6"
+  )
+
+
+  dvs_mbsb <- c(
+    "module_1",
+    "module_2",
+    "module_3",
+    "module_4",
+    "module_5",
+    "module_6"
+  )
+
+  labels <- c(
+    "Module 1",
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5",
+    "Module 6"
+  )
+
+  types = rep("continuous2", 6)
+  abbreviations <- c("")
+  sample_str <- "itt"
+  mbsb <- TRUE
+  grouping_var <- "treatment"
+
+  variable = "who_calc_total"
+
+  # create dvs and grouping_var based on mbsb
+  if (mbsb) {
+    dvs <- dvs_mbsb
+    # grouping variable (which variables should be compared - must have two levels)
+    grouping_var <- "treatment"
+
+    if (grepl("reduced", dvs[1])) {
+      print("It must be a reduced variable!")
+      dat <- create_who_pairwise_dataframe(paste0(variable, "_reduced"))
+        dat_i <- dat %>% filter(treatment == "Intervention") %>%
+                    dplyr::select(contains("pre/post"), timepoint)
+        dat_p <- dat %>% filter(treatment == "Placebo") %>%
+        dplyr::select(contains("pre/post"), timepoint)
+    } else {
+      dat <- create_pairwise_dataframe(variable)
+      dat_i <- dat %>% filter(treatment == "Intervention") %>%
+                  dplyr::select(contains("pre/post"), timepoint)
+      dat_p <- dat %>% filter(treatment == "Placebo") %>%
+        dplyr::select(contains("pre/post"), timepoint)
+    }
+
+    data_intervention <- rename_colnames_iod(
+      data = dat_i,
+      dv = dvs[1],
+      grouping_var
+    )
+
+    data_placebo <- rename_colnames_iod(
+      data = dat_p,
+      dv = dvs[1],
+      grouping_var
+    )
+  } else {
+    # grouping variable (which variables should be compared - must have two levels)
+    grouping_var <- "client_group"
+    stop("Only mbsb = TRUE is implemented")
+  }
+
+  # create label_list
+  label_list <- purrr::map2(dvs, labels, ~rlang::new_formula(sym(.x), .y))
+
+  # create list of types
+  type_list <- purrr::map2(dvs, types, ~rlang::new_formula(sym(.x), .y))
+
+  if (subgroup_str == "Intervention") {
+    tbl <- create_prim_pairwise_tbl(data_intervention, dvs, label_list, type_list, abbreviations)
+  } else if (subgroup_str == "Placebo") {
+    tbl <- create_prim_pairwise_tbl(data_placebo, dvs, label_list, type_list, abbreviations)
+  } else {
+    stop("subgroup_str must be either 'Intervention' or 'Placebo'")
+  }
+
+  return(tbl)
+}
+
+create_who_diffscore_dataframe <- function(variable) {
+
+  df <- who_clean %>%
+    dplyr::filter(!is.na(.data[[variable]]))
+
+  dat_complete_module1_iod <- df %>% dplyr::filter(timepoint %in% c("Baseline", "Module 1 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Baseline" ~ "pre",
+                                "Module 1 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 1` = variable)
+
+  dat_complete_module2_iod <- df %>% dplyr::filter(timepoint %in% c("Module 2 (before)", "Module 2 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 2 (before)" ~ "pre",
+                                "Module 2 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 2` = variable)
+  dat_complete_module3_iod <- df %>% dplyr::filter(timepoint %in% c("Module 3 (before)", "Module 3 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 3 (before)" ~ "pre",
+                                "Module 3 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 3` = variable)
+  dat_complete_module4_iod <- df %>% dplyr::filter(timepoint %in% c("Module 4 (before)", "Module 4 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 4 (before)" ~ "pre",
+                                "Module 4 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 4` = variable)
+  dat_complete_module5_iod <- df %>% dplyr::filter(timepoint %in% c("Module 5 (before)", "Module 5 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 5 (before)" ~ "pre",
+                                "Module 5 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 5` = variable)
+  dat_complete_module6_iod <- df %>% dplyr::filter(timepoint %in% c("Module 6 (before)", "Module 6 (post)"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 6 (before)" ~ "pre",
+                                "Module 6 (post)" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 6` = variable)
+
+  df <- dat_complete_module1_iod %>%
+    dplyr::select(contains("pre/post"), client_id, timepoint, treatment) %>%
+    dplyr::filter(!client_id %in% c(253, 396)) %>%
+    merge(.,
+          dat_complete_module2_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module3_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module4_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module5_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module6_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    arrange(client_id, desc(timepoint)) %>%
+    dplyr::filter(!is.na(timepoint)) %>%
+    dplyr::mutate(timepoint = relevel(timepoint, "pre"))
+
+  # Reshape the data: separate "pre" and "post" values into columns
+  df_wide <- df %>%
+    dplyr::select(contains("pre/post"), timepoint, client_id, treatment) %>%
+    tidyr::pivot_wider(names_from = timepoint, values_from = -c(client_id, timepoint, treatment)) %>%
+    dplyr::mutate(`treatment` = `treatment` %>% relevel(ref = "Placebo"))
+
+  names(df_wide) %<>% gsub("pre/post ", "", .)
+
+  # Compute the differences (post - pre)
+  df_diff <- df_wide %>%
+    mutate(across(ends_with("post"), ~ . - get(sub("post", "pre", cur_column())), .names = "diff_{.col}")) %>%
+    rename_with(~ sub("_post$", "", .), starts_with("diff_")) %>%
+    dplyr::select(client_id, starts_with("diff_"), treatment)
+
+  df_diff <- df_diff %>%
+    dplyr::select(-client_id) %>%
+    filter(!is.na(treatment))
+
+   return(df_diff)
+}
+
+create_who_diffscore_tbl <- function(
+  variable = "who_calc_total"
+) {
+
+  who_clean <- get_who_data()
+
+  mbsb <- TRUE
+  grouping_var <- "treatment"
+
+  dvs <- c(
+    "Module 1",
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5",
+    "Module 6"
+  )
+
+
+  dvs_mbsb <- c(
+    "diff_module_1",
+    "diff_module_2",
+    "diff_module_3",
+    "diff_module_4",
+    "diff_module_5",
+    "diff_module_6"
+  )
+
+  labels <- c(
+    "Module 1",
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5",
+    "Module 6"
+  )
+
+  types = rep("continuous2", 6)
+
+  abbreviations <- c("")
+
+  sample_str <- "itt"
+
+  dvs <- dvs_mbsb
+
+  # create label_list
+  label_list <- purrr::map2(dvs, labels, ~rlang::new_formula(sym(.x), .y))
+
+  # create list of types
+  type_list <- purrr::map2(dvs, types, ~rlang::new_formula(sym(.x), .y))
+
+  df_diff <- create_who_diffscore_dataframe(variable)
+
+  tbl_data <- get_diffscore_mbsb_prim(df_diff, dvs, grouping_var)
+
+  tbl <- create_prim_diff_tbl(tbl_data, dvs, label_list, grouping_var, abbreviations, type_list)
+
+  # show table
+  return(tbl)
+}
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-prepare-rainplot-who-5
+
+library(ggrain)
+
+options(
+  ggplot2.discrete.colour = ggsci::scale_colour_lancet,
+  ggplot2.discrete.fill = ggsci::scale_fill_lancet
+)
+
+add_gg_theme <- function(plt) {
+  plt <- plt +
+    ggplot2::theme_minimal() + 
+    ggplot2::theme(
+          axis.title = element_text(size = 16),
+          axis.text = element_text(size = 14),
+          legend.title = element_text(size = 16),
+          legend.text = element_text(size = 14),
+      )
+
+  return(plt)
+}
+
+who_clean <- get_who_data()
+
+# RAIN plot (descriptive)
+plt <- ggplot(
+    data = who_clean,
+    aes(fill = treatment, x = timepoint, y = who_calc_total, color = treatment)
+  ) +
+  geom_rain(
+    seed = 42,
+    rain.side = 'r',
+    #id.long.var = "IoD_reduced",
+    point.args = list(
+      alpha = 0.3,
+      shape = 21
+    ),
+    point.args.pos = rlang::list2(
+      position = position_jitter(
+        width = 0.1,
+        height = 0.1
+      )
+    ),
+    boxplot.args = list(
+      outlier.shape = NA,
+      color = "black",
+      alpha = .7
+    ),
+    boxplot.args.pos = list(
+      position = ggpp::position_dodgenudge(
+        x = .25,
+        width = 0.2
+      ), 
+      width = 0.15
+    ),
+    violin.args = list(
+      alpha = .2
+    ),
+    violin.args.pos = list(
+      position = ggpp::position_dodgenudge(
+        x = .4,
+        width = 0
+      ), 
+      width = 1.2
+    ),
+  ) +
+  labs(
+    y = "WHO-5 (total score)",
+    x = "Timepoint",
+    color = "Treatment"
+  )
+
+plt <- add_gg_theme(plt)
+
+ggsave(
+  here::here("_figures/fig-anc-who-5-rainplot.png"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8,
+)
+
+ggsave(
+  here::here("_figures/fig-anc-who-5-rainplot.pdf"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+```
+
+![Rainplot for the WHO-5 total score.](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot width=100%}
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: tbl-anc-who-mmrm
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the WHO-5.
+
+who_clean <- get_who_data()
+
+tbl <- create_who_mmrm_table()
+
+tbl <- tbl %>% as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-mmrm.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-mmrm.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-mmrm.png")))
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-anc-who-estimated-marginal-means
+#| fig-cap: Estimated marginal means from the mixed model for repeated measures (MMRM) for the WHO-5.
+#| 
+# Estimated marginal means
+emm <- emmeans(fit_who, ~ treatment | timepoint)
+emm_df <- as.data.frame(emm)
+
+plt <- ggplot(
+    emm_df, 
+    aes(
+      x = timepoint,
+      y = emmean, 
+      color = treatment, 
+      group = treatment
+    )
+  ) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_ribbon(
+    aes(
+      ymin = lower.CL, 
+      ymax = upper.CL
+    ),
+    alpha = 0.2
+  ) +
+  labs(
+    y = "Estimated marginal means +- 95%-CI",
+    x = "Timepoint",
+    color = "Treatment"
+  )
+  
+plt <- add_gg_theme(plt)
+
+ggsave(
+  here::here("_figures/fig-anc-who-estimated-marginal-means.png"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+
+ggsave(
+  here::here("_figures/fig-anc-who-estimated-marginal-means.pdf"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+```
+
+![Estimated marginal means for the WHO-5.](_figures/fig-anc-who-estimated-marginal-means.png){#fig-anc-who-estimated-marginal-means width=100%}
+
+#### Difference from baseline
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-who-pre-post-pairwise-intervention
+#| tbl-cap: "Comparison of the WHO-5 score between before (pre) and after (post) of each module for the intervention arm. The effect of each module on the WHO-5 total score has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+
+tbl <- create_who_pairwise_tbls(subgroup_str = "Intervention")
+
+tbl <- tbl %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwise-intervention.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwise-intervention.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwise-intervention.png")))
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-who-pre-post-pairwise-placebo
+#| tbl-cap: "Comparison of the WHO-5 total score between before (pre) and after (post) of each module for the placebo arm. The effect of each module on the WHO-5 total score has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+
+tbl_placebo <- create_who_pairwise_tbls(subgroup_str = "Placebo")
+
+tbl <- tbl %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwise-placebo.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwise-placebo.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwise-placebo.png")))
+
+tbl
+```
+
+#### Difference from baseline
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-who-difference-from-baseline
+#| tbl-cap: "Difference of the WHO-5 total score between before (pre) and after (post) each module. Differences from baseline (module post - pre) have been compared between the treatment groups exploratively using the Brunner-Munzel test for unpaired data."
+
+tbl <- create_who_diffscore_tbl()
+
+tbl <- tbl %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-difference-from-baseline.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-difference-from-baseline.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-difference-from-baseline.png")))
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-prepare-rainplot-difference-who-5
+
+df_diff <- create_who_diffscore_dataframe("who_calc_total")
+
+df_diff_long <- df_diff %>% pivot_longer(
+    cols = matches("^diff_IoD Module \\d+$"),
+    names_to  = "timepoint",
+    values_to = "who_calc_total"
+  ) %>%
+  mutate(
+    timepoint = sub("^diff_IoD Module ", "", timepoint),
+    timepoint= factor(timepoint, levels = as.character(1:6), labels = paste("Module", 1:6))
+  )
+
+# RAIN plot (descriptive)
+plt <- ggplot(
+    data = df_diff_long,
+    aes(fill = treatment, x = timepoint, y = who_calc_total, color = treatment)
+  ) +
+  geom_rain(
+    seed = 42,
+    rain.side = 'r',
+    #id.long.var = "IoD_reduced",
+    point.args = list(
+      alpha = 0.3,
+      shape = 21
+    ),
+    point.args.pos = rlang::list2(
+      position = position_jitter(
+        width = 0.1,
+        height = 0.1
+      )
+    ),
+    boxplot.args = list(
+      outlier.shape = NA,
+      color = "black",
+      alpha = .7
+    ),
+    boxplot.args.pos = list(
+      position = ggpp::position_dodgenudge(
+        x = .25,
+        width = 0.2
+      ), 
+      width = 0.15
+    ),
+    violin.args = list(
+      alpha = .2
+    ),
+    violin.args.pos = list(
+      position = ggpp::position_dodgenudge(
+        x = .4,
+        width = 0
+      ), 
+      width = 1.2
+    ),
+  ) +
+  labs(
+    y = "WHO-5 (total score)",
+    x = "Timepoint",
+    color = "Treatment"
+  )
+
+plt <- add_gg_theme(plt)
+
+ggsave(
+  here::here("_figures/fig-anc-who-5-difference-from-baseline-rainplot.png"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8,
+)
+
+ggsave(
+  here::here("_figures/fig-anc-who-5-difference-from-baseline-rainplot.pdf"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+```
+
+![Rainplot for the WHO-5 difference from baseline.](_figures/fig-anc-who-5-difference-from-baseline-rainplot.png){#fig-anc-who-5-difference-from-baseline-rainplot width=100%}
+
+
+### WAI-SR: Online-Coach
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: r-anc-init-wai
+
+get_wai_data_full <- function() {
+  infile <- file.path(exportDirmyTabu, "questionnaires_api_wai.rds")
+  wai <- readRDS(infile) %>% as_tibble
+
+  # timepoints
+  # 1-2-1
+  # 2-2-1
+  # 3-2-1
+  # 4-2-1
+  # 5-2-1
+  # 6-2-1
+
+  # Goal Items: 4, 6, 8, 11; 
+
+  # Task Items: 1, 2, 10, 12; 
+
+  # Bond Items Online Coach: 3, 5, 7, 9
+
+  # ---------------------------
+
+  # Bond Items Supervisor: 13, 14, 15, 16
+
+  wai <-
+    wai %>%
+    mutate(timepoint = case_when(
+      # current_module_nr == 1 ~ 'Baseline',
+      # current_module_nr == 2 ~ 'Module 2',
+      # current_module_nr == 3 ~ 'Module 3',
+      # current_module_nr == 4 ~ 'Module 4',
+      # current_module_nr == 5 ~ 'Module 5',
+      # current_module_nr == 6 ~ 'Module 6'
+
+      current_module_nr == 1 ~ 'Baseline',
+      current_module_nr == 2 ~ 'Module 1',
+      current_module_nr == 3 ~ 'Module 2',
+      current_module_nr == 4 ~ 'Module 3',
+      current_module_nr == 5 ~ 'Module 4',
+      current_module_nr == 6 ~ 'Module 5'
+    ),
+    timepoint = factor(
+      timepoint),
+    client_id = factor(client_id)
+  )
+    
+
+  wai$wai_calc_total_coach <- rowSums(
+    wai[, c('wai_1', 'wai_2', 'wai_3', 'wai_4', 'wai_5', 'wai_6', 'wai_7', 'wai_8', 'wai_9', 'wai_10', 'wai_11', 'wai_12')], na.rm = TRUE)
+
+  wai$wai_calc_total_supervisor <- rowSums(
+    wai[, c('wai_1', 'wai_2', 'wai_3', 'wai_4', 'wai_5', 'wai_6', 'wai_7', 'wai_8', 'wai_13', 'wai_14', 'wai_15', 'wai_16')], na.rm = TRUE)
+
+  wai$wai_calc_goal <- rowSums(
+    wai[, c('wai_4', 'wai_6', 'wai_8', 'wai_11')], na.rm = TRUE)
+
+  wai$wai_calc_task <- rowSums(
+    wai[, c('wai_1', 'wai_2', 'wai_10', 'wai_12')], na.rm = TRUE)
+
+  wai$wai_calc_bond_coach <- rowSums(
+    wai[, c('wai_3', 'wai_5', 'wai_7', 'wai_9')], na.rm = TRUE)
+
+  wai$wai_calc_bond_supervisor <- rowSums(
+    wai[, c('wai_13', 'wai_14', 'wai_15', 'wai_16')], na.rm = TRUE)
+
+  return(wai)
+}
+
+
+create_wai_clean_data <- function(variable) {
+
+  wai <- get_wai_data_full()
+
+  wai_tmp <- wai %>% dplyr::select(client_id, timepoint, .data[[variable]])
+
+  dat_clean_tmp <- dat_clean %>%
+    filter(timepoint == "Baseline")
+
+  dat_clean_tmp <- dat_clean_tmp %>%
+    dplyr::select(client_id, treatment, static99_modified_calc, "Indexdelikt", "Aktuelle_Betreuung", "Aktuelle_zusatzliche_Behandlung")
+
+  wai_complete <- wai_tmp %>% left_join(dat_clean_tmp, by="client_id")
+
+  wai_baseline <- wai_complete %>%
+    filter(timepoint == "Baseline") %>%
+    dplyr::select(
+      client_id,
+      .data[[variable]]
+    ) %>%
+    rename(
+      wai_baseline = variable
+    )
+
+  wai_clean <- merge(
+        wai_complete, wai_baseline, by="client_id", all=TRUE
+      ) %>%
+      mutate(client_id = as.factor(client_id)) %>%
+      filter(!client_id %in% c(194, 412, 511) & !is.na(client_id)) %>%
+      filter(client_id %in% client_list)
+
+  wai_clean <- wai_clean %>% janitor::clean_names(case="none") %>%
+    filter(client_id %in% client_list)
+
+  wai_clean <- wai_clean %>%
+        dplyr::mutate_if(~inherits(., "ordered"), ~factor(., ordered = FALSE))
+
+  return(wai_clean)
+}
+
+create_wai_mmrm_table <- function(variable, var_name) {
+
+  variable <- variable
+  var_name <- var_name
+
+    
+  who_clean <- create_wai_clean_data(variable)
+
+    formular <- as.formula(
+        paste(
+            variable, "~ wai_baseline + timepoint + treatment:timepoint + `Indexdelikt` + `Aktuelle_Betreuung` + `Aktuelle_zusatzliche_Behandlung` + `static99_modified_calc` +
+                us(timepoint | client_id)"
+        )
+    )
+
+    fit1_model <- mmrm(
+        formula = formular,
+        data = who_clean %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+            dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
+    )
+
+    dynamic_label_text <- paste0("Baseline value (",  var_name, ")")
+    dynamic_entry <- setNames(list(dynamic_label_text), "wai_baseline")
+
+    label_list <- c(
+        list(
+            static99_modified_calc = "Static recidivism risk (baseline)",
+            Aktuelle_Betreuung = "Type of supervision",
+            Aktuelle_zusatzliche_Behandlung = "Additional treatment",
+            Indexdelikt = "Offense type",
+            treatment = "Treatment",
+            timepoint = "Timepoint",
+            `Timepoint * treatment` = "Timepoint * Treatment"
+        ),
+        dynamic_entry   # hier wird dynamisch angehängt
+    )
+
+    lm_Table <- fit1_model %>%
+        tbl_regression(
+            add_estimate_to_reference_rows = TRUE,
+            intercept = TRUE,
+            label = label_list
+        ) %>%
+        modify_header(label ~ "**Variable**") %>%
+        modify_table_styling(
+            columns = c(estimate, conf.low, conf.high),
+            rows = reference_row %in% TRUE,
+            missing_symbol = "Ref."
+        ) %>%
+        #modify_footnote(abbreviation = TRUE) %>%
+        bold_labels() #%>%
+        # italic_p(t = 0.05) %>%
+        # # CI in round brackets:
+        # modify_column_merge(pattern = "({conf.low}, {conf.high})",
+        #                     rows =  conf.low!="") %>%
+        # modify_header(estimate ~ "**Beta**")
+
+    lm_Table$table_body %<>% distinct
+
+    return(lm_Table)
+}
+
+create_wai_pairwise_dataframe <- function(variable) {
+
+  df <- create_wai_clean_data(variable)
+
+  # Paired tests for IoD:
+  df <- df %>%
+    dplyr::filter(!is.na(.data[[variable]]))
+
+  dat_complete_module2_iod <- df %>% dplyr::filter(timepoint %in% c("Baseline", "Module 1"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Baseline" ~ "pre",
+                                "Module 1" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 2` = variable)
+
+  dat_complete_module3_iod <- df %>% dplyr::filter(timepoint %in% c("Module 1", "Module 2"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 1" ~ "pre",
+                                "Module 2" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 3` = variable)
+
+  dat_complete_module4_iod <- df %>% dplyr::filter(timepoint %in% c("Module 2", "Module 3"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 2" ~ "pre",
+                                "Module 3" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 4` = variable)
+
+  dat_complete_module5_iod <- df %>% dplyr::filter(timepoint %in% c("Module 3", "Module 4"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 3" ~ "pre",
+                                "Module 4" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 5` = variable)
+
+  dat_complete_module6_iod <- df %>% dplyr::filter(timepoint %in% c("Module 4", "Module 5"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 4" ~ "pre",
+                                "Module 5" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 6` = variable)
+
+  df <- dat_complete_module2_iod %>%
+    dplyr::select(contains("pre/post"), client_id, timepoint, treatment) %>%
+    dplyr::filter(!client_id %in% c(253, 396)) %>%
+    merge(.,
+          dat_complete_module3_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module4_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module5_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module6_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    arrange(client_id, desc(timepoint)) %>%
+    dplyr::filter(!is.na(timepoint)) %>%
+    dplyr::mutate(timepoint = relevel(timepoint, "pre"))
+    
+    df <- df %>% mutate(
+      module_2 = `IoD pre/post Module 2`,
+      module_3 = `IoD pre/post Module 3`,
+      module_4 = `IoD pre/post Module 4`,
+      module_5 = `IoD pre/post Module 5`,
+      module_6 = `IoD pre/post Module 6`
+    )
+
+    return(df)
+}
+
+create_wai_pairwise_tbls <- function(
+  subgroup_str = "Intervention",
+  variable
+) {
+
+  dvs <- c(
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5",
+    "Module 6"
+  )
+
+
+  dvs_mbsb <- c(
+    "module_2",
+    "module_3",
+    "module_4",
+    "module_5",
+    "module_6"
+  )
+
+  labels <- c(
+    "Module 1",
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5"
+  )
+
+  types = rep("continuous2", 5)
+  abbreviations <- c("")
+  sample_str <- "itt"
+  mbsb <- TRUE
+  grouping_var <- "treatment"
+
+  # create dvs and grouping_var based on mbsb
+  dvs <- dvs_mbsb
+  # grouping variable (which variables should be compared - must have two levels)
+  grouping_var <- "treatment"
+
+
+  dat <- create_wai_pairwise_dataframe(variable)
+  dat_i <- dat %>% filter(treatment == "Intervention") %>%
+      dplyr::select(contains("_"), timepoint)
+  dat_p <- dat %>% filter(treatment == "Placebo") %>%
+    dplyr::select(contains("_"), timepoint)
+
+
+  data_intervention <- dat_i
+
+  data_placebo <- dat_p
+
+  # create label_list
+  label_list <- purrr::map2(dvs, labels, ~rlang::new_formula(sym(.x), .y))
+
+  # create list of types
+  type_list <- purrr::map2(dvs, types, ~rlang::new_formula(sym(.x), .y))
+
+  if (subgroup_str == "Intervention") {
+    tbl <- create_prim_pairwise_tbl(data_intervention, dvs, label_list, type_list, abbreviations)
+  } else if (subgroup_str == "Placebo") {
+    tbl <- create_prim_pairwise_tbl(data_placebo, dvs, label_list, type_list, abbreviations)
+  } else {
+    stop("subgroup_str must be either 'Intervention' or 'Placebo'")
+  }
+
+  return(tbl)
+}
+
+create_wai_diffscore_dataframe <- function(variable) {
+
+  df <- create_wai_clean_data(variable)
+
+  df <- df %>%
+    dplyr::filter(!is.na(.data[[variable]]))
+
+  dat_complete_module2_iod <- df %>% dplyr::filter(timepoint %in% c("Baseline", "Module 1"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Baseline" ~ "pre",
+                                "Module 1" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 2` = variable)
+
+  dat_complete_module3_iod <- df %>% dplyr::filter(timepoint %in% c("Module 1", "Module 2"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 1" ~ "pre",
+                                "Module 2" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 3` = variable)
+
+  dat_complete_module4_iod <- df %>% dplyr::filter(timepoint %in% c("Module 2", "Module 3"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 2" ~ "pre",
+                                "Module 3" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 4` = variable)
+
+  dat_complete_module5_iod <- df %>% dplyr::filter(timepoint %in% c("Module 3", "Module 4"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 3" ~ "pre",
+                                "Module 4" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 5` = variable)
+
+  dat_complete_module6_iod <- df %>% dplyr::filter(timepoint %in% c("Module 4", "Module 5"))  %>%
+    group_by(client_id) %>%
+    filter(n()==2) %>%
+    mutate(timepoint=case_match(timepoint,
+                                "Module 4" ~ "pre",
+                                "Module 5" ~ "post") %>%
+            factor()) %>%
+    dplyr::rename(`IoD pre/post Module 6` = variable)
+
+  df <- dat_complete_module2_iod %>%
+    dplyr::select(contains("pre/post"), client_id, timepoint, treatment) %>%
+    dplyr::filter(!client_id %in% c(253, 396)) %>%
+    merge(.,
+          dat_complete_module3_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module4_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module5_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    merge(.,
+          dat_complete_module6_iod %>%
+            dplyr::select(contains("pre/post"), client_id, timepoint) %>%
+            dplyr::filter(!client_id %in% c(253, 396)),
+          by=c("client_id", "timepoint"),
+          all=TRUE) %>%
+    arrange(client_id, desc(timepoint)) %>%
+    dplyr::filter(!is.na(timepoint)) %>%
+    dplyr::mutate(timepoint = relevel(timepoint, "pre"))
+
+  # Reshape the data: separate "pre" and "post" values into columns
+  df_wide <- df %>%
+    dplyr::select(contains("pre/post"), timepoint, client_id, treatment) %>%
+    tidyr::pivot_wider(names_from = timepoint, values_from = -c(client_id, timepoint, treatment)) %>%
+    dplyr::mutate(`treatment` = `treatment` %>% relevel(ref = "Placebo"))
+
+  names(df_wide) %<>% gsub("pre/post ", "", .)
+
+  # Compute the differences (post - pre)
+  df_diff <- df_wide %>%
+    mutate(across(ends_with("post"), ~ . - get(sub("post", "pre", cur_column())), .names = "diff_{.col}")) %>%
+    rename_with(~ sub("_post$", "", .), starts_with("diff_")) %>%
+    dplyr::select(client_id, starts_with("diff_"), treatment)
+
+  df_diff <- df_diff %>%
+    dplyr::select(-client_id) %>%
+    filter(!is.na(treatment))
+
+  df_diff <- df_diff %>% mutate(
+      module_2 = `diff_IoD Module 2`,
+      module_3 = `diff_IoD Module 3`,
+      module_4 = `diff_IoD Module 4`,
+      module_5 = `diff_IoD Module 5`,
+      module_6 = `diff_IoD Module 6`
+    ) %>%
+    dplyr::select(treatment, module_2, module_3, module_4, module_5, module_6)
+    
+
+   return(df_diff)
+}
+
+create_prim_wai_diff_tbl <- function(data, dvs, label_list, grouping_var, abbreviations, type_list) {
+
+  tbl <- data %>%
+    tbl_summary(
+      by = grouping_var,
+      type = type_list,
+      missing_text = "Missing",
+      label = label_list
+    ) %>%
+    # brunner-munzel test
+    add_stat(fns = everything() ~ bm_unpaired_test) %>%
+    add_q(method = "holm") %>%
+    modify_header(
+      p.hat = "**p-hat**",
+      t.value = "**t**",
+      ci.value = "**95% CI**",
+      p.value = "**p-value**"
+    ) %>%
+    bold_labels() %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
+    # abbreviations
+    modify_abbreviation("*Q1* = 25th percentile") %>%
+    modify_abbreviation("*Q3* = 75th percentile") %>%
+    modify_abbreviation("*95% CI* = Confidence interval of the estimated relative effect") %>%
+    modify_abbreviation("*p-hat* = estimated relative effect") %>%
+    modify_abbreviation("*t* = Brunner–Munzel test statistic for unpaired samples") %>%
+    modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value")
+
+
+  # add abbreviations
+  for (i in 1:length(abbreviations)) {
+    tbl <- tbl %>%
+        modify_abbreviation(abbreviations[i])
+  }
+
+  return(tbl)
+}
+
+create_wai_diffscore_tbl <- function(
+  variable = "who_calc_total"
+) {
+
+  mbsb <- TRUE
+  grouping_var <- "treatment"
+
+  dvs <- c(
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5",
+    "Module 6"
+  )
+
+
+  dvs_mbsb <- c(
+    "module_2",
+    "module_3",
+    "module_4",
+    "module_5",
+    "module_6"
+  )
+
+  labels <- c(
+    "Module 1",
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5"
+  )
+
+  types = rep("continuous2", 5)
+  abbreviations <- c("")
+  sample_str <- "itt"
+  mbsb <- TRUE
+  grouping_var <- "treatment"
+
+  dvs <- dvs_mbsb
+
+  # create label_list
+  label_list <- purrr::map2(dvs, labels, ~rlang::new_formula(sym(.x), .y))
+
+  # create list of types
+  type_list <- purrr::map2(dvs, types, ~rlang::new_formula(sym(.x), .y))
+
+  tbl_data <- create_wai_diffscore_dataframe(variable)
+
+  tbl <- create_prim_wai_diff_tbl(tbl_data, dvs, label_list, grouping_var, abbreviations, type_list)
+
+  # show table
+  return(tbl)
+}
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: tbl-anc-wai-coach-mmrm
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the WAI-SR (total score; coach).
+
+variable <- "wai_calc_total_coach"
+var_name <- "WAI-SR COACH (total score)"
+
+tbl <- create_wai_mmrm_table(variable, var_name)
+
+
+tbl <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-mmrm.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-mmrm.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-mmrm.png")))
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-anc-wai-coach-estimated-marginal-means
+#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the  WAI-SR (total score; coach)"
+
+variable <- "wai_calc_total_coach"
+who_clean <- create_wai_clean_data(variable)
+
+formular <- as.formula(
+    paste(
+        variable, "~ wai_baseline + timepoint + treatment:timepoint + `Indexdelikt` + `Aktuelle_Betreuung` + `Aktuelle_zusatzliche_Behandlung` + `static99_modified_calc` +
+            us(timepoint | client_id)"
+    )
+)
+
+fit <- mmrm(
+    formula = formular,
+    data = who_clean %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+        dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
+)
+
+emm <- emmeans(fit, ~ treatment | timepoint)
+emm_df <- as.data.frame(emm)
+
+plt <- ggplot(
+    emm_df, 
+    aes(
+      x = timepoint,
+      y = emmean, 
+      color = treatment, 
+      group = treatment
+    )
+  ) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_ribbon(
+    aes(
+      ymin = lower.CL, 
+      ymax = upper.CL
+    ),
+    alpha = 0.2
+  ) +
+  labs(
+    y = "Estimated marginal means +- 95%-CI",
+    x = "Timepoint",
+    color = "Treatment"
+  )
+  
+plt <- add_gg_theme(plt)
+
+ggsave(
+  here::here("_figures/fig-anc-wai-coach-estimated-marginal-means.png"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+
+ggsave(
+  here::here("_figures/fig-anc-wai-coach-estimated-marginal-means.pdf"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+```
+
+![Estimated marginal means from the MMRM of WAI-SR COACH (total score).](_figures/fig-anc-wai-coach-estimated-marginal-means.png){#ffig-anc-wai-coach-estimated-marginal-means width=100%}
+
+#### Pairwise comparisons
+
+The effect of the first five modules on the `r var_name` has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate. [@tbl-anc-wai-coach-pre-post-pairwise-intervention] shows descriptive statistics as well as the results of the pairwise comparisons for the intervention arm and [@tbl-anc-wai-coach-pre-post-pairwise-placebo] for the placebo arm.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-wai-coach-pre-post-pairwise-intervention
+#| tbl-cap: "Comparison of the WAI-SR (total score; coach) between before (pre) and after (post) of the first five modules for the intervention arm. The WAI-SR coach has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+
+tbl <- create_wai_pairwise_tbls("Intervention", variable)
+
+tbl <- tbl %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-pairwise-intervention.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-pairwise-intervention.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-pairwise-intervention.png")))
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-wai-coach-pre-post-pairwise-placebo
+#| tbl-cap: "Comparison of the WAI-SR (total score; coach) between before (pre) and after (post) of the first five modules for the placebo arm."
+
+tbl <- create_wai_pairwise_tbls("Placebo", variable)
+
+tbl <- tbl %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-pairwise-placebo.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-pairwise-placebo.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-pairwise-placebo.png")))
+
+tbl
+```
+
+#### Difference from baseline
+
+Pre-post differences for the WAI-SR (total score; coach) have been compared between the treatment groups exploratively using the Brunner-Munzel test for unpaired data. [@tbl-anc-wai-coach-diffscore] shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data of the CARES total score.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-wai-coach-difference-from-baseline
+#| tbl-cap: "Pre-post differences of the WAI-SR (total score; coach) between before (pre) and after (post) of the first five modules."
+
+tbl <- create_wai_diffscore_tbl(variable)
+
+tbl <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-difference-from-baseline.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-difference-from-baseline.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-difference-from-baseline.png")))
+
+tbl
+```
+
+### WAI-SR: Community supervisor
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: tbl-anc-wai-supervisor-mmrm
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the WAI-SR (total score; supervisor).
+
+variable <- "wai_calc_total_supervisor"
+var_name <- "WAI-SR SUPERVISOR (total score)"
+
+tbl <- create_wai_mmrm_table(variable, var_name)
+
+
+tbl <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-mmrm.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-mmrm.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-mmrm.png")))
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-anc-wai-supervisor-estimated-marginal-means
+#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the  WAI-SR (total score; supervisor)"
+
+variable <- "wai_calc_total_supervisor"
+who_clean <- create_wai_clean_data(variable)
+
+formular <- as.formula(
+    paste(
+        variable, "~ wai_baseline + timepoint + treatment:timepoint + `Indexdelikt` + `Aktuelle_Betreuung` + `Aktuelle_zusatzliche_Behandlung` + `static99_modified_calc` +
+            us(timepoint | client_id)"
+    )
+)
+
+fit <- mmrm(
+    formula = formular,
+    data = who_clean %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+        dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
+)
+
+emm <- emmeans(fit, ~ treatment | timepoint)
+emm_df <- as.data.frame(emm)
+
+plt <- ggplot(
+    emm_df, 
+    aes(
+      x = timepoint,
+      y = emmean, 
+      color = treatment, 
+      group = treatment
+    )
+  ) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_ribbon(
+    aes(
+      ymin = lower.CL, 
+      ymax = upper.CL
+    ),
+    alpha = 0.2
+  ) +
+  labs(
+    y = "Estimated marginal means +- 95%-CI",
+    x = "Timepoint",
+    color = "Treatment"
+  )
+  
+plt <- add_gg_theme(plt)
+
+ggsave(
+  here::here("_figures/fig-anc-wai-supervisor-estimated-marginal-means.png"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+
+ggsave(
+  here::here("_figures/fig-anc-wai-supervisor-estimated-marginal-means.pdf"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+```
+
+![Estimated marginal means from the MMRM of WAI-SR SUPERVISOR (total score).](_figures/fig-anc-wai-supervisor-estimated-marginal-means.png){#ffig-anc-wai-supervisor-estimated-marginal-means width=100%}
+
+#### Pairwise comparisons
+
+The effect of the first five modules on the `r var_name` has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate. [@tbl-anc-wai-supervisor-pre-post-pairwise-intervention] shows descriptive statistics as well as the results of the pairwise comparisons for the intervention arm and [@tbl-anc-wai-supervisor-pre-post-pairwise-placebo] for the placebo arm.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-wai-supervisor-pre-post-pairwise-intervention
+#| tbl-cap: "Comparison of the WAI-SR (total score; supervisor) between before (pre) and after (post) of the first five modules for the intervention arm. The WAI-SR supervisor has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+
+tbl <- create_wai_pairwise_tbls("Intervention", variable)
+
+tbl <- tbl %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-post-pairwise-intervention.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-post-pairwise-intervention.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-post-pairwise-intervention.png")))
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-wai-supervisor-pre-post-pairwise-placebo
+#| tbl-cap: "Comparison of the WAI-SR (total score; supervisor) between before (pre) and after (post) of the first five modules for the placebo arm."
+
+tbl <- create_wai_pairwise_tbls("Placebo", variable)
+
+tbl <- tbl %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-post-pairwise-placebo.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-post-pairwise-placebo.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-post-pairwise-placebo.png")))
+
+tbl
+```
+
+#### Difference from baseline
+
+Pre-post differences for the WAI-SR (total score; supervisor) have been compared between the treatment groups exploratively using the Brunner-Munzel test for unpaired data. [@tbl-anc-wai-supervisor-diffscore] shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data of the CARES total score.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-anc-wai-supervisor-difference-from-baseline
+#| tbl-cap: "Pre-post differences of the WAI-SR (total score; supervisor) between before (pre) and after (post) of the first five modules."
+
+tbl <- create_wai_diffscore_tbl(variable)
+
+tbl <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-difference-from-baseline.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-difference-from-baseline.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-difference-from-baseline.png")))
+
+tbl
+```
+

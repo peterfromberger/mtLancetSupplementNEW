@@ -114,7 +114,7 @@ source(here::here("_scripts/remove_outlier.R"))
 
 ## Protocol deviations
 
-<!-- {{< include _includes/apx_PROTOCOL_DEVIATIONS.qmd >}} -->
+{{< include _includes/apx_PROTOCOL_DEVIATIONS.qmd >}}
 
 ## Primary Outcomes
 

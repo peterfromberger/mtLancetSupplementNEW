@@ -148,8 +148,6 @@ create_sec_diff_tbl <- function(data, dvs, label_list, grouping_var, abbreviatio
     data <- df_diff %>% select(treatment, all_of(score_columns))
   }
 
-  print(names(data))
-
   tbl <- data %>%
     tbl_summary(
       by = grouping_var,
