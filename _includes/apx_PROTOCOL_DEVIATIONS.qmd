@@ -13,193 +13,8 @@ library(stringr)
 # global theme for gtsummary
 gtsummary::theme_gtsummary_journal(journal = "lancet")
 
-df <- readRDS(here::here("_data/finalData/randomizedMaster2.Rds"))
-
-df <- df[, -grep("^index\\d+dat\\d*_pos\\d+$", names(df))]
-
-#date_vars <- vapply(df, function(x) inherits(x, c("Date", "POSIXct", "POSIXlt")))
-date_vars <- names(df)[vapply(df, function(x) {
-  is.atomic(x) && inherits(x, c("Date", "POSIXct", "POSIXlt"))
-}, logical(1))]
-
-# only itt
-df <- df %>%
-    filter(m1s4l7_calc_lession_finished == TRUE) %>%
-    filter(client_id != 194)
-
-
-df <- df %>%
-  dplyr::select(client_id, client_group, all_of(date_vars), strataindex, stratabehandl, stratabetreu, static99_modified_calc)
-
-df <- df %>% mutate(fu.date = if_else(!is.na(excluded_at), excluded_at, finished_at))
-
-tmp <- df
-
-# -----
-# Working time
-# duration of each lection!
-# -----
-
-# Alle Variablen, die mit create_time oder update_time beginnen
-create_cols <- grep("^create_time", names(df), value = TRUE)
-update_cols <- grep("^update_time", names(df), value = TRUE)
-
-# Schlüssel extrahieren
-extract_key <- function(x) {
-  x %>%
-    str_replace("^create_time_", "") %>%
-    str_replace("^update_time_", "") %>%
-    str_replace("_calc$", "")
-}
-
-create_keys <- setNames(create_cols, sapply(create_cols, extract_key))
-update_keys <- setNames(update_cols, sapply(update_cols, extract_key))
-
-# calculate working on content time for each module
-# working time = time between lection data was saved (update_time) and lection was started
-for (key in names(create_keys)) {
-  if (key %in% names(update_keys)) {
-    new_col <- paste0("reineBearbeitungsdauer_duration_", key, "_hours")
-    df[[new_col]] <- as.numeric(df[[update_keys[[key]]]] - df[[create_keys[[key]]]], units = "days")
-  }
-}
-
-cols_m1 <- grep("reineBearbeitungsdauer_duration_1", names(df), value = TRUE)
-
-cols_m2_int <- grep("reineBearbeitungsdauer_duration_2", names(df), value = TRUE)
-
-# 2_3_8, 2_4_7 gibt es nicht bei placebo
-cols_m2_pla <- c("reineBearbeitungsdauer_duration_2_3_1_hours", "reineBearbeitungsdauer_duration_2_4_1_hours",
-"reineBearbeitungsdauer_duration_2_1_1_hours", "reineBearbeitungsdauer_duration_2_2_1_hours",
-"reineBearbeitungsdauer_duration_2_2_2_hours", "reineBearbeitungsdauer_duration_2_4_6_hours",
-"reineBearbeitungsdauer_duration_2_1_2_hours", "reineBearbeitungsdauer_duration_2_2_3_hours",
-"reineBearbeitungsdauer_duration_2_1_3_hours", "reineBearbeitungsdauer_duration_2_1_4_hours",
-"reineBearbeitungsdauer_duration_2_1_5_hours", "reineBearbeitungsdauer_duration_2_2_4_hours",
-"reineBearbeitungsdauer_duration_2_1_6_hours", "reineBearbeitungsdauer_duration_2_2_5_hours",
-"reineBearbeitungsdauer_duration_2_2_6_hours", "reineBearbeitungsdauer_duration_2_3_2_hours",
-"reineBearbeitungsdauer_duration_2_3_3_hours", "reineBearbeitungsdauer_duration_2_3_4_hours",
-"reineBearbeitungsdauer_duration_2_3_5_hours", "reineBearbeitungsdauer_duration_2_3_6_hours",
-"reineBearbeitungsdauer_duration_2_3_7_hours", "reineBearbeitungsdauer_duration_2_4_2_hours",
-"reineBearbeitungsdauer_duration_2_4_3_hours", "reineBearbeitungsdauer_duration_2_4_4_hours",
-"reineBearbeitungsdauer_duration_2_4_5_hours")
-
-cols_m3 <- grep("reineBearbeitungsdauer_duration_3", names(df), value = TRUE)
-
-cols_m4 <- grep("reineBearbeitungsdauer_duration_4", names(df), value = TRUE)
-
-cols_m5 <- grep("reineBearbeitungsdauer_duration_5", names(df), value = TRUE)
-
-cols_m6_int <- grep("reineBearbeitungsdauer_duration_6", names(df), value = TRUE)
-
-# 6_2_7 gibt es nicht bei placebo
-cols_m6_pla <- c("reineBearbeitungsdauer_duration_6_3_1_hours", "reineBearbeitungsdauer_duration_6_2_1_hours",
-"reineBearbeitungsdauer_duration_6_2_6_hours", "reineBearbeitungsdauer_duration_6_4_1_hours",
-"reineBearbeitungsdauer_duration_6_3_6_hours", "reineBearbeitungsdauer_duration_6_2_2_hours",
-"reineBearbeitungsdauer_duration_6_3_2_hours", "reineBearbeitungsdauer_duration_6_3_3_hours",
-"reineBearbeitungsdauer_duration_6_4_2_hours", "reineBearbeitungsdauer_duration_6_3_4_hours",
-"reineBearbeitungsdauer_duration_6_3_5_hours", "reineBearbeitungsdauer_duration_6_3_7_hours",
-"reineBearbeitungsdauer_duration_6_2_3_hours", "reineBearbeitungsdauer_duration_6_2_4_hours",
-"reineBearbeitungsdauer_duration_6_2_5_hours", "reineBearbeitungsdauer_duration_6_4_3_hours",
-"reineBearbeitungsdauer_duration_6_4_4_hours", "reineBearbeitungsdauer_duration_6_4_5_hours",
-"reineBearbeitungsdauer_duration_6_4_6_hours", "reineBearbeitungsdauer_duration_6_4_7_hours",
-"reineBearbeitungsdauer_duration_6_1_1_hours", "reineBearbeitungsdauer_duration_6_1_2_hours",
-"reineBearbeitungsdauer_duration_6_1_3_hours", "reineBearbeitungsdauer_duration_6_1_4_hours",
-"reineBearbeitungsdauer_duration_6_1_5_hours", "reineBearbeitungsdauer_duration_6_1_6_hours",
-"reineBearbeitungsdauer_duration_6_1_7_hours"
-)
-
-df <- df %>%
-  mutate(
-    working_time_m1 = rowSums(across(all_of(cols_m1))),
-    working_time_m2 = if_else(
-      client_group == "Intervention",
-      rowSums(across(all_of(cols_m2_int))),
-      rowSums(across(all_of(cols_m2_pla)))
-    ),
-    working_time_m3 = rowSums(across(all_of(cols_m3))),
-    working_time_m4 = rowSums(across(all_of(cols_m4))),
-    working_time_m5 = rowSums(across(all_of(cols_m5))),
-    working_time_m6 = if_else(
-      client_group == "Intervention",
-      rowSums(across(all_of(cols_m6_int))),
-      rowSums(across(all_of(cols_m6_pla)))
-    )
-  )
-
-
-df <- df %>%
-  mutate(
-    excluded_at = as.Date(excluded_at),
-    finished_at = as.Date(finished_at)
-  )  %>%
-  # duration first to last login
-  mutate(
-    duration_firstTolast_login_GesamtdauerAKTIVImProgramm_weeks = as.numeric(client_last_login - client_first_login, units = "weeks"),
-    duration_visitTofirst_login_weeks = as.numeric(as.Date(client_first_login) - mnpvisstartdate, units = "weeks"),
-    duration_visitTofu_GesamtdauerTeilnahme_weeks = as.numeric(as.Date(fu.date) - as.Date(mnpvisstartdate), units = "weeks"),
-    duration_client_create_timeTofu_weeks = as.numeric(as.Date(fu.date) - as.Date(client_create_time), units = "weeks"),
-    duration_client_first_loginTofu_weeks = as.numeric(as.Date(fu.date) - as.Date(client_first_login), units = "weeks"),
-    duration_client_last_loginTofu_weeks = as.numeric(as.Date(fu.date) - as.Date(client_last_login), units = "weeks"),
-
-    # Time needed to finish one module = duration 
-    # duration module 1-6
-    # m1-5: 28 days
-    # m6: 28 days (7 days/session)
-    finish_module1_days = as.numeric(as.Date(acute_create_time_m2s1) - as.Date(acute_create_time_m1s1), units = "days"),
-    finish_module2_days = as.numeric(as.Date(acute_create_time_m3s1) - as.Date(acute_create_time_m2s1), units = "days"),
-    finish_module3_days = as.numeric(as.Date(acute_create_time_m4s1) - as.Date(acute_create_time_m3s1), units = "days"),
-    finish_module4_days = as.numeric(as.Date(acute_create_time_m5s1) - as.Date(acute_create_time_m4s1), units = "days"),
-    finish_module5_days = as.numeric(as.Date(acute_create_time_m6s1) - as.Date(acute_create_time_m5s1), units = "days"),
-    finish_module6_days = as.numeric(as.Date(acute_create_time_m6s4) - as.Date(acute_create_time_m6s1), units = "days"),
-
-    start_m1_to_end_module1_days = as.numeric(as.Date(acute_create_time_m2s1) - as.Date(acute_create_time_m1s1), units = "days"),
-    start_m1_to_end_module2_days = as.numeric(as.Date(acute_create_time_m3s1) - as.Date(acute_create_time_m1s1), units = "days"),
-    start_m1_to_end_module3_days = as.numeric(as.Date(acute_create_time_m4s1) - as.Date(acute_create_time_m1s1), units = "days"),
-    start_m1_to_end_module4_days = as.numeric(as.Date(acute_create_time_m5s1) - as.Date(acute_create_time_m1s1), units = "days"),
-    start_m1_to_end_module5_days = as.numeric(as.Date(acute_create_time_m6s1) - as.Date(acute_create_time_m1s1), units = "days"),
-    start_m1_to_end_module6_days = as.numeric(as.Date(acute_create_time_m6s4) - as.Date(acute_create_time_m1s1), units = "days")#,
-
-  #   end_content_to_end_module1_days = as.numeric(as.Date(acute_create_time_m2s1) - as.Date(finish_content_module1), units = "days"),
-  #   end_content_to_end_module2_days = as.numeric(as.Date(acute_create_time_m3s1) - as.Date(finish_content_module2), units = "days"),
-  #   end_content_to_end_module3_days = as.numeric(as.Date(acute_create_time_m4s1) - as.Date(finish_content_module3), units = "days"),
-  #   end_content_to_end_module4_days = as.numeric(as.Date(acute_create_time_m5s1) - as.Date(finish_content_module4), units = "days"),
-  #   end_content_to_end_module5_days = as.numeric(as.Date(acute_create_time_m6s1) - as.Date(finish_content_module5), units = "days"),
-  #   end_content_to_end_module6_days = as.numeric(as.Date(acute_create_time_m6s4) - as.Date(finish_content_module6), units = "days"),
-  )
-
-aaa <- df
-
-
-# delete unnecessary cols
-
-exclude_cols <- grep("email", names(df), value = TRUE)
-
-df <- df %>% dplyr::select(-all_of(c(exclude_cols)))
-
-exclude_cols <- grep("repeated_sample_supervisor", names(df), value = TRUE)
-
-df <- df %>% dplyr::select(-all_of(c(exclude_cols)))
-
-exclude_cols <- grep("supervisor", names(df), value = TRUE)
-
-df <- df %>% dplyr::select(-all_of(c(exclude_cols)))
-
-exclude_cols <- grep("coach", names(df), value = TRUE)
-
-df <- df %>% dplyr::select(-all_of(c(exclude_cols)))
-
-
-include_cols_fu <- grep("start_m1_to_end", names(df), value = TRUE)
-
-df_m1toEndModule <- df %>% dplyr::select(client_id, client_group, all_of(include_cols_fu))
-
-# data frame time-finish-module
-include_cols_module_duration <- grep("finish", names(df), value = TRUE)
-df_module_duration <- df %>% dplyr::select(client_id, client_group, all_of(include_cols_module_duration)) %>% select(-finished_at, -finishing_requested_at)
-
-# data frame time-finish-content
-include_cols_working_time <- grep("working_time", names(df), value = TRUE)
-df_working_time <- df %>% dplyr::select(client_id, client_group, all_of(include_cols_working_time))
+#df <- readRDS(here::here("_data/finalData/randomizedMaster2.Rds"))
+df <- dat_clean
 
 bm_unpaired_test <- function(data, variable, by, ...) {
 
@@ -268,19 +83,13 @@ add_gg_theme <- function(plt) {
 }
 
 # RAIN plot (descriptive)
+tmp_tmp = dat_clean %>%
+      select(client_id, treatment, timepoint, module_duration_days) %>% filter(timepoint != "Baseline" & !client_id %in% c(253, 396))
+
+# RAIN plot (descriptive)
 plt <- ggplot(
-    data = df_module_duration %>%
-      pivot_longer(
-        cols = starts_with("finish_module"),
-        names_to  = "module",
-        values_to = "days"
-      ) %>%
-      mutate(
-        module = readr::parse_number(module),                # 1..6 aus dem Namen ziehen
-        module = factor(module, levels = 1:6, labels = paste("Module", 1:6))
-      ) %>%
-      arrange(client_id, module),
-    aes(fill = client_group, x = module, y = days, color = client_group)
+    data = tmp_tmp,
+    aes(fill = treatment, x = timepoint, y = module_duration_days, color = treatment)
   ) +
   geom_rain(
     seed = 42,
@@ -354,25 +163,9 @@ ggsave(
 
 library(mmrm)
 
-tmp_tmp <- df_module_duration %>%
-  rename(
-    "Module 1" = finish_module1_days,
-    "Module 2" = finish_module2_days,
-    "Module 3" = finish_module3_days,
-    "Module 4" = finish_module4_days,
-    "Module 5" = finish_module5_days,
-    "Module 6" = finish_module6_days,
-    "treatment" = client_group
-  ) %>%
-  pivot_longer(cols = c("Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6"), names_to = "timepoint", values_to = "duration") %>%
-  mutate(
-    timepoint = factor(timepoint, levels = c("Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6"))
-  ) %>%
-  mutate(client_id = factor(client_id))
-
 formular <- as.formula(
   paste(
-      "duration ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
+      "module_duration_days ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
   )
 )
 
@@ -507,30 +300,38 @@ ggsave(
 #| label: tbl-time-to-finish-content-pairwise-comparisons
 #| tbl-cap: "Time to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
 
-tbl <- df_module_duration %>%
+df_m1toEndModule <- tmp_tmp %>%
+  mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
+  pivot_wider(
+    names_from = timepoint,
+    values_from = module_duration_days,
+    names_prefix = "module_"
+  )
+
+tbl <- df_m1toEndModule %>%
   dplyr::select(-client_id) %>%
   tbl_summary(
-    by = client_group,
+    by = treatment,
     statistic = all_continuous() ~ c(
             "{mean} ({sd})",
             "{median} ({p25}, {p75})",
             "{min}, {max}"
           ),
     label = list(
-      finish_module1_days = "Module 1 (advised: 28 days)",
-      finish_module2_days = "Module 2 (advised: 28 days)",
-      finish_module3_days = "Module 3 (advised: 28 days)",
-      finish_module4_days = "Module 4 (advised: 28 days)",
-      finish_module5_days = "Module 5 (advised: 28 days)",
-      finish_module6_days = "Module 6 (advised: 28 days)" # 210 - 7, da die letzte Woche nicht mehr advised ist
+      module_1 = "Module 1 (advised: 28 days)",
+      module_2 = "Module 2 (advised: 28 days)",
+      module_3 = "Module 3 (advised: 28 days)",
+      module_4 = "Module 4 (advised: 28 days)",
+      module_5 = "Module 5 (advised: 28 days)",
+      module_6 = "Module 6 (advised: 28 days)"
     ),
     type = list(
-      finish_module1_days = "continuous2",
-      finish_module2_days = "continuous2",
-      finish_module3_days = "continuous2",
-      finish_module4_days = "continuous2",
-      finish_module5_days = "continuous2",
-      finish_module6_days = "continuous2"
+      module_1 = "continuous2",
+      module_2 = "continuous2",
+      module_3 = "continuous2",
+      module_4 = "continuous2",
+      module_5 = "continuous2",
+      module_6 = "continuous2"
     ),
     missing_text = "Missing"
   ) %>%
@@ -583,23 +384,16 @@ tbl
 #| warning: false
 #| label: r-prepare-rainplot-time-to-post-module
 
-tmp_tmp <-df_m1toEndModule %>%
-  rename(
-    "Module 1" = start_m1_to_end_module1_days,
-    "Module 2" = start_m1_to_end_module2_days,
-    "Module 3" = start_m1_to_end_module3_days,
-    "Module 4" = start_m1_to_end_module4_days,
-    "Module 5" = start_m1_to_end_module5_days,
-    "Module 6" = start_m1_to_end_module6_days,
-    "treatment" = client_group
-  ) %>%
-  pivot_longer(cols = c("Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6"), names_to = "timepoint", values_to = "duration") %>%
-  mutate(
-    timepoint = factor(timepoint, levels = c("Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6"), ordered = TRUE)
-  ) 
-
 # RAIN plot (descriptive)
-plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = duration, color = treatment)
+tmp_tmp = dat_clean %>%
+      select(client_id, treatment, timepoint, Zeit_seit_Beginn_Modul_1_in_Jahren) %>% filter(timepoint != "Baseline" & !client_id %in% c(253, 396))
+
+# convert to days
+tmp_tmp <- tmp_tmp %>%
+  mutate(Zeit_seit_Beginn_Modul_1_in_Jahren = Zeit_seit_Beginn_Modul_1_in_Jahren* 365.25)
+    
+# RAIN plot (descriptive)
+plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = Zeit_seit_Beginn_Modul_1_in_Jahren, color = treatment)
   ) +
   geom_rain(
     seed = 42,
@@ -639,7 +433,7 @@ plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = duration, color 
     ),
   ) +
   labs(
-    y = "Time from baseline to post module",
+    y = "Time from baseline to post module (days)",
     x = "Timepoint",
     color = "Treatment"
   )
@@ -673,25 +467,9 @@ ggsave(
 
 library(mmrm)
 
-tmp_tmp <- df_m1toEndModule %>%
-  rename(
-    "Module 1" = start_m1_to_end_module1_days,
-    "Module 2" = start_m1_to_end_module2_days,
-    "Module 3" = start_m1_to_end_module3_days,
-    "Module 4" = start_m1_to_end_module4_days,
-    "Module 5" = start_m1_to_end_module5_days,
-    "Module 6" = start_m1_to_end_module6_days,
-    "treatment" = client_group
-  ) %>%
-  pivot_longer(cols = c("Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6"), names_to = "timepoint", values_to = "duration") %>%
-  mutate(
-    timepoint = factor(timepoint, levels = c("Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6"))
-  ) %>%
-  mutate(client_id = factor(client_id))
-
 formular <- as.formula(
   paste(
-      "duration ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
+      "Zeit_seit_Beginn_Modul_1_in_Jahren ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
   )
 )
 
@@ -817,30 +595,39 @@ ggsave(
 #| tbl-cap: "Pairwise comparisons for time to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. The time to finish module consist of the time of working on the content and time for filling in questionnaires at post measuremnt and time needed to revise guided tasks (and an undefined error term for doing things not related to the HBI). Note that times below the advised time exists due to a bug in the code of the HBI, which results in not showing the questionnaires at post module and, in consequence, not ensuring the advised waiting week after each module (n = 6, n = 3 in placebo arm and n = 3 in intervention arm)."
 # fn returns brunner-munzel test statistic and pvalue
 
+df_m1toEndModule <- tmp_tmp %>%
+  mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
+  pivot_wider(
+    names_from = timepoint,
+    values_from = Zeit_seit_Beginn_Modul_1_in_Jahren,
+    names_prefix = "module_"
+  )
+
+
 tbl <- df_m1toEndModule %>%
   dplyr::select(-client_id) %>%
   tbl_summary(
-    by = client_group,
+    by = treatment,
     statistic = all_continuous() ~ c(
             "{mean} ({sd})",
             "{median} ({p25}, {p75})",
             "{min}, {max}"
           ),
     label = list(
-      start_m1_to_end_module1_days = "Module 1 (advised: 28 days)",
-      start_m1_to_end_module2_days = "Module 2 (advised: 56 days)",
-      start_m1_to_end_module3_days = "Module 3 (advised: 84 days)",
-      start_m1_to_end_module4_days = "Module 4 (advised: 112 days)",
-      start_m1_to_end_module5_days = "Module 5 (advised: 140 days)",
-      start_m1_to_end_module6_days = "Module 6 (advised: 168 days)" # 210 - 7, da die letzte Woche nicht mehr advised ist
+      module_1 = "Module 1 (advised: 28 days)",
+      module_2 = "Module 2 (advised: 56 days)",
+      module_3 = "Module 3 (advised: 84 days)",
+      module_4 = "Module 4 (advised: 112 days)",
+      module_5 = "Module 5 (advised: 140 days)",
+      module_6 = "Module 6 (advised: 168 days)"
     ),
     type = list(
-      start_m1_to_end_module1_days = "continuous2",
-      start_m1_to_end_module2_days = "continuous2",
-      start_m1_to_end_module3_days = "continuous2",
-      start_m1_to_end_module4_days = "continuous2",
-      start_m1_to_end_module5_days = "continuous2",
-      start_m1_to_end_module6_days = "continuous2"
+      module_1 = "continuous2",
+      module_2 = "continuous2",
+      module_3 = "continuous2",
+      module_4 = "continuous2",
+      module_5 = "continuous2",
+      module_6 = "continuous2"
     ),
     missing_text = "Missing"
   ) %>%
@@ -863,7 +650,6 @@ tbl <- df_m1toEndModule %>%
     modify_abbreviation("*p-hat* = estimated relative effect") %>%
     modify_abbreviation("*t* = Brunner–Munzel test statistic for unpaired samples") %>%
     modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value") %>%
-    modify_header(label="Time to finish (days)") %>%
     as_gt() %>%
     gt::tab_options(
       #table.font.names = "Source Sans Pro",

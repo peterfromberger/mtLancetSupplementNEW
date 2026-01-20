@@ -5,14 +5,17 @@ lightbox: true
 
 
 
+
 format:
   html:
     theme: default
     #number-sections: false
     #title-block-style: none
     #embed-resources: true
-    tbl-prefix: "Table A"       # Prefix für alle Tabellen
-    fig-prefix: "Figure A"
+    crossref:
+      fig-prefix: "Figure S"  # (default is "Figure")
+      tbl-prefix: "Table S"   # (default is "Table")
+      ref-hyperlink: true # (default is true)
   docx: default
   pdf: default
 ---
@@ -79,7 +82,7 @@ source(here::here("_scripts/remove_outlier.R"))
 # WBI description
 ##################
 -->
-## The \\@myTabu framework
+## The \@myTabu framework
 
 {{< include _includes/apx_WBI_DESCRIPTION.qmd >}}
 

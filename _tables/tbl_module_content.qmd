@@ -5,131 +5,139 @@
 #| warning: false
 #| label: tbl-module-content
 #| tbl-cap: "Detailed description of the WBI content."
-#| html-table-processing: none
-#| 
+
 library(here)
 library(gt)
 library(readr)
 library(dplyr)
 
-# Intervention
-wide_csv_path <- "_data/WBI_CONTENT/CONTENT_INTERVENTION_SUMMARIZED/summaries_wide_gt.csv"
-summary_csv_path <- "_data/WBI_CONTENT/CONTENT_INTERVENTION_SUMMARIZED/summaries_wide_summary.csv"
-intervention_all <- read_csv(summary_csv_path) %>% filter(is.na(lection_rank) & is.na(session_nr)) %>% select(module_nr, summary)
+library(gt)
 
-# Placebo
-wide_csv_path <- "_data/WBI_CONTENT/CONTENT_PLACEBO_SUMMARIZED/summaries_wide_gt.csv"
-summary_csv_path <- "_data/WBI_CONTENT/CONTENT_PLACEBO_SUMMARIZED/summaries_wide_summary.csv"
-placebo_all <- read_csv(summary_csv_path) %>% filter(is.na(lection_rank) & is.na(session_nr)) %>% select(module_nr, summary)
+# Korrigierte Daten (ohne `-` am Anfang der Zeilen, nur Zeilenumbrüche)
+Intervention <- c(
+  "Participants develop intrinsic motivation by identifying personal values and future aspirations, enhancing treatment readiness and reducing resistance to change.\n\nThey learn to recognize cognitive distortions and impulsivity, improving decision-making by weighing long-term consequences over immediate rewards.\n\nThrough structured goal-setting techniques, participants transform abstract desires into specific, measurable, and achievable objectives, increasing self-efficacy and behavioral clarity.\n\nThe module integrates goal implementation into reoffending prevention, reinforcing consistent behavior, coping strategies, and supervision awareness to support sustained rehabilitation.",
+  
+  "Participants develop skills to build trust and collaborative working relationships with probation officers, reducing resistance and improving adherence to supervision mandates.\n\nThey identify trauma- and fear-based avoidance patterns that interfere with engagement, using cognitive-behavioral strategies to enhance compliance with structured interventions.\n\nThrough guided reflection, participants examine the impact of adult relationships on emotional regulation and behavioral stability, targeting deficits in capacity for adult intimacy.\n\nThey learn evidence-based techniques to recognize and disengage from negative social influences while cultivating prosocial, emotionally supportive relationships to sustain long-term reintegration.",
+  
+  "Participants learn to identify emotions as indicators of unmet needs, reducing impulsive reactions by linking affective states to underlying psychological demands.\n\nThrough mindfulness exercises and case examples, they develop non-reactive awareness of emotions and bodily sensations, improving impulse control and reducing maladaptive coping.\n\nThey distinguish between emotional experiences and action urges using tools like the tension scale, fostering pause-and-reflect strategies to interrupt impulsive behaviors.\n\nBy creating personalized skill sets, participants build adaptive, individualized responses to emotional distress, enhancing long-term emotional regulation and self-management.",
+  
+  "Participants learn to recognize problem-solving deficits as a core component of self-regulation difficulties, understanding that challenges are manageable through structured, cognitive-behavioral approaches.\n\nThey are taught the 7-Step Problem-Solving Plan to systematically identify, define, and address problems, enhancing decision-making and reducing impulsive or avoidant reactions.\n\nThrough video examples and case studies, participants practice distinguishing between changeable and unchangeable issues, generating realistic solutions, and evaluating outcomes.\n\nThe module fosters cognitive restructuring and emotional regulation by linking problem-solving to adaptive coping, promoting long-term self-regulation and behavioral control.",
+  
+  "Participants learn to identify three out of 16 offense-supportive cognitive distortions, such as rationalizations that minimize harm, which perpetuate antisocial thinking and increase reoffending risk.\n\nThey explore how these distortions arise from selective attention to partial truths, reinforcing denial and minimizing consequences through psychological defense mechanisms.\n\nThrough psychoeducation and cognitive restructuring, participants challenge distorted beliefs using evidence-based techniques, promoting critical evaluation of harmful thought patterns.\n\nCase studies and video examples illustrate real-world consequences of distorted thinking, bridging the gap between perceived justification and actual harm, enhancing insight and accountability.",
+  
+  "Participants learn to differentiate between healthy and problematic sexual interests, recognizing how sexual preoccupation increases reoffending risk and undermines abstinence.\n\nThe module addresses emotional congruence with children as a key risk factor, emphasizing the importance of maintaining emotional and physical boundaries to reduce relapse potential.\n\nCognitive restructuring techniques are used to challenge distorted beliefs about sexual behavior, fostering insight and promoting adaptive, non-harmful thought patterns.\n\nThrough identification of high-risk triggers and personalized coping strategies, participants enhance self-regulation, self-efficacy, and control over problematic sexual urges."
+)
 
-tbl_dat <- intervention_all %>%
-  left_join(placebo_all, by = c("module_nr" = "module_nr"))
+Placebo <- c(
+  "Participants gain insight into the benefits of physical activity, identify personal barriers, and set achievable goals to build motivation for physical activity.\n\nThey develop foundational motor skills, coordination, and balance, enhancing physical confidence and improving participation in daily and therapeutic activities.\n\nThrough mindfulness and adaptive exercises, participants strengthen cognitive and emotional flexibility, reducing rigidity and improving resilience to stress.\n\nPractical strategies are introduced to break sedentary patterns, increasing awareness of health risks and promoting sustainable, active living for long-term well-being.",
+  
+  "Participants learn the basics of muscle structure and function, increasing self-awareness of physical capabilities and enhancing motivation to engage in structured physical routines.\n\nUsing the Rubicon model, they explore intrinsic and extrinsic motivators, identifying barriers like low confidence or time constraints that affect adherence and relationship-building.\n\nBy reflecting on personal sport preferences, participants recognize how peer or cultural influences may shape physical activity choices, reducing susceptibility to negative social pressures.\n\nThey gain accurate knowledge of exercise’s physiological benefits, including mood-enhancing effects and age-related misconceptions, fostering long-term commitment to healthy habits.",
+  
+  "Participants learn how sleep quality directly influences emotional regulation, cognitive function, and physical health, addressing impulsivity and emotional dysregulation that undermine sleep hygiene.\n\nUnderstanding sleep cycles and physiological restoration helps link poor sleep to heightened stress, supporting those with external or sexualized coping patterns in developing healthier responses.\n\nPractical, non-drug strategies are taught to manage shift work and jetlag, promoting consistent routines and environmental adjustments that support long-term sleep stability.\n\nDiscussion of sleep disorders like apnea emphasizes their impact on health and relationships, encouraging proactive, evidence-based lifestyle changes over medication reliance.",
+  
+  "Participants explore the neuroscience of dreaming, including REM and non-REM sleep stages, to understand how disrupted sleep impairs cognitive flexibility.\n\nThrough mindfulness, dream journaling, and symbolic interpretation, they develop reflective practices that enhance self-awareness.\n\nThe module links stress, sleep disruption, and dream content, illustrating how chronic stress undermines executive function and exacerbates difficulties in structured thinking and solution generation.\n\nCase studies highlight trauma-related dream patterns, showing how unresolved psychological distress and poor sleep hinder insight and cognitive restoration, reinforcing the need for integrated sleep and emotional care.",
+  
+  "Participants gain foundational knowledge of nutrition, digestion, and the mind-body connection, challenging offense-supportive beliefs by linking healthy eating to self-control and well-being.\n\nThrough case studies and interactive exercises, they explore ethical, health, and environmental motivations for plant-based diets, fostering empathy and prosocial decision-making.\n\nAwareness of key nutrients and deficiency risks promotes informed choices, countering misinformation and supporting mental clarity and emotional stability.\n\nPractical skills in meal planning and grocery shopping build confidence and sustainability, empowering lasting dietary changes that enhance psychological health and reduce behavioral risk.",
+  
+  "Well-being is understood as a holistic, individualized experience integrating physical, psychological, and social health, rooted in emotional fulfillment, resilience, and meaningful connections.\n\nParticipants challenge the myth of universal well-being, recognizing its subjective nature and the importance of personal values, identity, and life context in shaping health and satisfaction.\n\nThrough interactive learning, participants explore the gut-brain axis, mindful eating, and hygiene practices, linking nutrition, self-care, and bodily awareness to mental clarity and psychological stability.\n\nPsychological well-being is distinguished from happiness, focusing on meaning, inner balance, and personal growth, explored through reflections on identity, nature, music, and laughter."
+)
 
+Module <- c("Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6")
+
+# Erstelle die Tabelle
+tbl_dat <- data.frame(Module, Intervention, Placebo)
+
+# Erstelle die gt-Tabelle mit korrekter Formatierung
 tbl <- gt(tbl_dat) %>%
-  fmt_markdown(columns = vars(everything())) %>%
-  cols_label(
-    module_nr = "Module Number",
-    summary.x = "Intervention",
-    summary.y = "Placebo"
+  cols_align(
+    align = "left",
+    columns = vars(Intervention, Placebo)
   ) %>%
-  # Set table width to fit page
-  tab_options(
-    table.width = pct(100),
-    table.font.size = 10,
-    heading.title.font.size = 12,
-    heading.subtitle.font.size = 10
-  )
+  fmt_markdown(
+    columns = vars(Intervention, Placebo)
+  ) %>%
+  gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
 
-tbl
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-module-content.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-module-content.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-module-content.png")))
+
+tbl 
 ```
-
-
-
-
-
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: tbl-module-description-from-frontiers
+#| label: tbl-intervention-module-theory
 #| tbl-cap: "Description of psychotherapeutic techniques."
-#| html-table-processing: none
-
-# install.packages("gt")   # Uncomment if gt is not installed
 
 library(gt)
 
-# Create data frame with Markdown formatting in each cell
 modules_df <- data.frame(
   Module = c(
-    "**Module 1** (Motivation Module)",
-    "**Module 2** (Supervision and Social Relationships Module)",
-    "**Module 3** (Emotion Management Module)",
-    "**Module 4** (Problem Solving Module)",
-    "**Module 5** (Offense-Supportive Attitudes Module)",
-    "**Module 6** (Sexuality Module)"
+    "**Module 1** (Motivation)",
+    "**Module 2** (Supervision and social relationships)",
+    "**Module 3** (Emotion management)",
+    "**Module 4** (Problem solving)",
+    "**Module 5** (Offense-supportive attitudes)",
+    "**Module 6** (Sexuality)"
   ),
-  Goal = c(
-    "Strengthen motivation for behavioral change before addressing criminogenic needs (*Ward et al.*, 51; 52; 53; 54; 55; 56).",
-    "Build positive social network, reduce resistance to rules/supervision (15; 57; 58).",
-    "Reduce impulsiveness and improve coping with stress/negative emotions (15; 58; *Knight & Thornton*, 61).",
-    "Improve social problem-solving skills; promote positive problem orientation and rational problem-solving style (15; 68; *D’Zurilla & Goldfried*, 69).",
-    "Change attitudes supporting sexual offending against children (15; 75–77; *Helmus et al.*, 78).",
-    "Reduce sexual preoccupation, emotional congruence with children, and sexual interest/fantasies about children (15; 16; 58; 59; 83–85)."
+  Goals = c(
+    "Strengthen motivation to change and treatment readiness before addressing criminogenic needs.",
+    "Build positive social network, reduce resistance to rules and community supervision.",
+    "Reduce impulsiveness and improve coping with stress and negative emotions.",
+    "Improve social problem-solving skills; promote positive problem orientation and rational problem-solving style.",
+    "Change attitudes supporting sexual offending against children.",
+    "Reduce sexual preoccupation, emotional congruence with children, and sexual interest in and fantasies about children."
   ),
-  Content = c(
-    "- Motivation as prerequisite for therapy progress and success\n- Works with ambivalence towards change\n- Focus on values and goals",
-    "- Psychoeducation on negative social influences and recidivism\n- Strategies to build new positive contacts and distance from negative influences<br>- Importance of stable emotionally intimate relationships with adults (15; 58; 59; 60)",
-    "- Address lifestyle impulsiveness and dysfunctional coping<br>- Learn alternatives to impulsive or sexualized coping",
-    "- Model: positive/negative problem orientation (PPO/NPO) and problem-solving styles (RPS, ICS, AS)<br>- ISAC show higher NPO and more ICS/AS behavior than general population (71)<br>- Importance of structured solution strategies",
-    "- Explain implicit cognitive theories<br>- Identify and reframe distorted beliefs<br>- Promote alternative, non-offense-supportive beliefs",
-    "- Psychoeducation on sexual risks<br>- Identify and avoid risky situations<br>- Promote emotional distance from children<br>- Replace deviant sexual interest with normative adult sexual interest"
-  ),
-  Methods = c(
-    "**Motivational Interviewing** (*Miller & Rollnick*, 50):<br>- Principles: express empathy, develop discrepancy, avoid arguments, support self-efficacy<br>- Techniques: open questions, reflective listening, appreciation, 'change talk' and 'confidence talk', resistance handling, summaries",
-    "**Psychoeducational** and **cognitive-behavioral techniques** to encourage network building and attitude change",
-    "**DBT** (*Linehan*, 62): emotion regulation, distress tolerance; evidence-based in forensic populations (64), effective web-based for stress reduction (65, 66)<br>**ACT** (*Hayes et al.*, 63): acceptance of negative experiences, meaningful life focus; effective in offender therapy (67) and web-based interventions (65, 66)",
-    "**Problem-Solving Therapy** (*PST*; Nezu et al., 74): training in positive problem orientation and rational problem-solving",
-    "**Cognitive Restructuring** (*Beck*, 75): identification, reframing, Socratic dialogue, comparison of new vs. old beliefs (79, 80)",
-    "**Cognitive-behavioral techniques** to influence sexual thoughts/fantasies and promote adult-oriented interests"
-  ),
-  Special_Evidence = c(
-    "Evidence shows link between motivation and therapy success/dropout; high dropout rate often before therapy starts (54, 55).",
-    "No studies on effectiveness of this module known (f2f or web-based).",
-    "Combination of two evidence-based approaches; proven effects in stress and impulsivity reduction.",
-    "Evidence that psychological treatment can improve poor problem-solving abilities (72, 73).",
-    "First web-based use with ISAC in @myTabu; no direct effectiveness data<br>Positive meta-analysis results for other disorders (81); online therapist guidance increases effectiveness (82).",
-    "Research unclear if sexual interests can change (16); techniques effective in f2f treatments (86, 87) and partly in web-based approaches for youth (88, 89)."
-  ),
-  stringsAsFactors = FALSE
+  Techniques = c(
+    "**Motivational Interviewing** (*Miller & Rollnick*, 50): open questions, reflective listening, appreciation, 'change talk' and 'confidence talk', resistance handling, summaries.",
+    "**CBT** to encourage social network building and attitude change.",
+    "**DBT** (*Linehan*, 62): emotion regulation, distress tolerance.\n\n**ACT** (*Hayes et al.*, 63): acceptance of negative experiences, meaningful life focus.",
+    "**Problem-Solving Therapy**: training in positive problem orientation and rational problem-solving (*PST*; Nezu et al., 74).",
+    "**Cognitive Restructuring**: identification, reframing, Socratic dialogue, comparison of new vs. old beliefs (Beck).\n\n**RNR**: adaption to individual needs by choosing three out of 16 pre-defined cognitive distortions.",
+    "**CBT** to influence sexual thoughts/fantasies and promote adult-oriented interests"
+  )
 )
 
-# Build gt table with markdown processing for each cell
-modules_gt <- gt(modules_df) %>%
-  tab_header(
-    title = md("**Intervention Modules Overview**"),
-    subtitle = md("*Targets, contents, methods and evidence*")
+# Erstelle die gt-Tabelle
+tbl <- gt(modules_df) %>%
+  cols_align(
+    align = "left",
+    columns = vars(Module, Goals, Techniques)
   ) %>%
-  cols_label(
-    Module = md("**Module**"),
-    Goal = md("**Goal**"),
-    Content = md("**Content**"),
-    Methods = md("**Methods**"),
-    Special_Evidence = md("**Special aspects / Evidence**")
+  fmt_markdown(
+    columns = vars(Module, Goals, Techniques)
   ) %>%
-  # Render all cells as markdown
-  fmt_markdown(columns = c(Module, Goal, Content, Methods, Special_Evidence)) %>%
-  tab_options(
-    table.font.size = 12,
-    data_row.padding = px(5),
-    heading.align = "center"
-  ) %>%
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_column_labels(everything())
-  )
+  gt::tab_options(
+      #table.font.names = "Source Sans Pro",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = FALSE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
 
-# Display table
-modules_gt
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-intervention-module-theory.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-intervention-module-theory.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-intervention-module-theory.png")))
+
+tbl 
 ```

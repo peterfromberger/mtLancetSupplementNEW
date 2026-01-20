@@ -1183,11 +1183,11 @@ create_wai_pairwise_tbls <- function(
   )
 
   labels <- c(
-    "Module 1",
-    "Module 2",
-    "Module 3",
-    "Module 4",
-    "Module 5"
+    "Module 1 (post)",
+    "Module 2 (post)",
+    "Module 3 (post)",
+    "Module 4 (post)",
+    "Module 5 (post)"
   )
 
   types = rep("continuous2", 5)
@@ -1408,11 +1408,11 @@ create_wai_diffscore_tbl <- function(
   )
 
   labels <- c(
-    "Module 1",
-    "Module 2",
-    "Module 3",
-    "Module 4",
-    "Module 5"
+    "Module 1 (post)",
+    "Module 2 (post)",
+    "Module 3 (post)",
+    "Module 4 (post)",
+    "Module 5 (post)"
   )
 
   types = rep("continuous2", 5)
@@ -1443,7 +1443,7 @@ create_wai_diffscore_tbl <- function(
 #| warning: false
 #| message: false
 #| label: tbl-anc-wai-coach-mmrm
-#| tbl-cap: Mixed model for repeated measures (MMRM) for the WAI-SR (total score; coach).
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the WAI-SR COACH.
 
 variable <- "wai_calc_total_coach"
 var_name <- "WAI-SR COACH (total score)"
@@ -1479,7 +1479,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: fig-anc-wai-coach-estimated-marginal-means
-#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the  WAI-SR (total score; coach)"
+#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the  WAI-SR COACH"
 
 variable <- "wai_calc_total_coach"
 who_clean <- create_wai_clean_data(variable)
@@ -1547,14 +1547,12 @@ ggsave(
 
 #### Pairwise comparisons
 
-The effect of the first five modules on the `r var_name` has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate. [@tbl-anc-wai-coach-pre-post-pairwise-intervention] shows descriptive statistics as well as the results of the pairwise comparisons for the intervention arm and [@tbl-anc-wai-coach-pre-post-pairwise-placebo] for the placebo arm.
-
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-pre-post-pairwise-intervention
-#| tbl-cap: "Comparison of the WAI-SR (total score; coach) between before (pre) and after (post) of the first five modules for the intervention arm. The WAI-SR coach has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+#| tbl-cap: "Comparison of the WAI-SR COACH between before (pre) and after (post) of the first five modules for the intervention arm. The WAI-SR coach has been analyzed using the Brunner-Munzel test for paired data comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
 
 tbl <- create_wai_pairwise_tbls("Intervention", variable)
 
@@ -1585,7 +1583,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-pre-post-pairwise-placebo
-#| tbl-cap: "Comparison of the WAI-SR (total score; coach) between before (pre) and after (post) of the first five modules for the placebo arm."
+#| tbl-cap: "Comparison of the WAI-SR COACH between before (pre) and after (post) of the first five modules for the placebo arm."
 
 tbl <- create_wai_pairwise_tbls("Placebo", variable)
 
@@ -1613,14 +1611,12 @@ tbl
 
 #### Difference from baseline
 
-Pre-post differences for the WAI-SR (total score; coach) have been compared between the treatment groups exploratively using the Brunner-Munzel test for unpaired data. [@tbl-anc-wai-coach-diffscore] shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data of the CARES total score.
-
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-difference-from-baseline
-#| tbl-cap: "Pre-post differences of the WAI-SR (total score; coach) between before (pre) and after (post) of the first five modules."
+#| tbl-cap: "Pre-post differences of the WAI-SR COACH between before (pre) and after (post) of the first five modules. The table shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data."
 
 tbl <- create_wai_diffscore_tbl(variable)
 
@@ -1654,7 +1650,7 @@ tbl
 #| warning: false
 #| message: false
 #| label: tbl-anc-wai-supervisor-mmrm
-#| tbl-cap: Mixed model for repeated measures (MMRM) for the WAI-SR (total score; supervisor).
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the WAI-SR SUPERVISOR.
 
 variable <- "wai_calc_total_supervisor"
 var_name <- "WAI-SR SUPERVISOR (total score)"
@@ -1690,7 +1686,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: fig-anc-wai-supervisor-estimated-marginal-means
-#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the  WAI-SR (total score; supervisor)"
+#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the  WAI-SR SUPERVISOR"
 
 variable <- "wai_calc_total_supervisor"
 who_clean <- create_wai_clean_data(variable)
@@ -1758,14 +1754,12 @@ ggsave(
 
 #### Pairwise comparisons
 
-The effect of the first five modules on the `r var_name` has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate. [@tbl-anc-wai-supervisor-pre-post-pairwise-intervention] shows descriptive statistics as well as the results of the pairwise comparisons for the intervention arm and [@tbl-anc-wai-supervisor-pre-post-pairwise-placebo] for the placebo arm.
-
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-supervisor-pre-post-pairwise-intervention
-#| tbl-cap: "Comparison of the WAI-SR (total score; supervisor) between before (pre) and after (post) of the first five modules for the intervention arm. The WAI-SR supervisor has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+#| tbl-cap: "Comparison of the WAI-SR SUPERVISOR between before (pre) and after (post) of the first five modules for the intervention arm. The WAI-SR supervisor has been analyzed using the Brunner-Munzel test for paired data comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
 
 tbl <- create_wai_pairwise_tbls("Intervention", variable)
 
@@ -1796,7 +1790,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-supervisor-pre-post-pairwise-placebo
-#| tbl-cap: "Comparison of the WAI-SR (total score; supervisor) between before (pre) and after (post) of the first five modules for the placebo arm."
+#| tbl-cap: "Comparison of the WAI-SR SUPERVISOR between before (pre) and after (post) of the first five modules for the placebo arm."
 
 tbl <- create_wai_pairwise_tbls("Placebo", variable)
 
@@ -1824,14 +1818,12 @@ tbl
 
 #### Difference from baseline
 
-Pre-post differences for the WAI-SR (total score; supervisor) have been compared between the treatment groups exploratively using the Brunner-Munzel test for unpaired data. [@tbl-anc-wai-supervisor-diffscore] shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data of the CARES total score.
-
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-supervisor-difference-from-baseline
-#| tbl-cap: "Pre-post differences of the WAI-SR (total score; supervisor) between before (pre) and after (post) of the first five modules."
+#| tbl-cap: "Pre-post differences of the WAI-SR SUPERVISOR between before (pre) and after (post) of the first five modules. The table shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data."
 
 tbl <- create_wai_diffscore_tbl(variable)
 
