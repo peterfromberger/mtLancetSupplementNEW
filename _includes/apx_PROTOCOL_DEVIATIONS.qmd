@@ -457,7 +457,7 @@ ggsave(
 )
 ```
 
-![Time from beginning of module one to the end of the respective module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-rainplot.png){#fig-time-to-post-module-rainplot width=100%}
+![Time from beginning of module one to the end of the respective module. The time to finish module is defined as time from beginning of module one to the end of the respective module. All participants were advised to finish a session within one week. Note, that in the user testing each session took approximately 60 minutes to complete (exclusive questionnaires and working on guided exercises).](_figures/fig-time-to-post-module-rainplot.png){#fig-time-to-post-module-rainplot width=100%}
 
 ```{r}
 #| echo: false
@@ -485,7 +485,7 @@ fit_time_post_module <- mmrm(
 #| message: false
 #| warning: false
 #| label: tbl-time-to-post-module-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for Time to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
+#| tbl-cap: "Mixed model for repeated measures (MMRM) for the time from beginning of module one to the end of the respective module. The time to finish module is defined as time from beginning of module one to the end of the respective module. All participants were advised to finish a session within one week. Note, that in the user testing each session took approximately 60 minutes to complete (exclusive questionnaires and working on guided exercises).."
 
 tbl <- fit_time_post_module %>%
     tbl_regression(
