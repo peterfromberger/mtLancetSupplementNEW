@@ -393,7 +393,8 @@ get_exclusion_reason_timepointxtreatment <- function() {
       mixed_offense,
       csem_offense_only,
       csa_offense_only,
-      violation_probation_conditions
+      violation_probation_conditions,
+      recidivism
     ) %>%
     rename(
       "Withdrawal of informed consent" = `Widerruf der Einverständniserklärung`,
@@ -405,7 +406,8 @@ get_exclusion_reason_timepointxtreatment <- function() {
       "CSA and CSEM offense" = mixed_offense,
       "CSEM offense" = csem_offense_only,
       "CSA offense" = csa_offense_only,
-      "Violation of probation conditions" = violation_probation_conditions
+      "Violation of probation conditions" = violation_probation_conditions,
+      "Recidivism" = recidivism
     ) %>%
     # we reduce number of multiple answers by logical thinking: einige Kombinationen bieten keinen zusätzlichen iNfogehalt und sind logische Konsequenz des eigentlichen Grundes
     # withdrawal of informed consent ist dann nicht relevant, wenn mit offense, Probationary supervision expired, kombiniert, da offense einen ausschluss automatisch nach sich zieht
@@ -481,7 +483,7 @@ get_exclusion_reason_timepointxtreatment <- function() {
 tmp <- get_exclusion_reason_timepointxtreatment()
 
 tmp_wide <- tmp %>%
-  select(client_id, treatment, exclusion_reasons_list) %>%
+  dplyr::select(client_id, treatment, exclusion_reasons_list) %>%
   unnest(exclusion_reasons_list) %>%
   mutate(value = "Yes") %>%
   pivot_wider(
@@ -491,8 +493,8 @@ tmp_wide <- tmp %>%
   )
 
 tbl <- tmp_wide %>%
-    filter(client_id %in% client_list) %>%
-    select(-client_id, -`Violation of probation conditions`, -`Violation of probation conditions, Acute suicide risk`, -`CSEM offense, Acute suicide risk`, -`CSA offense, Other offense (not CSA or CSEM), Acute suicide risk`) %>%
+    dplyr::filter(client_id %in% client_list) %>%
+    dplyr::select(-client_id, -`Violation of probation conditions`, -`Violation of probation conditions, Acute suicide risk`, -`CSEM offense, Acute suicide risk`, -`CSA offense, Other offense (not CSA or CSEM), Acute suicide risk`, recidivism) %>%
     tbl_summary(
         by = treatment
         #type = everything() ~ "categorical"
