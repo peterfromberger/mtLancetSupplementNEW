@@ -1,10 +1,11 @@
+::: {.landscape}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-measurement-timepoints
-#| tbl-cap: "Measuremnt timepoints for all outcome measures. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ was assessed before and after each session resulting in 48 measurement timepoints."
+#| tbl-cap: "Measurement timepoints for all trial endpoints. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ Pre was assessed before each session, the MRQ Post after each session."
 #| html-table-processing: none
 
 library(dplyr)
@@ -34,7 +35,7 @@ df <- tribble(
   "SECONDARY OUTCOMES",      "SPSI-R",                 "",          "",         "",          "",      "",       "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",
   "SECONDARY OUTCOMES",      "BMS",                    "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",      "",      "",       "",
   "SECONDARY OUTCOMES",      "HBI-19",                 "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
-  "SECONDARY OUTCOMES",      "SSIC-Scale",             "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
+  "SECONDARY OUTCOMES",      "SSIC",             "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
   "SECONDARY OUTCOMES",      "SOI-R",                  "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
   "SECONDARY OUTCOMES",      "EKK-R",                  "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
   "SECONDARY OUTCOMES",      "ESIQ",                   "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
@@ -42,11 +43,13 @@ df <- tribble(
   "ANCILLARY OUTCOMES",      "ATQ",                    "X",         "",         "",          "",      "X",      "",      "",       "",      "",       "",      "X",      "",      "",       "",      "",      "",
   "ANCILLARY OUTCOMES",      "WHO-5",                  "",          "",         "",          "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",     "",
   "ANCILLARY OUTCOMES",      "QNP",                    "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",      "",
-  "ANCILLARY OUTCOMES",         "WAI-SR",                  "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",     "",
+  "ANCILLARY OUTCOMES",         "WAI-SR COACH",                  "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",     "",
+  "ANCILLARY OUTCOMES",         "WAI-SR SUPERVISOR",                  "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",     "",
 )
 
 # GT-Tabelle erstellen
 tbl <- df %>%
+  filter(Measure != "SSQ-rSO") %>%
   gt(rowname_col = "Measure", groupname_col = "Group") %>%
   tab_spanner(label = "Introduction", columns = c(Intro_pre, Intro_post)) %>%
   tab_spanner(label = "Module 1", columns = c(M1_pre, M1_post)) %>%
@@ -67,8 +70,8 @@ tbl <- df %>%
     FollowUp = "Follow-Up"
   ) %>%
   tab_options(
-    #table.font.names = "Source Sans Pro",
-    table.font.size = 12,
+    table.font.names = "Times New Roman",
+    table.font.size = 10,
     quarto.use_bootstrap = FALSE,
     quarto.disable_processing = TRUE,
     data_row.padding = gt::px(2),
@@ -90,3 +93,5 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-measurement-timepoints.
 # Ausgabe
 tbl
 ```
+
+:::

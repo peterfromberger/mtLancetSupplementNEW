@@ -190,16 +190,16 @@ create_sec_diff_tbl <- function(data, dvs, label_list, grouping_var, abbreviatio
   tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 8,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
+      data_row.padding = px(1),
+      summary_row.padding = gt::px(1),
+      grand_summary_row.padding = gt::px(21),
       #footnotes.padding = gt::px(2),
       #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
+      row_group.padding = gt::px(1)
     )
 
   return(tbl)

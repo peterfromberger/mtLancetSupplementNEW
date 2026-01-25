@@ -64,14 +64,29 @@ bm_unpaired_test <- function(data, variable, by, ...) {
 
 library(ggrain)
 
-options(
-  ggplot2.discrete.colour = ggsci::scale_colour_lancet,
-  ggplot2.discrete.fill = ggsci::scale_fill_lancet
-)
+scale_colour_group <- function(...) {
+  scale_colour_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    )
+  )
+}
+
+scale_fill_group <- function(...) {
+  scale_fill_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    )
+  )
+}
 
 add_gg_theme <- function(plt) {
   plt <- plt +
-    ggplot2::theme_minimal() + 
+    scale_fill_group() +
+    scale_colour_group() +
+    ggplot2::theme_classic() + 
     ggplot2::theme(
           axis.title = element_text(size = 16),
           axis.text = element_text(size = 14),
@@ -85,6 +100,19 @@ add_gg_theme <- function(plt) {
 # RAIN plot (descriptive)
 tmp_tmp = dat_clean %>%
       select(client_id, treatment, timepoint, module_duration_days) %>% filter(timepoint != "Baseline" & !client_id %in% c(253, 396))
+
+tbl_data <- tmp_tmp %>%
+  dplyr::select(client_id, treatment, module_duration_days, timepoint) %>%
+  pivot_wider(
+    names_from = timepoint,
+    values_from = module_duration_days
+  )
+
+tbl <- tbl_data %>%
+  dplyr::select(-client_id) %>%
+  tbl_summary(
+    by=treatment
+  )
 
 # RAIN plot (descriptive)
 plt <- ggplot(
@@ -131,7 +159,8 @@ plt <- ggplot(
   labs(
     y = "Time to finish module (days)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -216,8 +245,8 @@ tbl <- fit_time_module %>%
     bold_labels() %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -269,7 +298,8 @@ plt <- ggplot(
   labs(
     y = "Estimated marginal means +- 95%-CI",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
   
 plt <- add_gg_theme(plt)
@@ -292,6 +322,8 @@ ggsave(
 ```
 
 ![Estimated marginal means for time to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-finish-module-estimated-marginal-means.png){#fig-time-to-finish-module-estimated-marginal-means width=100%}
+
+::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -356,8 +388,8 @@ tbl <- df_m1toEndModule %>%
   modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value") %>%
   as_gt() %>%
   gt::tab_options(
-    #table.font.names = "Source Sans Pro",
-    table.font.size = 12,
+    table.font.names = "Times New Roman",
+    table.font.size = 10,
     quarto.use_bootstrap = FALSE,
     quarto.disable_processing = TRUE,
     data_row.padding = px(2),
@@ -375,6 +407,8 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-finish-content-
 
 tbl
 ```
+
+:::
 
 ### Time from baseline to post module
 
@@ -435,7 +469,8 @@ plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = Zeit_seit_Beginn
   labs(
     y = "Time from baseline to post module (days)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -510,8 +545,8 @@ tbl <- fit_time_post_module %>%
     bold_labels() %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -563,7 +598,8 @@ plt <- ggplot(
   labs(
     y = "Estimated marginal means +- 95%-CI",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
   
 plt <- add_gg_theme(plt)
@@ -586,6 +622,8 @@ ggsave(
 ```
 
 ![Estimated marginal means for time from baseline to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-estimated-marginal-means.png){#fig-time-to-post-module-estimated-marginal-means width=100%}
+
+::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -652,8 +690,8 @@ tbl <- df_m1toEndModule %>%
     modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value") %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -671,3 +709,410 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-pai
 
 tbl
 ```
+
+:::
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-init-time-working-on-module
+
+log2 <- readRDS(here::here("_data/MBSB/data/input/2024-11-22/mtDatabase_26112024_FINAL/client_clientinterventionprogressdetailed.rds")) %>% mutate(
+  lesson_duration = (lession_finished - lession_started)) # seconds 
+
+# Create complete grid of all combinations
+complete_grid <- expand.grid(
+  client_id = unique(log2$client_id),
+  current_module_nr = unique(log2$current_module_nr),
+  current_session_nr = unique(log2$current_session_nr)
+) %>%
+  as_tibble()
+
+# Join with original data and calculate session durations
+log2_complete <- complete_grid %>%
+  left_join(
+    log2,
+    by = c("client_id", "current_module_nr", "current_session_nr")
+  ) %>%
+  group_by(client_id, current_module_nr, current_session_nr) %>%
+  mutate(
+    session_duration = ifelse(
+      any(is.na(lesson_duration)),
+      NA_real_,
+      sum(lesson_duration, na.rm = TRUE)
+    )
+  ) %>%
+  ungroup() %>%
+  distinct(client_id, current_module_nr, current_session_nr, .keep_all = TRUE) %>%
+  filter(current_module_nr != 0) %>%
+  filter(current_session_nr != 0)
+
+# Calculate total module duration
+log2_summary <- log2_complete %>%
+  group_by(client_id, current_module_nr) %>%
+  summarise(
+    total_module_duration = as.numeric(sum(session_duration, na.rm = TRUE) / 3600), .groups = 'drop'
+  ) %>%
+  mutate(
+    total_module_duration = ifelse(
+      total_module_duration == 0,
+      NA_real_,
+      total_module_duration
+
+    )
+  )
+
+log2_summary <- log2_summary %>% 
+  mutate(
+    # total_module_duration = ifelse(
+    #   total_module_duration == 0,
+    #   NA_real_,
+    #   total_module_duration
+    # ),
+    client_id = factor(client_id)
+  ) %>%
+  mutate(
+    timepoint = case_when(
+      current_module_nr == 0 ~ "Baseline",
+      current_module_nr == 1 ~ "Module 1 (post)",
+      current_module_nr == 2 ~ "Module 2 (post)",
+      current_module_nr == 3 ~ "Module 3 (post)",
+      current_module_nr == 4 ~ "Module 4 (post)",
+      current_module_nr == 5 ~ "Module 5 (post)",
+      current_module_nr == 6 ~ "Module 6 (post)"
+    )
+  )
+
+log2_joined <- dat_clean %>%
+  dplyr::select(client_id, treatment, timepoint, module_duration_days) %>%
+  filter(!client_id %in% c(253, 396)) %>%
+  filter(timepoint != "Baseline") %>%
+  right_join(log2_summary, by = c("client_id", "timepoint")) %>%
+  mutate(
+    time_sum_duration_lections_hours = ifelse(
+      is.na(module_duration_days),
+      NA_real_,
+      total_module_duration
+    ),
+    timepoint = factor(timepoint)
+  ) %>%
+  filter(!is.na(treatment)) %>%
+  mutate(
+    timepoint = case_when(
+      current_module_nr == 0 ~ "Baseline",
+      current_module_nr == 1 ~ "Module 1 (post)",
+      current_module_nr == 2 ~ "Module 2 (post)",
+      current_module_nr == 3 ~ "Module 3 (post)",
+      current_module_nr == 4 ~ "Module 4 (post)",
+      current_module_nr == 5 ~ "Module 5 (post)",
+      current_module_nr == 6 ~ "Module 6 (post)"
+    )
+  )
+```
+
+### Time working on module
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-prepare-rainplot-time-working-on-module
+
+# RAIN plot (descriptive)
+plt <- ggplot(log2_joined, aes(fill = treatment, x = timepoint, y = time_sum_duration_lections_hours, color = treatment)
+  ) +
+  ggrain::geom_rain(
+    seed = 42,
+    rain.side = 'r',
+    #id.long.var = "time_sum_duration_lections_hours",
+    point.args = list(
+      alpha = 0.3,
+      shape = 21
+    ),
+    point.args.pos = rlang::list2(
+      position = position_jitter(
+        seed = 42,
+        width = 0.1,
+        height = 0.1
+      )
+    ),
+    boxplot.args = list(
+      outlier.shape = NA,
+      color = "black",
+      alpha = .7
+    ),
+    boxplot.args.pos = list(
+      position = ggpp::position_dodgenudge(
+        x = .25,
+        width = 0.2
+      ), 
+      width = 0.15
+    ),
+    violin.args = list(
+      alpha = .2
+    ),
+    violin.args.pos = list(
+      position = ggpp::position_dodgenudge(
+        x = .4,
+        width = 0
+      ), 
+      width = 1.2
+    ),
+  ) +
+  labs(
+    y = "Time working on content (hours)",
+    x = "Timepoint",
+    color = "Treatment",
+    fill = "Treatment"
+  )
+
+plt <- add_gg_theme(plt)
+
+ggsave(
+  here::here("_figures/fig-time-working-on-module-rainplot.png"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8,
+)
+
+ggsave(
+  here::here("_figures/fig-time-working-on-module-rainplot.pdf"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+```
+
+![Rainplot for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot width=100%}
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-time-working-on-module-mmrm
+
+library(mmrm)
+
+formular <- as.formula(
+  paste(
+      "time_sum_duration_lections_hours ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
+  )
+)
+
+fit_time_post_module <- mmrm(
+    formula = formular,
+    data = log2_joined %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+    dplyr::mutate(treatment = relevel(treatment, ref="Placebo")) %>% mutate(timepoint = factor(timepoint))
+)
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-time-working-on-module-mmrm
+#| tbl-cap: "Mixed model for repeated measures (MMRM) for time working on content of one module of the WBI. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
+
+tbl <- fit_time_post_module %>%
+    tbl_regression(
+      add_estimate_to_reference_rows = TRUE,
+      intercept = TRUE,
+      label = list(
+        treatment = "Treatment",
+        timepoint = "Timepoint",
+        `Timepoint * treatment` = "Timepoint * treatment"
+      )
+    ) %>%
+    modify_header(label ~ "**Variable**") %>%
+    remove_abbreviation("CI = Confidence Interval") %>%
+    modify_abbreviation("CI = Confidence Interval") %>%
+    modify_abbreviation("StGB = German penalty law") %>%
+    modify_column_alignment(columns = everything(), align = "left") %>%
+    modify_table_styling(
+        columns = c(estimate, conf.low, conf.high),
+        rows = reference_row %in% TRUE,
+        missing_symbol = "Ref."
+    ) %>%
+    bold_labels() %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.png")))
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-init-marginal-means-time-working-on-module
+
+library(emmeans)
+
+# Estimated marginal means
+emm <- emmeans(fit_time_post_module, ~ treatment | timepoint)
+emm_df <- as.data.frame(emm)
+
+plt <- ggplot(
+    emm_df, 
+    aes(
+      x = timepoint,
+      y = emmean, 
+      color = treatment, 
+      group = treatment
+    )
+  ) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_ribbon(
+    aes(
+      ymin = lower.CL, 
+      ymax = upper.CL
+    ),
+    alpha = 0.2
+  ) +
+  labs(
+    y = "Estimated marginal means +- 95%-CI",
+    x = "Timepoint",
+    color = "Treatment",
+    fill = "Treatment"
+  )
+  
+plt <- add_gg_theme(plt)
+
+ggsave(
+  here::here("_figures/fig-time-working-on-module-estimated-marginal-means.png"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+
+ggsave(
+  here::here("_figures/fig-time-working-on-module-estimated-marginal-means.pdf"),
+  plot = plt,
+  dpi = 300,
+  width = 16,
+  height = 8
+)
+```
+
+![Estimated marginal means for for time working on content of one module of the WBI. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-estimated-marginal-means.png){#fig-time-working-on-module-estimated-marginal-means width=100%}
+
+::: {.landscape}
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-time-working-on-module
+#| tbl-cap: "Pairwise comparisons for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of a lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
+
+df_working_time <- log2_joined %>%
+  mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
+  pivot_wider(
+    names_from = timepoint,
+    values_from = time_sum_duration_lections_hours,
+    names_prefix = "module_"
+  ) %>%
+  select(-module_duration_days, - current_module_nr, - total_module_duration)
+
+df_wide <- df_working_time %>%
+  group_by(client_id) %>%
+  summarise(
+    across(
+      starts_with("module_"),
+      ~ if (all(is.na(.x))) NA_real_ else first(na.omit(.x))
+    ),
+    treatment = first(treatment),
+    .groups = "drop"
+  )
+
+
+tbl <- df_wide %>%
+  dplyr::select(-client_id) %>%
+  tbl_summary(
+    by = treatment,
+    statistic = all_continuous() ~ c(
+            "{mean} ({sd})",
+            "{median} ({p25}, {p75})",
+            "{min}, {max}"
+          ),
+    label = list(
+      module_1 = "Module 1 (pre-tests: about 4 hours)",
+      module_2 = "Module 2 (pre-tests: about 4 hours)",
+      module_3 = "Module 3 (pre-tests: about 4 hours)",
+      module_4 = "Module 4 (pre-tests: about 4 hours)",
+      module_5 = "Module 5 (pre-tests: about 4 hours)",
+      module_6 = "Module 6 (pre-tests: about 4 hours)"
+    ),
+    type = list(
+      module_1 = "continuous2",
+      module_2 = "continuous2",
+      module_3 = "continuous2",
+      module_4 = "continuous2",
+      module_5 = "continuous2",
+      module_6 = "continuous2"
+    ),
+    missing_text = "Missing"
+  ) %>%
+  # brunner-munzel test
+    add_stat(fns = everything() ~ bm_unpaired_test) %>%
+    add_q(method = "holm") %>%
+    modify_header(
+      p.hat = "**p-hat**",
+      t.value = "**t**",
+      ci.value = "**95% CI**",
+      p.value = "**p-value**"
+    ) %>%
+    bold_labels() %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
+    # abbreviations
+    modify_abbreviation("*Q1* = 25th percentile") %>%
+    modify_abbreviation("*Q3* = 75th percentile") %>%
+    modify_abbreviation("*95% CI* = Confidence interval of the estimated relative effect") %>%
+    modify_abbreviation("*p-hat* = estimated relative effect") %>%
+    modify_abbreviation("*t* = Brunner–Munzel test statistic for unpaired samples") %>%
+    modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value") %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.png")))
+
+tbl
+```
+
+:::

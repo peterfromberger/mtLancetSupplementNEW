@@ -7,6 +7,20 @@
 #| label: tbl-sspi-2
 #| tbl-cap: "SSPI-2. Note, that the SSPI-2 is only defined for participants who have at least one hands-on offences."
 
+library(here)
+library(tidyr)
+library(gtsummary)
+library(gt)
+
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
+# read in data
+data <- read.csv(here::here("_data/finalData/randomizedMaster.csv"))
+
+# itt
+data <- data %>% filter(client_id %in% client_list)
+
 calculate_sspi <- function(df) {
 
   # umcodierung der items zum berechnen
@@ -47,7 +61,7 @@ calculate_sspi <- function(df) {
 }
 
 sspi <- data %>%
-    select(
+    dplyr::select(
         strataindex,
         indexirgend,
         indexmehropf,
@@ -60,10 +74,12 @@ sspi <- data %>%
         sspi_irgendein_opfer_unter_12jahre,
         sspi_irgendein_nicht_zur_familie_gehoerendes_opfer_unter15jahre,
         client_group,
-        indexnichtfam
+        indexnichtfam,
     )
 
-sspi <- calculate_sspi(sspi) %>%
+sspi <- calculate_sspi(sspi) 
+
+sspi <- sspi %>%
     select(
         -strataindex,
         -indexirgend,
@@ -105,8 +121,8 @@ tbl <- sspi %>%
     bold_labels() %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),

@@ -2,22 +2,21 @@
 title: "Supplementary materials"
 
 lightbox: true
-
-
-
+notebook-links: false
 
 format:
   html:
-    theme: default
-    #number-sections: false
-    #title-block-style: none
-    #embed-resources: true
-    crossref:
-      fig-prefix: "Figure S"  # (default is "Figure")
-      tbl-prefix: "Table S"   # (default is "Table")
-      ref-hyperlink: true # (default is true)
-  docx: default
-  pdf: default
+    toc: true
+    toc-depth: 3
+    theme: default 
+  pdf:
+    toc: true
+    fontsize: 10pt
+    fig-dpi: 300
+    keep-tex: true
+    include-in-header:
+      - text: |
+          \usepackage{pdfpages}
 ---
 
 ```{r}
@@ -40,27 +39,6 @@ source(here::here("_scripts/rbmi.R"))
 
 # SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): remove outlier
 source(here::here("_scripts/remove_outlier.R"))
-
-# load function to create tbl_mmrm
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/prim_mmrm_functions.R"))
-
-# # load functions to create diffscores and their tbls
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/prim_diffscore_functions.R"))
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/sec_diffscore_functions.R"))
-
-# # load functions to create pairwise tbls
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/prim_pairwise_functions.R"))
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/sec_pairwise_functions.R"))
-
-# # load functions for who-5
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/who_functions.R"))
-
-# # load functions for wai-sr
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/wai_functions.R"))
-
-# # load functions for mrq
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/mrq_functions_prepluspost.R"))
-# source(here::here("paper/clinical_trial_LancetDigitalHealth/_scripts/mrq_functions.R"))
 ```
 
 <!-- 
@@ -70,12 +48,22 @@ source(here::here("_scripts/remove_outlier.R"))
 -->
 ## Trial registry
 
+::: {.content-visible when-format="pdf"}
+
+\includepdf[pages=-, fitpaper=true]{resources/GermanClinicalTrialsRegister.pdf}
+
+:::
+
+::: {.content-visible when-format="html"}
 ```{=html}
 <p>
     Please <a href="resources/GermanClinicalTrialsRegister.pdf">click here to
     download the PDF file.</a>
 </p>
 ```
+:::
+
+{{< pagebreak >}}
 
 <!-- 
 ##################
@@ -91,45 +79,51 @@ source(here::here("_scripts/remove_outlier.R"))
 # OUTCOME measures
 ##################
 -->
-## Statistical analysis plan (SAP)
 
-```{=html}
-<p>
-    Please <a href="href=resources/myTabu_SAP_signed.pdf">click here</a> to
-    download the PDF file.
-</p>
-```
+{{< pagebreak >}}
 
 ## Outcomes and measurement timepoints
 
-{{< include _tables/tbl_measurement_timepoints.qmd >}}
-
 {{< include _tables/tbl_description_outcomes.qmd >}}
+
+{{< include _tables/tbl_measurement_timepoints.qmd >}}
 
 <!-- 
 ##################
 # RESULTS Section
 ##################
 -->
+{{< pagebreak >}}
+
 ## Baseline characteristics
 
 {{< include _includes/apx_BASELINE_CHARACTERISTICS.qmd >}}
 
-## Protocol deviations
+{{< pagebreak >}}
+
+## Timing (protocol deviations)
 
 {{< include _includes/apx_PROTOCOL_DEVIATIONS.qmd >}}
+
+{{< pagebreak >}}
 
 ## Primary Outcomes
 
 {{< include _includes/apx_PRIMARY_OUTCOMES.qmd >}}
 
+{{< pagebreak >}}
+
 ## Secondary Outcomes
 
 {{< include _includes/apx_SECONDARY_OUTCOMES.qmd >}}
 
-## Harms
+{{< pagebreak >}}
+
+## Adverse events
 
 {{< include _includes/apx_HARMS.qmd >}}
+
+{{< pagebreak >}}
 
 ## Ancillary Outcomes
 
@@ -140,14 +134,18 @@ source(here::here("_scripts/remove_outlier.R"))
 # CONSORT checklist
 ##################
 -->
+{{< pagebreak >}}
+
 ## CONSORT checklist
+
+::: {.landscape}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-consort-checklist
-#| tbl-cap: "CONSORT 2025 expanded checklist [@hopewellCONSORT2025Statement2025]. The table shows all important information for a randomized clinical trial which should be mentioned in the report. The column Page shows the page number where the information can be found in the manuscript."
+#| tbl-cap: "CONSORT 2025 expanded checklist. [@hopewellCONSORT2025Statement2025]."
 
 library(gt)
 library(tibble)
@@ -218,9 +216,6 @@ header_rows <- which(!is.na(consort_data$Section))
 # gt bauen
 consort_data %>%
   gt() %>%
-    tab_header(
-    title = "CONSORT 2025 checklist"
-  ) %>%
   cols_label(
     Subsection = "",
     Section = "",
@@ -235,18 +230,30 @@ consort_data %>%
     columns = everything(), # NA überall durch "" ersetzen
     missing_text = ""
   ) %>%
-  gt::  tab_source_note(
-    source_note = md(
-      "Source: @hopewellCONSORT2025Statement2025."
-    )
+  gt::tab_options(
+    table.font.names = "Times New Roman",
+    table.font.size = 10,
+    quarto.use_bootstrap = FALSE,
+    quarto.disable_processing = TRUE,
+    data_row.padding = px(2),
+    summary_row.padding = gt::px(2),
+    grand_summary_row.padding = gt::px(2),
+    #footnotes.padding = gt::px(2),
+    #source_notes.padding = gt::px(2),
+    row_group.padding = gt::px(2)
   )
 ```
+
+:::
 
 <!-- 
 ##################
 # SUPP References
 ##################
 -->
+
+{{< pagebreak >}}
+
 ## References
 
 ::: {#refs}

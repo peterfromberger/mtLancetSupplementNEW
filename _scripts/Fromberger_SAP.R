@@ -3115,7 +3115,7 @@ generate_named_vector <- function(variable_names, value) {
   named_vector <- setNames(rep(value, length(variable_names)), variable_names)
   return(named_vector)
 }
-variable_names <- df_diff_iod %>% select(contains("diff")) %>% names
+variable_names <- df_diff_iod %>% dplyr::select(contains("diff")) %>% names
 tests <- generate_named_vector(variable_names, "w.npar.t.test")
 
 # dtab_iod <- df_diff_iod %>% dplyr::select(-client_id) %>%

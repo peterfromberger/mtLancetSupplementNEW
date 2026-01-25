@@ -121,8 +121,8 @@ create_prim_diff_tbl <- function(data, dvs, label_list, grouping_var, abbreviati
   tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = gt::px(2),

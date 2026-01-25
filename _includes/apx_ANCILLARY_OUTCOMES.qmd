@@ -1,7 +1,5 @@
 ### WHO-5
 
-The norm in Germany is M = 65.7 (all) (65.1 (female), 66.3 (male)). Values below 50 are used to diagnose depression. The threshold for a clinically relevant change on the WHO-5 is considered to be 10 points difference [@toppWHO5WellbeingIndex2015].
-
 ```{r}
 #| echo: false
 #| warning: false
@@ -525,14 +523,29 @@ create_who_diffscore_tbl <- function(
 
 library(ggrain)
 
-options(
-  ggplot2.discrete.colour = ggsci::scale_colour_lancet,
-  ggplot2.discrete.fill = ggsci::scale_fill_lancet
-)
+scale_colour_group <- function(...) {
+  scale_colour_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    )
+  )
+}
+
+scale_fill_group <- function(...) {
+  scale_fill_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    )
+  )
+}
 
 add_gg_theme <- function(plt) {
   plt <- plt +
-    ggplot2::theme_minimal() + 
+    scale_fill_group() +
+    scale_colour_group() +
+    ggplot2::theme_classic() +  
     ggplot2::theme(
           axis.title = element_text(size = 16),
           axis.text = element_text(size = 14),
@@ -590,7 +603,8 @@ plt <- ggplot(
   labs(
     y = "WHO-5 (total score)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -599,20 +613,24 @@ ggsave(
   here::here("_figures/fig-anc-who-5-rainplot.png"),
   plot = plt,
   dpi = 300,
-  width = 16,
-  height = 8,
+  width = 32,
+  height = 16,
 )
 
 ggsave(
   here::here("_figures/fig-anc-who-5-rainplot.pdf"),
   plot = plt,
   dpi = 300,
-  width = 16,
-  height = 8
+  width = 32,
+  height = 16
 )
 ```
 
-![Rainplot for the WHO-5 total score.](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot width=100%}
+::: {.landscape}
+
+![Rainplot for the WHO-5 total score. The norm in Germany is at M = 65.7. The threshold for a clinically relevant change on the WHO-5 is considered to be 10 points difference. [@toppWHO5WellbeingIndex2015]](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot width=100%}
+
+:::
 
 ```{r}
 #| echo: false
@@ -627,8 +645,8 @@ tbl <- create_who_mmrm_table()
 
 tbl <- tbl %>% as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -679,7 +697,8 @@ plt <- ggplot(
   labs(
     y = "Estimated marginal means +- 95%-CI",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
   
 plt <- add_gg_theme(plt)
@@ -688,22 +707,24 @@ ggsave(
   here::here("_figures/fig-anc-who-estimated-marginal-means.png"),
   plot = plt,
   dpi = 300,
-  width = 16,
-  height = 8
+  width = 32,
+  height = 16
 )
 
 ggsave(
   here::here("_figures/fig-anc-who-estimated-marginal-means.pdf"),
   plot = plt,
   dpi = 300,
-  width = 16,
-  height = 8
+  width = 32,
+  height = 16
 )
 ```
 
+::: {.landscape}
+
 ![Estimated marginal means for the WHO-5.](_figures/fig-anc-who-estimated-marginal-means.png){#fig-anc-who-estimated-marginal-means width=100%}
 
-#### Difference from baseline
+:::
 
 ```{r}
 #| echo: false
@@ -716,8 +737,8 @@ tbl <- create_who_pairwise_tbls(subgroup_str = "Intervention")
 
 tbl <- tbl %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -747,8 +768,8 @@ tbl_placebo <- create_who_pairwise_tbls(subgroup_str = "Placebo")
 
 tbl <- tbl %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -767,8 +788,6 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwi
 tbl
 ```
 
-#### Difference from baseline
-
 ```{r}
 #| echo: false
 #| message: false
@@ -780,8 +799,8 @@ tbl <- create_who_diffscore_tbl()
 
 tbl <- tbl %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -863,7 +882,8 @@ plt <- ggplot(
   labs(
     y = "WHO-5 (total score)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -872,21 +892,22 @@ ggsave(
   here::here("_figures/fig-anc-who-5-difference-from-baseline-rainplot.png"),
   plot = plt,
   dpi = 300,
-  width = 16,
-  height = 8,
+  width = 32,
+  height = 16,
 )
 
 ggsave(
   here::here("_figures/fig-anc-who-5-difference-from-baseline-rainplot.pdf"),
   plot = plt,
   dpi = 300,
-  width = 16,
-  height = 8
+  width = 32,
+  height = 16
 )
 ```
 
 ![Rainplot for the WHO-5 difference from baseline.](_figures/fig-anc-who-5-difference-from-baseline-rainplot.png){#fig-anc-who-5-difference-from-baseline-rainplot width=100%}
 
+{{< pagebreak >}}
 
 ### WAI-SR: Online-Coach
 
@@ -1454,8 +1475,8 @@ tbl <- create_wai_mmrm_table(variable, var_name)
 tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -1521,7 +1542,8 @@ plt <- ggplot(
   labs(
     y = "Estimated marginal means +- 95%-CI",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
   
 plt <- add_gg_theme(plt)
@@ -1543,9 +1565,9 @@ ggsave(
 )
 ```
 
-![Estimated marginal means from the MMRM of WAI-SR COACH (total score).](_figures/fig-anc-wai-coach-estimated-marginal-means.png){#ffig-anc-wai-coach-estimated-marginal-means width=100%}
+![Estimated marginal means from the MMRM of WAI-SR COACH (total score).](_figures/fig-anc-wai-coach-estimated-marginal-means.png){#fig-anc-wai-coach-estimated-marginal-means width=100%}
 
-#### Pairwise comparisons
+::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -1558,8 +1580,8 @@ tbl <- create_wai_pairwise_tbls("Intervention", variable)
 
 tbl <- tbl %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -1578,6 +1600,10 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-
 tbl
 ```
 
+:::
+
+::: {.landscape}
+
 ```{r}
 #| echo: false
 #| message: false
@@ -1589,8 +1615,8 @@ tbl <- create_wai_pairwise_tbls("Placebo", variable)
 
 tbl <- tbl %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -1609,7 +1635,9 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-
 tbl
 ```
 
-#### Difference from baseline
+:::
+
+::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -1623,8 +1651,8 @@ tbl <- create_wai_diffscore_tbl(variable)
 tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -1642,6 +1670,10 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-differenc
 
 tbl
 ```
+
+:::
+
+{{< pagebreak >}}
 
 ### WAI-SR: Community supervisor
 
@@ -1661,8 +1693,8 @@ tbl <- create_wai_mmrm_table(variable, var_name)
 tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -1752,8 +1784,6 @@ ggsave(
 
 ![Estimated marginal means from the MMRM of WAI-SR SUPERVISOR (total score).](_figures/fig-anc-wai-supervisor-estimated-marginal-means.png){#ffig-anc-wai-supervisor-estimated-marginal-means width=100%}
 
-#### Pairwise comparisons
-
 ```{r}
 #| echo: false
 #| message: false
@@ -1765,8 +1795,8 @@ tbl <- create_wai_pairwise_tbls("Intervention", variable)
 
 tbl <- tbl %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -1796,8 +1826,8 @@ tbl <- create_wai_pairwise_tbls("Placebo", variable)
 
 tbl <- tbl %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -1830,8 +1860,8 @@ tbl <- create_wai_diffscore_tbl(variable)
 tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),

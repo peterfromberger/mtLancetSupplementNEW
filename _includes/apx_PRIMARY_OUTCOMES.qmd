@@ -50,8 +50,8 @@ tbl <- fit2_c %>%
     bold_labels() %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -87,7 +87,7 @@ gtsummary::theme_gtsummary_journal(journal = "lancet")
 tbl <- rbmi_cares_tab %>%
             gt() %>%
             gt::tab_options(
-                table.font.size = 12,
+                table.font.size = 10,
                 data_row.padding = gt::px(2),
                 summary_row.padding = gt::px(2),
                 grand_summary_row.padding = gt::px(2),
@@ -129,6 +129,8 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-int
 tbl
 ```
 
+::: {.landscape}
+
 ```{r}
 #| echo: false
 #| message: false
@@ -147,7 +149,12 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-int
 tbl
 ```
 
+:::
+
 <!-- DIFFERENCES FROM BASELINE -->
+
+::: {.landscape}
+
 ```{r}
 #| echo: false
 #| message: false
@@ -172,8 +179,12 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.pn
 tbl
 ```
 
+:::
+
 <!-- RAIN PLOT -->
 ![Rainplot of primary outcome CARES difference from baseline scores.](_figures/fig-cares-rainplot-difference-from-baseline.png){#fig-cares-rainplot width=100%}
+
+{{< pagebreak >}}
 
 ### Index of Desistance (IoD)
 
@@ -225,8 +236,8 @@ tbl <- fit %>%
     bold_labels() %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -248,7 +259,7 @@ tbl
 <!-- ESTIMATED MARGINAL MEANS -->
 ![Estimated marginal means of the MMRM for the IoD total score. The pre-specified MMRM considers all strata as well as the baseline value of the IoD total score as covariables.](_figures/fig-iod-estimated-marginal-means.png){#fig-iod-rainplot width=100%}
 
-<!-- MMRM: TIME SINCE BASELINE -->
+<!-- MMRM -->
 ```{r}
 #| echo: false
 #| message: false
@@ -292,8 +303,8 @@ tbl <- fit1_c %>%
     bold_labels() %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -329,7 +340,7 @@ gtsummary::theme_gtsummary_journal(journal = "lancet")
 tbl <- rbmi_tab %>%
   gt() %>%
   gt::tab_options(
-    table.font.size = 12,
+    table.font.size = 10,
     data_row.padding = gt::px(2),
     summary_row.padding = gt::px(2),
     grand_summary_row.padding = gt::px(2),
@@ -347,12 +358,15 @@ tbl
 ```
 
 <!-- PAIRWISE COMPARISONS -->
+
+::: {.landscape}
+
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-pairwise-intervention
-#| tbl-cap: "Explorative (pre-specified) omparison of the IoD total score between before (pre) and after (post) of each module for the intervention arm."
+#| tbl-cap: "Explorative (pre-specified) comparison of the IoD total score between before (pre) and after (post) of each module for the intervention arm."
 
 library(here)
 source(here::here("_scripts/prim_pairwise_functions.R"))
@@ -370,6 +384,10 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-inter
 
 tbl
 ```
+
+:::
+
+::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -389,7 +407,12 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-inter
 tbl
 ```
 
+:::
+
 <!-- DIFFERENCES FROM BASELINE -->
+
+::: {.landscape}
+
 ```{r}
 #| echo: false
 #| message: false
@@ -413,6 +436,8 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.png"
 
 tbl
 ```
+
+:::
 
 <!-- RAIN PLOT -->
 ![Rainplot of IoD difference from baseline scores.](_figures/fig-iod-rainplot-difference-from-baseline.png){#fig-cares-rainplot width=100%}

@@ -7,17 +7,30 @@ library(ggrain)
 library(emmeans)
 library(stringr)
 library(patchwork)
-#library(svglite)
 
-# Set global options
-options(
-  ggplot2.discrete.colour = ggsci::scale_colour_lancet,
-  ggplot2.discrete.fill = ggsci::scale_fill_lancet
-)
+scale_colour_group <- function(...) {
+  scale_colour_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    )
+  )
+}
+
+scale_fill_group <- function(...) {
+  scale_fill_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    )
+  )
+}
 
 add_gg_theme <- function(plt) {
   plt <- plt +
-    ggplot2::theme_minimal() + 
+    scale_fill_group() +
+    scale_colour_group() +
+    ggplot2::theme_classic() + 
     ggplot2::theme(
           axis.title = element_text(size = 16),
           axis.text = element_text(size = 14),
@@ -27,9 +40,6 @@ add_gg_theme <- function(plt) {
 
   return(plt)
 }
-
-# define color_palette
-lanonc_colors <- pal_lancet(palette = "lanonc", alpha = 1)(9)
 
 # ################
 # PRIMARY OUTCOMES
@@ -64,7 +74,14 @@ plt <- ggplot(
   labs(
     y = "Estimated marginal means +- 95%-CI",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
+  ) %>%
+  scale_colour_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet()(1),
+      "Placebo" = ggsci::pal_lancet()(2)
+    )
   )
   
 plt <- add_gg_theme(plt)
@@ -107,7 +124,8 @@ plt <- ggplot(
   labs(
     y = "Estimated marginal mean +- 95%-CI (CARES total score)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -131,8 +149,8 @@ ggsave(
 
 # RAIN plot (descriptive)
 plt <- ggplot(
-    data = dat_clean %>% filter(!client_id %in% c(253, 396) & !is.na(client_group)),
-    aes(fill = client_group, x = timepoint, y = IoD_reduced, color = client_group)
+    data = dat_clean %>% filter(!client_id %in% c(253, 396) & !is.na(treatment)),
+    aes(fill = treatment, x = timepoint, y = IoD_reduced, color = treatment)
   ) +
   geom_rain(
     seed = 42,
@@ -174,7 +192,8 @@ plt <- ggplot(
   labs(
     y = "CARES (total score)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -256,7 +275,8 @@ plt <- ggplot(
   labs(
     y = "Difference from baseline (CARES total score)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -282,7 +302,7 @@ ggsave(
 # ------------------
 
 # Estimated marginal means
-emm <- emmeans(fit, ~ treatment | timepoint)
+emm <- emmeans(fit1, ~ treatment | timepoint)
 emm_df <- as.data.frame(emm)
 
 plt <- ggplot(
@@ -303,7 +323,8 @@ plt <- ggplot(
   labs(
     y = "Estimated marginal mean +- 95%-CI",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
   
 plt <- add_gg_theme(plt)
@@ -346,7 +367,8 @@ plt <- ggplot(
   labs(
     y = "Estimated marginal mean +- 95%-CI",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -370,8 +392,8 @@ ggsave(
 
 # RAIN plot (descriptive)
 plt <- ggplot(
-    data = dat_clean %>% filter(!client_id %in% c(253, 396) & !is.na(client_group)),
-    aes(fill = client_group, x = timepoint, y = IoD, color = client_group)
+    data = dat_clean %>% filter(!client_id %in% c(253, 396) & !is.na(treatment)),
+    aes(fill = treatment, x = timepoint, y = IoD, color = treatment)
   ) +
   geom_rain(
     seed = 42,
@@ -413,7 +435,8 @@ plt <- ggplot(
   labs(
     y = "Index of Desistance (IoD)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -495,7 +518,8 @@ plt <- ggplot(
   labs(
     y = "Difference from baseline (IoD total score)",
     x = "Timepoint",
-    color = "Treatment"
+    color = "Treatment",
+    fill = "Treatment"
   )
 
 plt <- add_gg_theme(plt)
@@ -592,10 +616,15 @@ plot_and_save_dv <- function(var, label, var_nice, data) {
     labs(
       y = label,
       x = "Timepoint",
-      color = "Treatment"
+      color = "Treatment",
+      fill = "Treatment"
     )
 
   plt <- add_gg_theme(plt)
+
+  plt <- plt +
+    stat_summary(fun = mean, geom = "line", aes(group = treatment, color = treatment)) +
+    stat_summary(fun = mean, geom = "point", aes(group = treatment, color = treatment))
 
   name_png <- glue::glue("_figures/fig-sec-rainplot-{var_nice}.png")
   name_pdf <- glue::glue("_figures/fig-sec-rainplot-{var_nice}.pdf")

@@ -16,7 +16,7 @@ modules_df <- data.frame(
     "**Module 5** (Offense-supportive attitudes)",
     "**Module 6** (Sexuality)"
   ),
-  Goals = c(
+  Riskfactor = c(
     "Strengthen motivation to change and treatment readiness before addressing criminogenic needs.",
     "Build positive social network, reduce resistance to rules and community supervision.",
     "Reduce impulsiveness and improve coping with stress and negative emotions.",
@@ -44,8 +44,8 @@ tbl <- gt(modules_df) %>%
     columns = vars(Module, Goals, Techniques)
   ) %>%
   gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = FALSE,
       data_row.padding = px(2),
@@ -135,8 +135,8 @@ risk_factors_df <- data.frame(
 # Erstelle die gt-Tabelle
 tbl <- gt(risk_factors_df) %>%
   gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = FALSE,
       data_row.padding = px(2),
@@ -219,8 +219,8 @@ tbl <- gt(modules_df) %>%
     columns = vars(Module, Goals, Techniques)
   ) %>%
   gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = FALSE,
       data_row.padding = px(2),

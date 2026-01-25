@@ -6,7 +6,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-mrq-frequency-highest-value-post
-#| tbl-cap: "Frequencies of adverse events during working on the WBI. For each participant, we identified whether they reported the highest possible score for each one-item self-rport scale of the Mood and Risk Questionnaire (MRQ; 'Often' for items 1–8, 'Strongly agree' for item 9, or 'Very bad' for item 10) at least once during the post-intervention assessment. These binary indicators were then used to calculate frequencies and percentages across treatment groups. The MRQ post questionnaire explicitly asks for the time during working on the WBI, whereas the MRQ pre questionnaire eclusiviely asks for the last week before measurement timepoint. Please note, that the occurence of a report of the highest possible score was defined as adverse event post-hoc."
+#| tbl-cap: "Frequencies of adverse events during working on the WBI. The MRQ Post questionnaire explicitly asks asks for the time during working on one session. Shown are the frequency of participants reported at least once the highest possible score (= adverse event) on all measurement timepoints (after each session of the WBI)."
 #| html-table-processing: none
 
 library(gtsummary)
@@ -171,16 +171,16 @@ tbl <- mrq_at_least_one_highest_score_group %>%
         include = starts_with("flashlight_"),
         #type = everything() ~ "categorical",
         label = list(
-            flashlight_1_max_once ~ "...have you thought about how to best make contact with a child? (Contact planning)",
-            flashlight_2_max_once ~ "...have you made preparations to be able to make contact with a child? (Contact preparation)",
-            flashlight_3_max_once ~ "...have you felt that you must commit a sexual act with a child? (Urge for CSA)",
-            flashlight_4_max_once ~ "...have you felt that you might soon (again) watch child sexual abuse material? (Urge for CSAM)",
-            flashlight_5_max_once ~ "...have you felt that sexual tension has built up within you? (Sexual tension)",
-            flashlight_6_max_once ~ "...have you felt that it is difficult for you to control your sexual thoughts and activities? (Control of sexual thoughts and activity)",
-            flashlight_7_max_once ~ "...have you felt that you can no longer endure burdens? (Unable to cope with the mental burden)",
-            flashlight_8_max_once ~ "...have you thought about taking your own life? (Suicidal ideations)",
-            flashlight_9_max_once ~ "At present, I feel that my behavior and experience are impaired due to mental problems. (Mental crisis)",
-            flashlight_10_max_once ~ "How do you feel at the moment? (Very bad current mood)"
+            flashlight_1_max_once ~ "Contact planning",
+            flashlight_2_max_once ~ "Contact preparation",
+            flashlight_3_max_once ~ "Urge for CSA",
+            flashlight_4_max_once ~ "Urge for CSAM",
+            flashlight_5_max_once ~ "Sexual tension",
+            flashlight_6_max_once ~ "Control of sexual thoughts and activity",
+            flashlight_7_max_once ~ "Unable to cope with the mental burden",
+            flashlight_8_max_once ~ "Suicidal ideations",
+            flashlight_9_max_once ~ "Mental crisis",
+            flashlight_10_max_once ~ "Very bad current mood"
         ),
         missing = "no"
     ) %>%
@@ -195,8 +195,8 @@ tbl <- mrq_at_least_one_highest_score_group %>%
     add_overall() %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -222,7 +222,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-mrq-frequency-highest-value-pre
-#| tbl-cap: "Frequencies of adverse events between working on sessions of the WBI. Adverse events have been assessed with the The Mood and Risk Questionnaire (MRQ) assess acute changes with regard to emotional well-being (suicidal ideations, mental crisis) and thoughts associated with potential re-offenses.  For each participant, we identified whether they reported the highest possible score on a scale of the Mood and Risk Questionnaire (MRQ; 'Often' for items 1–8, 'Strongly agree' for item 9, or 'Very bad' for item 10) at least once during the post-intervention assessment. These binary indicators were then used to calculate frequencies and percentages across treatment groups. The MRQ pre questionnaire explicitly asks asks for the last week before beginning a new session. Please note, that the occurence of a report of the highest possible score was defined as adverse event post-hoc."
+#| tbl-cap: "Frequencies of adverse events between working on sessions of the WBI. The MRQ pre questionnaire explicitly asks asks for the last week before beginning a new session. Shown are the frequency of participants reported at least once the highest possible score (= adverse event)on all measurement timepoints (before each session of the WBI)."
 #| html-table-processing: none
 
 tbl <- mrq_at_least_one_highest_score_group %>%
@@ -232,16 +232,16 @@ tbl <- mrq_at_least_one_highest_score_group %>%
         include = starts_with("flashlight_"),
         #type = everything() ~ "categorical",
         label = list(
-            flashlight_1_max_once ~ "...have you thought about how to best make contact with a child? (Contact planning)",
-            flashlight_2_max_once ~ "...have you made preparations to be able to make contact with a child? (Contact preparation)",
-            flashlight_3_max_once ~ "...have you felt that you must commit a sexual act with a child? (Urge for CSA)",
-            flashlight_4_max_once ~ "...have you felt that you might soon (again) watch child sexual abuse material? (Urge for CSAM)",
-            flashlight_5_max_once ~ "...have you felt that sexual tension has built up within you? (Sexual tension)",
-            flashlight_6_max_once ~ "...have you felt that it is difficult for you to control your sexual thoughts and activities? (Control of sexual thoughts and activity)",
-            flashlight_7_max_once ~ "...have you felt that you can no longer endure burdens? (Unable to cope with the mental burden)",
-            flashlight_8_max_once ~ "...have you thought about taking your own life? (Suicidal ideations)",
-            flashlight_9_max_once ~ "At present, I feel that my behavior and experience are impaired due to mental problems. (Mental crisis)",
-            flashlight_10_max_once ~ "How do you feel at the moment? (Very bad current mood)"
+            flashlight_1_max_once ~ "Contact planning",
+            flashlight_2_max_once ~ "Contact preparation",
+            flashlight_3_max_once ~ "Urge for CSA",
+            flashlight_4_max_once ~ "Urge for CSAM",
+            flashlight_5_max_once ~ "Sexual tension",
+            flashlight_6_max_once ~ "Control of sexual thoughts and activity",
+            flashlight_7_max_once ~ "Unable to cope with the mental burden",
+            flashlight_8_max_once ~ "Suicidal ideations",
+            flashlight_9_max_once ~ "Mental crisis",
+            flashlight_10_max_once ~ "Very bad current mood"
         ),
         missing = "no"
     ) %>%
@@ -256,8 +256,8 @@ tbl <- mrq_at_least_one_highest_score_group %>%
     add_overall() %>%
     as_gt() %>%
     gt::tab_options(
-      #table.font.names = "Source Sans Pro",
-      table.font.size = 12,
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
       quarto.use_bootstrap = FALSE,
       quarto.disable_processing = TRUE,
       data_row.padding = px(2),
@@ -277,14 +277,16 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-v
 tbl
 ```
 
-### Adverse events reported by supervision officers
+{{< pagebreak >}}
+
+### Exclusion reasons
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-exclusion-questionnaire
-#| tbl-cap: "Frequencies of adverse events as mentioned by the supervision officer at exclusion."
+#| tbl-cap: "Frequencies of exclusion reasons reported by the supervision officers. Exclusion reasons have been assessed in a structured manner by the Exclusion Questionnaire (EQ)."
 #| html-table-processing: none
 
 library(dplyr)
@@ -384,7 +386,6 @@ get_exclusion_reason_timepointxtreatment <- function() {
       client_id,
       treatment,
       end_of_trial,
-      recidivism,
       `Widerruf der Einverständniserklärung`,
       `Die Zeit der Bewährungsaufsicht/Führungsaufsicht ist abgelaufen`,
       `Klient hat eine andere Straftat begangen (nicht gemäß §§ 176, 176a, 176b oder 184b StGB)`,
@@ -393,8 +394,7 @@ get_exclusion_reason_timepointxtreatment <- function() {
       mixed_offense,
       csem_offense_only,
       csa_offense_only,
-      violation_probation_conditions,
-      recidivism
+      violation_probation_conditions
     ) %>%
     rename(
       "Withdrawal of informed consent" = `Widerruf der Einverständniserklärung`,
@@ -406,11 +406,12 @@ get_exclusion_reason_timepointxtreatment <- function() {
       "CSA and CSEM offense" = mixed_offense,
       "CSEM offense" = csem_offense_only,
       "CSA offense" = csa_offense_only,
-      "Violation of probation conditions" = violation_probation_conditions,
-      "Recidivism" = recidivism
+      "Violation of probation conditions" = violation_probation_conditions
     ) %>%
-    # we reduce number of multiple answers by logical thinking: einige Kombinationen bieten keinen zusätzlichen iNfogehalt und sind logische Konsequenz des eigentlichen Grundes
-    # withdrawal of informed consent ist dann nicht relevant, wenn mit offense, Probationary supervision expired, kombiniert, da offense einen ausschluss automatisch nach sich zieht
+    # einige Kombinationen bieten keinen zusätzlichen Infogehalt und sind logische Konsequenz des eigentlichen Grundes
+    # - withdrawal of informed consent ist dann nicht relevant, wenn mit offense in Verbindung steht
+    # - Probationary supervision expired ist bei aufgetretenem reoffence eine logische Konsequenz, da die Bewährung in diesem Fall widerrufen wird
+    # - re-offene == Violation of probation conditions
     mutate(
       `Withdrawal of informed consent` = case_when(
         `Withdrawal of informed consent` == "Yes" & `CSA and CSEM offense` == "Yes" ~ "No",
@@ -482,6 +483,7 @@ get_exclusion_reason_timepointxtreatment <- function() {
 
 tmp <- get_exclusion_reason_timepointxtreatment()
 
+# ToDo: hier müsste man noch recidivism mitnehmen
 tmp_wide <- tmp %>%
   dplyr::select(client_id, treatment, exclusion_reasons_list) %>%
   unnest(exclusion_reasons_list) %>%
@@ -494,7 +496,7 @@ tmp_wide <- tmp %>%
 
 tbl <- tmp_wide %>%
     dplyr::filter(client_id %in% client_list) %>%
-    dplyr::select(-client_id, -`Violation of probation conditions`, -`Violation of probation conditions, Acute suicide risk`, -`CSEM offense, Acute suicide risk`, -`CSA offense, Other offense (not CSA or CSEM), Acute suicide risk`, recidivism) %>%
+    dplyr::select(-client_id, -`Violation of probation conditions`, -`Violation of probation conditions, Acute suicide risk`, -`CSEM offense, Acute suicide risk`, -`CSA offense, Other offense (not CSA or CSEM), Acute suicide risk`) %>%
     tbl_summary(
         by = treatment
         #type = everything() ~ "categorical"
@@ -510,8 +512,8 @@ tbl <- tmp_wide %>%
     add_overall() %>%
     as_gt() %>%
     gt::tab_options(
-        #table.font.names = "Source Sans Pro",
-        table.font.size = 12,
+        table.font.names = "Times New Roman",
+        table.font.size = 10,
         quarto.use_bootstrap = FALSE,
         quarto.disable_processing = TRUE,
         data_row.padding = px(2),
