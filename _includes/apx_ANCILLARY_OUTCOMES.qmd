@@ -1,10 +1,17 @@
 ### WHO-5
 
+::: {.callout-important}
+ES FEHLEN DIE VERGLEICHE FÜR DIE ZUSÄTZLIVHEN PRE_POST TIMEPOINTS !!!!
+:::
+
 ```{r}
 #| echo: false
 #| warning: false
 #| message: false
 #| label: r-init-who
+
+library(gt)
+library(gtsummary)
 
 get_who_data <- function() {
   infile <- file.path(exportDirmyTabu, "questionnaires_api_who.rds")
