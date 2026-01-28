@@ -151,7 +151,7 @@ q_name <- "CVTRQ (total score)"
 fit <- fit_cvtrq_calc_total
 lm_table <- lm_Table_cvtrq_calc_total
 module <- "module one (motivation)"
-tbl_cap <- paste0("Linear regression model for ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
+tbl_cap <- paste0("Linear regression model for the Corrections Victoria Treatment Readiness Questionnaire ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
 fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
 ```
 
@@ -161,7 +161,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the CVTRQ (total score).](_figures/fig-sec-rainplot-cvtrq-calc-total.png){#fig-sec-rainplot-cvtrq width="100%"}
+![Rainplot of the Corrections Victoria Treatment Readiness Questionnaire (CVTRQ, total score).](_figures/fig-sec-rainplot-cvtrq-calc-total.png){#fig-sec-rainplot-cvtrq}
 
 ```{r}
 #| label: fig-sec-lm-cvtrq-calc-total
@@ -195,7 +195,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for CVTRQ (total score). As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-cvtrq-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total width="100%"}
+![Diagnostic plots for the Corrections Victoria Treatment Readiness Questionnaire (CVTRQ, total score).](_figures/fig-sec-diagnostic-plots-cvtrq-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total}
 
 
 ```{r}
@@ -242,7 +242,7 @@ fit1 <- fit_rcq_calc_total
 fit2 <- fit_rcq_calc_total3
 lm_table <- lm_Table_rcq_calc_total
 module <- "module one (motivation)"
-tbl_cap <- paste0("Linear regression model for ", q_name, "; Number of observations: ", as.character(nobs(fit1)), ").")
+tbl_cap <- paste0("Linear regression model for the Readiness to Change Questionnaire ", q_name, "; Number of observations: ", as.character(nobs(fit1)), ").")
 fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
 ```
 
@@ -252,7 +252,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the RCQ (total score).](_figures/fig-sec-rainplot-rcq-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total width="100%"}
+![Rainplot of the Readiness to Change Questionnaire (RCQ, total score).](_figures/fig-sec-rainplot-rcq-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total}
 
 ```{r}
 #| label: fig-sec-lm-rcq-calc-total
@@ -285,7 +285,7 @@ ggsave(
 
 ```
 
-![Diagnostic plots for RCQ. As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-rcq-calc-total.png){#fig-sec-rainplot-rcq-calc-total width="100%"}
+![Diagnostic plots for the Readiness to Change Questionnaire (RCQ, total score).](_figures/fig-sec-diagnostic-plots-rcq-calc-total.png){#fig-sec-rainplot-rcq-calc-total}
 
 
 ```{r}
@@ -331,7 +331,7 @@ q_name <- "F-Soz-U (total score)"
 fit <- fit_fsozu_calc_total
 lm_table <- lm_Table_fsozu_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
+tbl_cap <- paste0("Linear regression model for the Social Support Questionnaire ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
 fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
 ```
 
@@ -341,7 +341,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the F-Soz-U (total score).](_figures/fig-sec-rainplot-fsozu-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total width="100%"}
+![Rainplot of the Social Support Questionnaire (F-Soz-U, total score).](_figures/fig-sec-rainplot-fsozu-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total}
 
 ```{r}
 #| echo: false
@@ -373,7 +373,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for F-Soz-U (total score). As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-fsozu-calc-total.png){#fig-sec-rainplot-fsozu-calc-total width="100%"}
+![Diagnostic plots for the Social Support Questionnaire (F-Soz-U, total score).](_figures/fig-sec-diagnostic-plots-fsozu-calc-total.png){#fig-sec-rainplot-fsozu-calc-total}
 
 
 ```{r}
@@ -419,7 +419,7 @@ q_name <- "OQMPR (total score)"
 fit <- fit_ors_calc_total
 lm_table <- lm_Table_ors_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Questionnaire for the Measurement of Psychological Reactance ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
 fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
 ```
 
@@ -429,7 +429,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the OQMPR (total score).](_figures/fig-sec-rainplot-ors-calc-total.png){#fig-sec-rainplot-ors-total-score width="100%"}
+![Rainplot of the Questionnaire for the Measurement of Psychological Reactance (QMPR, total score).](_figures/fig-sec-rainplot-ors-calc-total.png){#fig-sec-rainplot-ors-total-score}
 
 ```{r}
 #| label: fig-sec-lm-ors-calc-total
@@ -461,7 +461,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for ORS. As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-ors-calc-total.png){#fig-sec-rainplot-ors-calc-total width="100%"}
+![Diagnostic plots for the Questionnaire for the Measurement of Psychological Reactance (QMPR, total score).](_figures/fig-sec-diagnostic-plots-ors-calc-total.png){#fig-sec-rainplot-ors-calc-total}
 
 
 ```{r}
@@ -507,7 +507,7 @@ q_name <- "SOI (subscale desire for sexual activity with children)"
 fit <- fit_soi_calc_total
 #lm_table <- lm_Table_soi_calc_total
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Linear regression model for ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
+tbl_cap <- paste0("Linear regression model for the Sexual Outlet Inventory revised ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
 fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
 ```
 
@@ -517,7 +517,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the SOI (Item 2a).](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score width="100%"}
+![Rainplot of the Sexual Outlet Inventory revised (SOI, Item 2a).](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
 
 ```{r}
 #| label: fig-sec-lm-soi-total-score
@@ -549,7 +549,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for SOI-R (Item 2a). As shown, the assumptions of a linear model are not met.](_figures/fig-sec-diagnostic-plots-soi-total-score.png){#fig-sec-rainplot-soi-total-score width="100%"}
+![Diagnostic plots for the Sexual Outlet Inventory revised (SOI-R, Item 2a).](_figures/fig-sec-diagnostic-plots-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
 
 
 ```{r}
@@ -576,7 +576,7 @@ fit1 <- fit_ucla_calc_total
 fit2 <- fit_ucla_calc_total3
 lm_table <- lm_Table_ucla_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
+tbl_cap <- paste0("Linear regression model for the UCLA Loneliness Scale ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
 fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
 ```
 
@@ -586,7 +586,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the UCLA (total score).](_figures/fig-sec-rainplot-ucla-calc-total.png){#fig-sec-rainplot-ucla-total-score width="100%"}
+![Rainplot of the UCLA Loneliness Scale (UCLA, total score).](_figures/fig-sec-rainplot-ucla-calc-total.png){#fig-sec-rainplot-ucla-total-score}
 
 ```{r}
 #| label: fig-sec-lm-ucla-calc-total
@@ -617,7 +617,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for UCLA. As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-ucla-calc-total.png){#fig-sec-rainplot-ucla-calc-total width="100%"}
+![Diagnostic plots for the UCLA Loneliness Scale (UCLA, total score).](_figures/fig-sec-diagnostic-plots-ucla-calc-total.png){#fig-sec-rainplot-ucla-calc-total}
 
 
 ```{r}
@@ -664,7 +664,7 @@ fit1 <- fit_bis_calc_total2
 fit2 <- fit_bis_calc_total
 lm_table <- lm_Table_bis_calc_total
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Barratt Impulsiveness Scale-15 ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
 fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the score was log-transformed.")
 ```
 
@@ -674,7 +674,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the BIS-15 (total score).](_figures/fig-sec-rainplot-bis-calc-total.png){#fig-sec-rainplot-bis-total-score width="100%"}
+![Rainplot of the Barratt Impulsiveness Scale-15 (BIS-15, total score).](_figures/fig-sec-rainplot-bis-calc-total.png){#fig-sec-rainplot-bis-total-score}
 
 ```{r}
 #| label: fig-sec-lm-bis-calc-total
@@ -705,7 +705,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for BIS-15. As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-bis-calc-total.png){#fig-sec-rainplot-bis-calc-total width="100%"}
+![Diagnostic plots for the Barratt Impulsiveness Scale-15 (BIS-15, total score).](_figures/fig-sec-diagnostic-plots-bis-calc-total.png){#fig-sec-rainplot-bis-calc-total}
 
 
 ```{r}
@@ -762,7 +762,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the CUSI (total score).](_figures/fig-sec-rainplot-cusi-calc-total.png){#fig-sec-rainplot-cusi-total-score width="100%"}
+![Rainplot of the Coping Using Sex Inventory (CUSI, total score).](_figures/fig-sec-rainplot-cusi-calc-total.png){#fig-sec-rainplot-cusi-total-score}
 
 ```{r}
 #| label: fig-sec-lm-cusi-calc-total
@@ -795,7 +795,7 @@ ggsave(
 
 ```
 
-![Diagnostic plots for CUSI. As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-cusi-calc-total.png){#fig-sec-rainplot-cusi-calc-total width="100%"}
+![Diagnostic plots for Coping Using Sex Inventory (CUSI, total score). The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers.](_figures/fig-sec-diagnostic-plots-cusi-calc-total.png){#fig-sec-rainplot-cusi-calc-total}
 
 
 ```{r}
@@ -841,7 +841,7 @@ q_name <- "SPSI-R (total score)"
 fit <- fit_spsi_calc_total
 lm_table <- lm_Table_spsi_calc_total
 module <- "module four (problem solving)"
-tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
+tbl_cap <- paste0("Linear regression model for Social Problem-Solving Inventory Revised ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
 fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
 ```
 
@@ -851,7 +851,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the SPSI-R (total score).](_figures/fig-sec-rainplot-spsi-calc-total.png){#fig-sec-rainplot-spsi-total-score width="100%"}
+![Rainplot of the Social Problem-Solving Inventory Revised (SPSI-R, total score).](_figures/fig-sec-rainplot-spsi-calc-total.png){#fig-sec-rainplot-spsi-total-score}
 
 ```{r}
 #| label: fig-sec-lm-spsi-calc-total
@@ -883,7 +883,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for SPSI-R. As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-spsi-calc-total.png){#fig-sec-rainplot-spsi-calc-total width="100%"}
+![Diagnostic plots for the Social Problem-Solving Inventory Revised (SPSI-R, total score).](_figures/fig-sec-diagnostic-plots-spsi-calc-total.png){#fig-sec-rainplot-spsi-calc-total}
 
 
 ```{r}
@@ -939,7 +939,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the EKK-R (total score).](_figures/fig-sec-rainplot-ekk-calc-total.png){#fig-sec-rainplot-ekk-total-score width="100%"}
+![Rainplot of the Emotional Congruence with Children-Revised (EKK-R, total score).](_figures/fig-sec-rainplot-ekk-calc-total.png){#fig-sec-rainplot-ekk-total-score}
 
 ```{r}
 #| label: fig-sec-lm-ekk-calc-total
@@ -971,7 +971,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for EKK-R. As shown, all assumptions of a linear model are met.](_figures/fig-sec-diagnostic-plots-ekk-calc-total.png){#fig-sec-rainplot-ekk-calc-total width="100%"}
+![Diagnostic plots for Emotional Congruence with Children-Revised (EKK-R, total score).](_figures/fig-sec-diagnostic-plots-ekk-calc-total.png){#fig-sec-rainplot-ekk-calc-total}
 
 
 ```{r}
@@ -1018,7 +1018,7 @@ fit1 <- fit_ders_calc_imp_ordinal
 fit2 <- fit_ders_calc_imp
 lm_table <- glm_Table_ders_calc_imp
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Ordinal regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values greater than 9 were merged into a single category.")
+tbl_cap <- paste0("Ordinal regression model for the Difficulties in Emotion Regulation Scale ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values greater than 9 were merged into a single category.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". As shown, prerequisites of an linear regression model are not met.")
 ```
 
@@ -1028,7 +1028,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the DERS (subscale impulsivity).](_figures/fig-sec-rainplot-ders-calc-imp.png){#fig-sec-rainplot-ders-imp-score width="100%"}
+![Rainplot of the Difficulties in Emotion Regulation Scale (DERS, subscale impulsivity). Note, that for the dependent variable, values greater than 9 were merged into a single category.](_figures/fig-sec-rainplot-ders-calc-imp.png){#fig-sec-rainplot-ders-imp-score}
 
 ```{r}
 #| label: fig-sec-lm-ders-calc-imp
@@ -1059,7 +1059,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for DERS. As shown, the assumptions of a linear model are not met. Thus, the effect was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. For the dependent variable, values greater than 9 were merged into a single category.](_figures/fig-sec-diagnostic-plots-ders-calc-imp.png){#fig-sec-rainplot-ders-calc-imp width="100%"}
+![Diagnostic plots for Difficulties in Emotion Regulation Scale (DERS, subscale impulsivity). Note, that for the dependent variable, values greater than 9 were merged into a single category..](_figures/fig-sec-diagnostic-plots-ders-calc-imp.png){#fig-sec-rainplot-ders-calc-imp}
 
 
 ```{r}
@@ -1106,7 +1106,7 @@ fit1 <- fit_narq_calc_ris_ordinal
 fit2 <- fit_narq_calc_ris
 lm_table <- glm_Table_narq_calc_ris
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Ordinal regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values greater than 4 were merged into a single category.")
+tbl_cap <- paste0("Ordinal regression model for the Negative Affect Repair Questionnaire ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values greater than 4 were merged into a single category.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
 ```
 
@@ -1116,7 +1116,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the NARQ (subscale externalizing strategies).](_figures/fig-sec-rainplot-narq-calc-ris.png){#fig-sec-rainplot-narq-ris-score width="100%"}
+![Rainplot of the Negative Affect Repair Questionnaire (NARQ, subscale externalizing strategies). Note, that for the dependent variable, values greater than 4 were merged into a single category.](_figures/fig-sec-rainplot-narq-calc-ris.png){#fig-sec-rainplot-narq-ris-score}
 
 ```{r}
 #| label: fig-sec-lm-narq-calc-ris
@@ -1147,7 +1147,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for NARQ. As shown, the assumptions of a linear model are not met. Thus, the effect was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. For the dependent variable, values greater than 4 were merged into a single category.](_figures/fig-sec-diagnostic-plots-narq-calc-ris.png){#fig-sec-rainplot-narq-calc-ris width="100%"}
+![Diagnostic plots for the Negative Affect Repair Questionnaire (NARQ, subscale externalizing strategies). Note, that for the dependent variable, values greater than 4 were merged into a single category](_figures/fig-sec-diagnostic-plots-narq-calc-ris.png){#fig-sec-rainplot-narq-calc-ris}
 
 
 ```{r}
@@ -1194,7 +1194,7 @@ fit1 <- fit_esiq_calc_total_ordinal_diff
 fit2 <- fit_esiq_calc_total
 lm_table <- glm_Table_esiq_calc_total_ordinal_diff
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Ordinal regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. The dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
+tbl_cap <- paste0("Ordinal regression model for the Explicit Sexual Interest Questionnaire ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
 fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
 ```
 
@@ -1204,7 +1204,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the ESIQ (total score).](_figures/fig-sec-rainplot-esiq-calc-total.png){#fig-sec-rainplot-esiq-calc-total width="100%"}
+![Rainplot of the Explicit Sexual Interest Questionnaire (ESIQ, total score). Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).](_figures/fig-sec-rainplot-esiq-calc-total.png){#fig-sec-rainplot-esiq-calc-total}
 
 ```{r}
 #| label: fig-sec-lm-esiq-calc-total
@@ -1235,7 +1235,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for ESIQ. As shown, the assumptions of a linear model are not met. Thus, the effect was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. For the dependent variable, values have been categorized into three categories: worsening (increase), no change, improvement (decrease).](_figures/fig-sec-diagnostic-plots-esiq-calc-total.png){#fig-sec-rainplot-esiq-calc-total width="100%"}
+![Diagnostic plots for the Explicit Sexual Interest Questionnaire (ESIQ, total score). Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease)](_figures/fig-sec-diagnostic-plots-esiq-calc-total.png){#fig-sec-rainplot-esiq-calc-total}
 
 
 ```{r}
@@ -1282,7 +1282,7 @@ fit1 <- fit_kvm_score_logistic
 fit2 <- fit_kvm_score
 lm_table <- glm_Table_kvm_score
 module <- "module five (offense-supportive attitudes)"
-tbl_cap <- paste0("Logistic regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.")
+tbl_cap <- paste0("Logistic regression model for the Bumby Molest Scale ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
 ```
 
@@ -1292,7 +1292,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the BMS (total score).](_figures/fig-sec-rainplot-kvm-score.png){#fig-sec-rainplot-kvm-score width="100%"}
+![Rainplot of the Bumby Molest Scale (BMS, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.](_figures/fig-sec-rainplot-kvm-score.png){#fig-sec-rainplot-kvm-score}
 
 ```{r}
 #| label: fig-sec-lm-kvm-score
@@ -1323,7 +1323,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for BMS. As shown, the assumptions of a linear model were not met. Thus, the effect was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. For the dependent variable, values greater than 4 were merged into a single category.](_figures/fig-sec-diagnostic-plots-kvm-score.png){#fig-sec-rainplot-kvm-score width="100%"}
+![Diagnostic plots for the Bumby Molest Scale (BMS, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.](_figures/fig-sec-diagnostic-plots-kvm-score.png){#fig-sec-rainplot-kvm-score}
 
 
 ```{r}
@@ -1370,7 +1370,7 @@ fit1 <- fit_hbi_calc_total_logistic
 fit2 <- fit_hbi_calc_total
 lm_table <- glm_Table_hbi_calc_total
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Logistic regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.")
+tbl_cap <- paste0("Logistic regression model for the Hypersexual Behavior Inventory-19 ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
 ```
 
@@ -1380,7 +1380,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the HBI-19 (total score).](_figures/fig-sec-rainplot-hbi-calc-total.png){#fig-sec-rainplot-hbi-total-score width="100%"}
+![Rainplot of the Hypersexual Behavior Inventory-19 (HBI-19, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.](_figures/fig-sec-rainplot-hbi-calc-total.png){#fig-sec-rainplot-hbi-total-score}
 
 ```{r}
 #| label: fig-sec-lm-hbi-calc-total
@@ -1411,7 +1411,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for HBI-19. As shown, the assumptions of a linear model were not met. Thus, the effect was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. or the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.](_figures/fig-sec-diagnostic-plots-hbi-calc-total.png){#fig-sec-rainplot-hbi-calc-total width="100%"}
+![Diagnostic plots for the Hypersexual Behavior Inventory-19 (HBI-19, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.](_figures/fig-sec-diagnostic-plots-hbi-calc-total.png){#fig-sec-rainplot-hbi-calc-total}
 
 
 ```{r}
@@ -1458,7 +1458,7 @@ fit1 <- fit_ssik_calc_total_logistic
 fit2 <- fit_ssik_calc_total
 module <- "module six (sexuality)"
 lm_table <- glm_Table_ssik_calc_total
-tbl_cap <- paste0("Logistic regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.")
+tbl_cap <- paste0("Logistic regression model for the Specific self-efficacy for modifying Sexual Interest in Children ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
 ```
 
@@ -1468,7 +1468,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the SSIC (total score).](_figures/fig-sec-rainplot-ssik-calc-total.png){#fig-sec-rainplot-ssik-calc-total width="100%"}
+![Rainplot of the Specific self-efficacy for modifying Sexual Interest in Children (SSIC, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.](_figures/fig-sec-rainplot-ssik-calc-total.png){#fig-sec-rainplot-ssik-calc-total}
 
 ```{r}
 #| label: fig-sec-lm-ssik-calc-total
@@ -1499,7 +1499,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for SSIK. As shown, the assumptions of a linear model were not met. Thus, the effect was analyzed by fitting a ordinal regression model with treatment group and the randomization strata as factors (offense type, type of CS, external treatment in addition to CSaU), pre module scores as covariate and post module scores as dependent variable. or the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.](_figures/fig-sec-diagnostic-plots-ssik-calc-total.png){#fig-sec-rainplot-ssik-calc-total width="100%"}
+![Diagnostic plots for the Specific self-efficacy for modifying Sexual Interest in Children (SSIC, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.](_figures/fig-sec-diagnostic-plots-ssik-calc-total.png){#fig-sec-rainplot-ssik-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-ssik-calc-total

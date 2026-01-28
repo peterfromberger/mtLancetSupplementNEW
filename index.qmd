@@ -7,10 +7,12 @@ notebook-links: false
 format:
   html:
     toc: true
-    toc-depth: 3
+    toc-depth: 4
+    number-sections: true
     theme: default 
   pdf:
     toc: true
+    number-sections: true
     fontsize: 10pt
     fig-dpi: 300
     keep-tex: true
@@ -74,13 +76,13 @@ source(here::here("_scripts/remove_outlier.R"))
 
 {{< include _includes/apx_WBI_DESCRIPTION.qmd >}}
 
+{{< pagebreak >}}
+
 <!-- 
 ##################
 # OUTCOME measures
 ##################
 -->
-
-{{< pagebreak >}}
 
 ## Outcomes and measurement timepoints
 
@@ -145,7 +147,7 @@ source(here::here("_scripts/remove_outlier.R"))
 #| message: false
 #| warning: false
 #| label: tbl-consort-checklist
-#| tbl-cap: "CONSORT 2025 expanded checklist. [@hopewellCONSORT2025Statement2025]."
+#| tbl-cap: "CONSORT 2025 checklist. Adapated from [@hopewellCONSORT2025Statement2025]."
 
 library(gt)
 library(tibble)

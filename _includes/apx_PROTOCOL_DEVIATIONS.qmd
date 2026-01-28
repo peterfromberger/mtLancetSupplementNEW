@@ -9,6 +9,41 @@ library(gt)
 library(dplyr)
 library(tidyr)
 library(stringr)
+library(ggrain)
+library(ggsci)
+
+scale_colour_group <- function(...) {
+  scale_colour_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    )
+  )
+}
+
+scale_fill_group <- function(...) {
+  scale_fill_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    )
+  )
+}
+
+add_gg_theme <- function(plt) {
+  plt <- plt +
+    scale_fill_group() +
+    scale_colour_group() +
+    ggplot2::theme_classic() + 
+    ggplot2::theme(
+          axis.title = element_text(size = 16),
+          axis.text = element_text(size = 14),
+          legend.title = element_text(size = 16),
+          legend.text = element_text(size = 14),
+      )
+
+  return(plt)
+}
 
 # global theme for gtsummary
 gtsummary::theme_gtsummary_journal(journal = "lancet")
@@ -54,363 +89,7 @@ bm_unpaired_test <- function(data, variable, by, ...) {
 }
 ```
 
-### Time to finish module
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: r-prepare-rainplot-time-to-finish
-
-library(ggrain)
-
-scale_colour_group <- function(...) {
-  scale_colour_manual(
-    values = c(
-      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
-      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
-    )
-  )
-}
-
-scale_fill_group <- function(...) {
-  scale_fill_manual(
-    values = c(
-      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
-      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
-    )
-  )
-}
-
-add_gg_theme <- function(plt) {
-  plt <- plt +
-    scale_fill_group() +
-    scale_colour_group() +
-    ggplot2::theme_classic() + 
-    ggplot2::theme(
-          axis.title = element_text(size = 16),
-          axis.text = element_text(size = 14),
-          legend.title = element_text(size = 16),
-          legend.text = element_text(size = 14),
-      )
-
-  return(plt)
-}
-
-# RAIN plot (descriptive)
-tmp_tmp = dat_clean %>%
-      select(client_id, treatment, timepoint, module_duration_days) %>% filter(timepoint != "Baseline" & !client_id %in% c(253, 396))
-
-tbl_data <- tmp_tmp %>%
-  dplyr::select(client_id, treatment, module_duration_days, timepoint) %>%
-  pivot_wider(
-    names_from = timepoint,
-    values_from = module_duration_days
-  )
-
-tbl <- tbl_data %>%
-  dplyr::select(-client_id) %>%
-  tbl_summary(
-    by=treatment
-  )
-
-# RAIN plot (descriptive)
-plt <- ggplot(
-    data = tmp_tmp,
-    aes(fill = treatment, x = timepoint, y = module_duration_days, color = treatment)
-  ) +
-  geom_rain(
-    seed = 42,
-    rain.side = 'r',
-    #id.long.var = "IoD_reduced",
-    point.args = list(
-      alpha = 0.3,
-      shape = 21
-    ),
-    point.args.pos = rlang::list2(
-      position = position_jitter(
-        width = 0.1,
-        height = 0.1
-      )
-    ),
-    boxplot.args = list(
-      outlier.shape = NA,
-      color = "black",
-      alpha = .7
-    ),
-    boxplot.args.pos = list(
-      position = ggpp::position_dodgenudge(
-        x = .25,
-        width = 0.2
-      ), 
-      width = 0.15
-    ),
-    violin.args = list(
-      alpha = .2
-    ),
-    violin.args.pos = list(
-      position = ggpp::position_dodgenudge(
-        x = .4,
-        width = 0
-      ), 
-      width = 1.2
-    ),
-  ) +
-  labs(
-    y = "Time to finish module (days)",
-    x = "Timepoint",
-    color = "Treatment",
-    fill = "Treatment"
-  )
-
-plt <- add_gg_theme(plt)
-
-ggsave(
-  here::here("_figures/fig-time-finish-module-rainplot.png"),
-  plot = plt,
-  dpi = 300,
-  width = 16,
-  height = 8,
-)
-
-ggsave(
-  here::here("_figures/fig-time-finish-module-rainplot.pdf"),
-  plot = plt,
-  dpi = 300,
-  width = 16,
-  height = 8
-)
-```
-
-![Time to finish module. The time to finish module is defined as time from beginning of the module to the end of the module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-finish-module-rainplot.png){#fig-time-finish-module-rainplot width=100%}
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: r-time-to-finish-mmrm
-
-library(mmrm)
-
-formular <- as.formula(
-  paste(
-      "module_duration_days ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
-  )
-)
-
-fit_time_module <- mmrm(
-    formula = formular,
-    data = tmp_tmp %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
-        dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
-)
-```
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: tbl-time-to-finish-module-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for Time to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)"
-
-label_list <- list(
-            static99_modified_calc = "Static recidivism risk (baseline)",
-            Aktuelle_Betreuung = "Type of supervision",
-            Aktuelle_zusatzliche_Behandlung = "Additional treatment",
-            Indexdelikt = "Offense type",
-            treatment = "Treatment",
-            timepoint = "Timepoint",
-            `Timepoint * treatment` = "Timepoint * Treatment"
-        )
-
-tbl <- fit_time_module %>%
-    tbl_regression(
-      add_estimate_to_reference_rows = TRUE,
-      intercept = TRUE,
-      label = list(
-        treatment = "Treatment",
-        timepoint = "Timepoint",
-        `Timepoint * treatment` = "Timepoint * treatment"
-      )
-    ) %>%
-    modify_header(label ~ "**Variable**") %>%
-    remove_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("StGB = German penalty law") %>%
-    modify_column_alignment(columns = everything(), align = "left") %>%
-    modify_table_styling(
-        columns = c(estimate, conf.low, conf.high),
-        rows = reference_row %in% TRUE,
-        missing_symbol = "Ref."
-    ) %>%
-    bold_labels() %>%
-    as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
-
-# save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-finish-module-mmrm.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-finish-module-mmrm.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-finish-module-mmrm.png")))
-
-tbl
-```
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: r-init-marginal-means-time-to-finish-module
-
-library(emmeans)
-
-# Estimated marginal means
-emm <- emmeans(fit_time_module, ~ treatment | timepoint)
-emm_df <- as.data.frame(emm)
-
-plt <- ggplot(
-    emm_df, 
-    aes(
-      x = timepoint,
-      y = emmean, 
-      color = treatment, 
-      group = treatment
-    )
-  ) +
-  geom_line() +
-  geom_point(size = 3) +
-  geom_ribbon(
-    aes(
-      ymin = lower.CL, 
-      ymax = upper.CL
-    ),
-    alpha = 0.2
-  ) +
-  labs(
-    y = "Estimated marginal means +- 95%-CI",
-    x = "Timepoint",
-    color = "Treatment",
-    fill = "Treatment"
-  )
-  
-plt <- add_gg_theme(plt)
-
-ggsave(
-  here::here("_figures/fig-time-to-finish-module-estimated-marginal-means.png"),
-  plot = plt,
-  dpi = 300,
-  width = 16,
-  height = 8
-)
-
-ggsave(
-  here::here("_figures/fig-time-to-finish-module-estimated-marginal-means.pdf"),
-  plot = plt,
-  dpi = 300,
-  width = 16,
-  height = 8
-)
-```
-
-![Estimated marginal means for time to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-finish-module-estimated-marginal-means.png){#fig-time-to-finish-module-estimated-marginal-means width=100%}
-
-::: {.landscape}
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: tbl-time-to-finish-content-pairwise-comparisons
-#| tbl-cap: "Time to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
-
-df_m1toEndModule <- tmp_tmp %>%
-  mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
-  pivot_wider(
-    names_from = timepoint,
-    values_from = module_duration_days,
-    names_prefix = "module_"
-  )
-
-tbl <- df_m1toEndModule %>%
-  dplyr::select(-client_id) %>%
-  tbl_summary(
-    by = treatment,
-    statistic = all_continuous() ~ c(
-            "{mean} ({sd})",
-            "{median} ({p25}, {p75})",
-            "{min}, {max}"
-          ),
-    label = list(
-      module_1 = "Module 1 (advised: 28 days)",
-      module_2 = "Module 2 (advised: 28 days)",
-      module_3 = "Module 3 (advised: 28 days)",
-      module_4 = "Module 4 (advised: 28 days)",
-      module_5 = "Module 5 (advised: 28 days)",
-      module_6 = "Module 6 (advised: 28 days)"
-    ),
-    type = list(
-      module_1 = "continuous2",
-      module_2 = "continuous2",
-      module_3 = "continuous2",
-      module_4 = "continuous2",
-      module_5 = "continuous2",
-      module_6 = "continuous2"
-    ),
-    missing_text = "Missing"
-  ) %>%
-  # brunner-munzel test
-  add_stat(fns = everything() ~ bm_unpaired_test) %>%
-  add_q(method = "holm") %>%
-  modify_header(
-    p.hat = "**p-hat**",
-    t.value = "**t**",
-    ci.value = "**95% CI**",
-    p.value = "**p-value**"
-  ) %>%
-  bold_labels() %>%
-  # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
-  remove_footnote_header(columns = "q.value") %>%
-  # abbreviations
-  modify_abbreviation("*Q1* = 25th percentile") %>%
-  modify_abbreviation("*Q3* = 75th percentile") %>%
-  modify_abbreviation("*95% CI* = Confidence interval of the estimated relative effect") %>%
-  modify_abbreviation("*p-hat* = estimated relative effect") %>%
-  modify_abbreviation("*t* = Brunner–Munzel test statistic for unpaired samples") %>%
-  modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value") %>%
-  as_gt() %>%
-  gt::tab_options(
-    table.font.names = "Times New Roman",
-    table.font.size = 10,
-    quarto.use_bootstrap = FALSE,
-    quarto.disable_processing = TRUE,
-    data_row.padding = px(2),
-    summary_row.padding = gt::px(2),
-    grand_summary_row.padding = gt::px(2),
-    #footnotes.padding = gt::px(2),
-    #source_notes.padding = gt::px(2),
-    row_group.padding = gt::px(2)
-  )
-
-# save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-finish-content-pairwise-comparisons.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-finish-content-pairwise-comparisons.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-finish-content-pairwise-comparisons.png")))
-
-tbl
-```
-
-:::
-
-### Time from baseline to post module
+### Cumulative time from baseline to finish module
 
 ```{r}
 #| echo: false
@@ -492,7 +171,7 @@ ggsave(
 )
 ```
 
-![Time from beginning of module one to the end of the respective module. The time to finish module is defined as time from beginning of module one to the end of the respective module. All participants were advised to finish a session within one week. Note, that in the user testing each session took approximately 60 minutes to complete (exclusive questionnaires and working on guided exercises).](_figures/fig-time-to-post-module-rainplot.png){#fig-time-to-post-module-rainplot width=100%}
+![Cumulative time from baseline to finish module. The cumulative time from baseline to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the cumulative time from baseline to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-rainplot.png){#fig-time-to-post-module-rainplot width=100%}
 
 ```{r}
 #| echo: false
@@ -520,7 +199,7 @@ fit_time_post_module <- mmrm(
 #| message: false
 #| warning: false
 #| label: tbl-time-to-post-module-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for the time from beginning of module one to the end of the respective module. The time to finish module is defined as time from beginning of module one to the end of the respective module. All participants were advised to finish a session within one week. Note, that in the user testing each session took approximately 60 minutes to complete (exclusive questionnaires and working on guided exercises).."
+#| tbl-cap: "Mixed model for repeated measures (MMRM) for the cumulative time from baseline to finish module. The cumulative time from baseline to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the cumulative time from baseline to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
 
 tbl <- fit_time_post_module %>%
     tbl_regression(
@@ -596,7 +275,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal means +- 95%-CI",
+    y = "Estimated marginal means ± 95%-CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -621,7 +300,7 @@ ggsave(
 )
 ```
 
-![Estimated marginal means for time from baseline to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the time to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-estimated-marginal-means.png){#fig-time-to-post-module-estimated-marginal-means width=100%}
+![Estimated marginal means of the MMRM for the cumulative time from baseline to finish module. The cumulative time from baseline to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the cumulative time from baseline to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-estimated-marginal-means.png){#fig-time-to-post-module-estimated-marginal-means width=100%}
 
 ::: {.landscape}
 
@@ -630,8 +309,7 @@ ggsave(
 #| message: false
 #| warning: false
 #| label: tbl-time-to-post-module-pairwise-comparisons
-#| tbl-cap: "Pairwise comparisons for time to finish module. The time to finish module is defined as time from beginning of module one to the end of the respective module. The time to finish module consist of the time of working on the content and time for filling in questionnaires at post measuremnt and time needed to revise guided tasks (and an undefined error term for doing things not related to the HBI). Note that times below the advised time exists due to a bug in the code of the HBI, which results in not showing the questionnaires at post module and, in consequence, not ensuring the advised waiting week after each module (n = 6, n = 3 in placebo arm and n = 3 in intervention arm)."
-# fn returns brunner-munzel test statistic and pvalue
+#| tbl-cap: "Pairwise comparisons for the cumulative time from baseline to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the cumulative time from baseline to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
 
 df_m1toEndModule <- tmp_tmp %>%
   mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
@@ -682,12 +360,7 @@ tbl <- df_m1toEndModule %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("*Q1* = 25th percentile") %>%
-    modify_abbreviation("*Q3* = 75th percentile") %>%
-    modify_abbreviation("*95% CI* = Confidence interval of the estimated relative effect") %>%
-    modify_abbreviation("*p-hat* = estimated relative effect") %>%
-    modify_abbreviation("*t* = Brunner–Munzel test statistic for unpaired samples") %>%
-    modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value") %>%
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, 95% CI = Confidence interval of the estimated relative effect, p-hat = estimated relative effect, t = Brunner–Munzel test statistic for unpaired samples, q-value = Holm-Bonferroni adjusted p-value.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -928,8 +601,7 @@ tbl <- fit_time_post_module %>%
     ) %>%
     modify_header(label ~ "**Variable**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("StGB = German penalty law") %>%
+    modify_abbreviation("CI = Confidence Interval, StGB = German penalty law.") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
     modify_table_styling(
         columns = c(estimate, conf.low, conf.high),
@@ -990,7 +662,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal means +- 95%-CI",
+    y = "Estimated marginal means ± 95%-CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -1087,12 +759,7 @@ tbl <- df_wide %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("*Q1* = 25th percentile") %>%
-    modify_abbreviation("*Q3* = 75th percentile") %>%
-    modify_abbreviation("*95% CI* = Confidence interval of the estimated relative effect") %>%
-    modify_abbreviation("*p-hat* = estimated relative effect") %>%
-    modify_abbreviation("*t* = Brunner–Munzel test statistic for unpaired samples") %>%
-    modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value") %>%
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, 95% CI = Confidence interval of the estimated relative effect, p-hat = estimated relative effect, t = Brunner–Munzel test statistic for unpaired samples, q-value = Holm-Bonferroni adjusted p-value.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",

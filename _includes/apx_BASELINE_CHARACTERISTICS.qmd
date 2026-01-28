@@ -5,7 +5,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-sspi-2
-#| tbl-cap: "SSPI-2. Note, that the SSPI-2 is only defined for participants who have at least one hands-on offences."
+#| tbl-cap: "Baseline values of the SSPI-2. Note, that the SSPI-2 is only defined for participants who have at least one hands-on offences. [@setoRevisedScreeningScale2017a] Abbreviations: Q1 = 25th percentile, Q3 = 75th percentile."
 
 library(here)
 library(tidyr)

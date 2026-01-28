@@ -5,46 +5,39 @@
 #| message: false
 #| warning: false
 #| label: tbl-measurement-timepoints
-#| tbl-cap: "Measurement timepoints for all trial endpoints. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ Pre was assessed before each session, the MRQ Post after each session."
-#| html-table-processing: none
+#| tbl-cap: "Measurement timepoints for all trial endpoints. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ Pre was assessed before each session, the MRQ Post after each session. The measurement time-points of the WAI-SR COACH and WAI-SR SUPERVISOR have been administered before session two in each module. Please see Fromberger et al. [@frombergerMyTabuAPlaceboControlled2021] for table of measurement timepoints with a higher time resolution. Abbreviations: BIS-15 = Barratt Impulsiveness Scale-15, BMS = Bumby Molest Scale, CUSI = Coping Using Sex Inventory, CVTRQ = Corrections Victoria Treatment Readiness Questionnaire, DERS = Difficulties in Emotion Regulation Scale, EKK-R = Questionnaire on Emotional Congruence with Children-Revised, ESIQ = Explicit Sexual Interest Questionnaire, F-Soz-U = Seven-item short version of the Social Support Questionnaire, HBI-19 = Hypersexual Behavior Inventory-19, NARQ = Negative Affect Repair Questionnaire, OQMPR = Questionnaire for the Measurement of Psychological Reactance, RCQ = Readiness to Change Questionnaire - German version, SOI-R = Sexual Outlet Inventory revised, subscale desire for sexual activity with children, SPSI-R = Social Problem-Solving Inventory Revised, SSIC = Specific self-efficacy for modifying Sexual Interest in Children, UCLA = UCLA Loneliness Scale - German short version."
 
 library(dplyr)
 library(gt)
 
-# Datensatz mit aktualisierten Gruppennamen
-df <- tribble(
-  ~Group,                   ~Measure,               ~Allocation, ~Intro_pre, ~Intro_post, ~M1_pre, ~M1_post, ~M2_pre, ~M2_post, ~M3_pre, ~M3_post, ~M4_pre, ~M4_post, ~M5_pre, ~M5_post, ~M6_pre, ~M6_post, ~FollowUp,
-  "BASELINE CHARACTERISTICS", "SSQ-P",                "",          "X",        "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "BASELINE CHARACTERISTICS", "SSQ-SO",               "",          "X",        "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "BASELINE CHARACTERISTICS", "SSQ-CF",               "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "BASELINE CHARACTERISTICS", "PHQ-D",                "",          "X",        "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "BASELINE CHARACTERISTICS", "SSQ-rSO",              "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "",
-  "BASELINE CHARACTERISTICS", "SSPI-2",               "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "BASELINE CHARACTERISTICS", "ICD-11-Screener",      "",          "X",        "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "PRIMARY OUTCOMES",         "CARES",                  "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "X",     "",
-  "PRIMARY OUTCOMES",         "official re-offences",   "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",
-  "SECONDARY OUTCOMES",      "CVTRQ",                  "X",         "",         "",          "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "RCQ",                    "",          "",         "",          "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "OQMPR",                  "",          "",         "",          "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "F-SozU",                 "",          "",         "",          "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "UCLA",                   "",          "",         "",          "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "DERS",                   "",          "",         "",          "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "NARQ",                   "",          "",         "",          "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "BIS-15",                 "",          "",         "",          "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "CUSI",                   "",          "",         "",          "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "SPSI-R",                 "",          "",         "",          "",      "",       "",      "",       "",      "",       "X",     "X",      "",      "",       "",      "",       "",
-  "SECONDARY OUTCOMES",      "BMS",                    "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",      "",      "",       "",
-  "SECONDARY OUTCOMES",      "HBI-19",                 "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
-  "SECONDARY OUTCOMES",      "SSIC",             "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
-  "SECONDARY OUTCOMES",      "SOI-R",                  "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
-  "SECONDARY OUTCOMES",      "EKK-R",                  "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
-  "SECONDARY OUTCOMES",      "ESIQ",                   "",          "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "X",     "X",     "",
-  "ANCILLARY OUTCOMES",      "SBV-R",                  "",          "X",        "",          "",      "",       "",      "",       "X",     "",       "",      "",       "X",     "",       "",      "X",     "",
-  "ANCILLARY OUTCOMES",      "ATQ",                    "X",         "",         "",          "",      "X",      "",      "",       "",      "",       "",      "X",      "",      "",       "",      "",      "",
-  "ANCILLARY OUTCOMES",      "WHO-5",                  "",          "",         "",          "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",      "X",     "X",     "",
-  "ANCILLARY OUTCOMES",      "QNP",                    "X",         "",         "",          "",      "",       "",      "",       "",      "",       "",      "",       "",      "",       "",      "",      "",
-  "ANCILLARY OUTCOMES",         "WAI-SR COACH",                  "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",     "",
-  "ANCILLARY OUTCOMES",         "WAI-SR SUPERVISOR",                  "",          "",         "",          "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",       "X",     "",     "",
+# Daten
+df <- data.frame(
+  Group = c("BASELINE CHARACTERISTICS", "BASELINE CHARACTERISTICS", "BASELINE CHARACTERISTICS", "BASELINE CHARACTERISTICS", 
+            "BASELINE CHARACTERISTICS", "BASELINE CHARACTERISTICS", "BASELINE CHARACTERISTICS", "PRIMARY OUTCOMES", 
+            "PRIMARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", 
+            "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", 
+            "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", 
+            "SECONDARY OUTCOMES", "SECONDARY OUTCOMES", "ANCILLARY OUTCOMES", "ANCILLARY OUTCOMES", "ANCILLARY OUTCOMES", 
+            "ANCILLARY OUTCOMES", "ANCILLARY OUTCOMES"),
+  Measure = c("SSQ-P", "SSQ-SO", "SSQ-CF", "PHQ-D", "SSPI-2", "ICD-11-Screener", "CARES", "Official re-offences", 
+              "CVTRQ", "RCQ", "OQMPR", "F-SozU", "UCLA", "DERS", "NARQ", "BIS-15", "CUSI", "SPSI-R", "BMS", 
+              "HBI-19", "SSIC", "SOI-R", "EKK-R", "ESIQ", "SBV-R", "ATQ", "WHO-5", "QNP", "WAI-SR COACH", "WAI-SR SUPERVISOR"),
+  Allocation = c("", "", "X", "", "X", "", "", "", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "", "X", "", ""),
+  Intro_pre = c("X", "", "", "X", "", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "", "", "", "", ""),
+  Intro_post = c("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""),
+  M1_pre = c("", "", "", "", "", "", "X", "", "X", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "", "X", "X"),
+  M1_post = c("", "", "", "", "", "", "", "", "X", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "", "", ""),
+  M2_pre = c("", "", "", "", "", "", "X", "", "", "", "X", "X", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "", "X", "X"),
+  M2_post = c("", "", "", "", "", "", "", "", "", "", "X", "X", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "", "", ""),
+  M3_pre = c("", "", "", "", "", "", "X", "", "", "", "", "", "", "X", "X", "X", "X", "", "", "", "", "", "", "", "", "", "X", "", "X", "X"),
+  M3_post = c("", "", "", "", "", "", "", "", "", "", "", "", "", "X", "X", "X", "X", "", "", "", "", "", "", "", "", "", "X", "", "", ""),
+  M4_pre = c("", "", "", "", "", "", "X", "", "", "", "", "", "", "", "", "", "", "X", "X", "", "", "", "", "", "", "", "X", "", "X", "X"),
+  M4_post = c("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "X", "", "", "", "", "", "", "", "X", "", "", ""),
+  M5_pre = c("", "", "", "", "", "", "X", "", "", "", "", "", "", "", "", "", "", "", "", "X", "X", "", "", "", "", "", "X", "", "X", "X"),
+  M5_post = c("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "X", "", "", "", "", "", "X", "", "", ""),
+  M6_pre = c("", "", "", "", "", "", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "X", "", "", "", "X", "", "X", "X"),
+  M6_post = c("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "X", "", "", "", "X", "", "", ""),
+  FollowUp = c("", "", "", "", "", "", "", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
 )
 
 # GT-Tabelle erstellen

@@ -72,7 +72,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal means +- 95%-CI",
+    y = "Estimated marginal means ± 95% CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -122,7 +122,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal mean +- 95%-CI (CARES total score)",
+    y = "Estimated marginal mean ± 95% CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -321,7 +321,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal mean +- 95%-CI",
+    y = "Estimated marginal mean ± 95%-CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -365,7 +365,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal mean +- 95%-CI",
+    y = "Estimated marginal mean ± 95%-CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"

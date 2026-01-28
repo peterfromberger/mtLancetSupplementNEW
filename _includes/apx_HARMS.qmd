@@ -6,7 +6,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-mrq-frequency-highest-value-post
-#| tbl-cap: "Frequencies of adverse events during working on the WBI. The MRQ Post questionnaire explicitly asks asks for the time during working on one session. Shown are the frequency of participants reported at least once the highest possible score (= adverse event) on all measurement timepoints (after each session of the WBI)."
+#| tbl-cap: "Frequencies of adverse events during working on the WBI. The MRQ Post questionnaire explicitly asks for the time during working on one session. Shown are the frequency of participants reported at least once the highest possible score (= adverse event) on one of the measurement time-points (after each session of the WBI)."
 #| html-table-processing: none
 
 library(gtsummary)
@@ -188,11 +188,15 @@ tbl <- mrq_at_least_one_highest_score_group %>%
     add_q(method = "holm") %>%
     modify_header(
         label = "**MRQ subscale**",
-        estimate = "**Effect size**",
+        estimate = "**Cramer's V**",
         p.value = "**p-value**"
     ) %>%
-    add_q(method = "holm") %>%
     add_overall() %>%
+    bold_labels() %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
+    # abbreviations
+    modify_abbreviation("q-value = Holm-Bonferroni adjusted p-value.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -222,8 +226,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-mrq-frequency-highest-value-pre
-#| tbl-cap: "Frequencies of adverse events between working on sessions of the WBI. The MRQ pre questionnaire explicitly asks asks for the last week before beginning a new session. Shown are the frequency of participants reported at least once the highest possible score (= adverse event)on all measurement timepoints (before each session of the WBI)."
-#| html-table-processing: none
+#| tbl-cap: "Frequencies of adverse events between working on sessions of the WBI. The MRQ pre questionnaire explicitly asks asks for the last week before beginning a new session. Shown are the frequency of participants reported at least once the highest possible score (= adverse event) on one of the measurement time-points (after each session of the WBI)."
 
 tbl <- mrq_at_least_one_highest_score_group %>%
     filter(q_type == "pre") %>%
@@ -249,11 +252,16 @@ tbl <- mrq_at_least_one_highest_score_group %>%
     add_q(method = "holm") %>%
     modify_header(
         label = "**MRQ subscale**",
-        estimate = "**Effect size**",
+        estimate = "**Cramer's V**",
         p.value = "**p-value**"
     ) %>%
     add_q(method = "holm") %>%
     add_overall() %>%
+    bold_labels() %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
+    # abbreviations
+    modify_abbreviation("q-value = Holm-Bonferroni adjusted p-value.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -287,7 +295,6 @@ tbl
 #| warning: false
 #| label: tbl-exclusion-questionnaire
 #| tbl-cap: "Frequencies of exclusion reasons reported by the supervision officers. Exclusion reasons have been assessed in a structured manner by the Exclusion Questionnaire (EQ)."
-#| html-table-processing: none
 
 library(dplyr)
 library(tidyr)
@@ -510,18 +517,23 @@ tbl <- tmp_wide %>%
     ) %>%
     add_q(method = "holm") %>%
     add_overall() %>%
+    bold_labels() %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
+    # abbreviations
+    modify_abbreviation("q-value = Holm-Bonferroni adjusted p-value.") %>%
     as_gt() %>%
     gt::tab_options(
-        table.font.names = "Times New Roman",
-        table.font.size = 10,
-        quarto.use_bootstrap = FALSE,
-        quarto.disable_processing = TRUE,
-        data_row.padding = px(2),
-        summary_row.padding = gt::px(2),
-        grand_summary_row.padding = gt::px(2),
-        #footnotes.padding = gt::px(2),
-        #source_notes.padding = gt::px(2),
-        row_group.padding = gt::px(2)
+      table.font.names = "Times New Roman",
+      table.font.size = 10,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
     )
 
 tbl

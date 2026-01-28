@@ -137,14 +137,22 @@ create_who_mmrm_table <- function() {
             missing_symbol = "Ref."
         ) %>%
         #modify_footnote(abbreviation = TRUE) %>%
-        bold_labels() #%>%
-        # italic_p(t = 0.05) %>%
-        # # CI in round brackets:
-        # modify_column_merge(pattern = "({conf.low}, {conf.high})",
-        #                     rows =  conf.low!="") %>%
-        # modify_header(estimate ~ "**Beta**")
-
-    lm_Table$table_body %<>% distinct
+        bold_labels() %>%
+        # abbreviations
+        modify_abbreviation("CI = Confidence interval, StGB = German penalty law.") %>%
+        as_gt() %>%
+        gt::tab_options(
+          table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(2),
+          summary_row.padding = gt::px(2),
+          grand_summary_row.padding = gt::px(2),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(2)
+        )
 
     return(lm_Table)
 }
@@ -628,7 +636,7 @@ ggsave(
 
 ::: {.landscape}
 
-![Rainplot for the WHO-5 total score. The norm in Germany is at M = 65.7. The threshold for a clinically relevant change on the WHO-5 is considered to be 10 points difference. [@toppWHO5WellbeingIndex2015]](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot width=100%}
+![Rainplot for the WHO-5 Well-Being Index (WHO-5 total score).](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot}
 
 :::
 
@@ -637,25 +645,11 @@ ggsave(
 #| warning: false
 #| message: false
 #| label: tbl-anc-who-mmrm
-#| tbl-cap: Mixed model for repeated measures (MMRM) for the WHO-5.
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the WHO-5 Well-Being Index (WHO-5 total score).
 
 who_clean <- get_who_data()
 
 tbl <- create_who_mmrm_table()
-
-tbl <- tbl %>% as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-mmrm.pdf")))
@@ -670,7 +664,7 @@ tbl
 #| warning: false
 #| message: false
 #| label: fig-anc-who-estimated-marginal-means
-#| fig-cap: Estimated marginal means from the mixed model for repeated measures (MMRM) for the WHO-5.
+#| fig-cap: Estimated marginal means from the mixed model for repeated measures (MMRM) for the WHO-5 Well-Being Index (WHO-5 total score).
 #| 
 # Estimated marginal means
 emm <- emmeans(fit_who, ~ treatment | timepoint)
@@ -695,7 +689,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal means +- 95%-CI",
+    y = "Estimated marginal means ± 95%-CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -722,7 +716,7 @@ ggsave(
 
 ::: {.landscape}
 
-![Estimated marginal means for the WHO-5.](_figures/fig-anc-who-estimated-marginal-means.png){#fig-anc-who-estimated-marginal-means width=100%}
+![Estimated marginal means of the MMRM for the WHO-5 Well-Being Index (WHO-5 total score).](_figures/fig-anc-who-estimated-marginal-means.png){#fig-anc-who-estimated-marginal-means}
 
 :::
 
@@ -731,7 +725,7 @@ ggsave(
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-pre-post-pairwise-intervention
-#| tbl-cap: "Comparison of the WHO-5 score between before (pre) and after (post) of each module for the intervention arm. The effect of each module on the WHO-5 total score has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+#| tbl-cap: "Pairwise comparison of the WHO-5 Well-Being Index (WHO-5 total score) for the intervention arm."
 
 tbl <- create_who_pairwise_tbls(subgroup_str = "Intervention")
 
@@ -762,7 +756,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-pre-post-pairwise-placebo
-#| tbl-cap: "Comparison of the WHO-5 total score between before (pre) and after (post) of each module for the placebo arm. The effect of each module on the WHO-5 total score has been analyzed using the Brunner-Munzel test for paired data for the primary endpoint comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+#| tbl-cap: "Pairwise comparison of the WHO-5 Well-Being Index (WHO-5 total score) for the placebo arm."
 
 tbl_placebo <- create_who_pairwise_tbls(subgroup_str = "Placebo")
 
@@ -793,7 +787,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-difference-from-baseline
-#| tbl-cap: "Difference of the WHO-5 total score between before (pre) and after (post) each module. Differences from baseline (module post - pre) have been compared between the treatment groups exploratively using the Brunner-Munzel test for unpaired data."
+#| tbl-cap: "Pairwise comparisons of the WHO-5 Well-Being Index (WHO-5 total score)."
 
 tbl <- create_who_diffscore_tbl()
 
@@ -905,7 +899,7 @@ ggsave(
 )
 ```
 
-![Rainplot for the WHO-5 difference from baseline.](_figures/fig-anc-who-5-difference-from-baseline-rainplot.png){#fig-anc-who-5-difference-from-baseline-rainplot width=100%}
+![Rainplot for the WHO-5 Well-Being Index (WHO-5 difference from baseline).](_figures/fig-anc-who-5-difference-from-baseline-rainplot.png){#fig-anc-who-5-difference-from-baseline-rainplot}
 
 {{< pagebreak >}}
 
@@ -1073,15 +1067,22 @@ create_wai_mmrm_table <- function(variable, var_name) {
             rows = reference_row %in% TRUE,
             missing_symbol = "Ref."
         ) %>%
-        #modify_footnote(abbreviation = TRUE) %>%
-        bold_labels() #%>%
-        # italic_p(t = 0.05) %>%
-        # # CI in round brackets:
-        # modify_column_merge(pattern = "({conf.low}, {conf.high})",
-        #                     rows =  conf.low!="") %>%
-        # modify_header(estimate ~ "**Beta**")
-
-    lm_Table$table_body %<>% distinct
+        bold_labels() %>%
+        # abbreviations
+        modify_abbreviation("CI = Confidence interval, StGB = German penalty law.") %>%
+        as_gt() %>%
+        gt::tab_options(
+          table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(2),
+          summary_row.padding = gt::px(2),
+          grand_summary_row.padding = gt::px(2),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(2)
+        )
 
     return(lm_Table)
 }
@@ -1387,19 +1388,7 @@ create_prim_wai_diff_tbl <- function(data, dvs, label_list, grouping_var, abbrev
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("*Q1* = 25th percentile") %>%
-    modify_abbreviation("*Q3* = 75th percentile") %>%
-    modify_abbreviation("*95% CI* = Confidence interval of the estimated relative effect") %>%
-    modify_abbreviation("*p-hat* = estimated relative effect") %>%
-    modify_abbreviation("*t* = Brunner–Munzel test statistic for unpaired samples") %>%
-    modify_abbreviation("*q-value* = Holm-Bonferroni adjusted p-value")
-
-
-  # add abbreviations
-  for (i in 1:length(abbreviations)) {
-    tbl <- tbl %>%
-        modify_abbreviation(abbreviations[i])
-  }
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, 95% CI = Confidence interval of the estimated relative effect, p-hat = estimated relative effect, SD = Standard deviance, t = Brunner–Munzel test statistic for unpaired samples, q-value = Holm-Bonferroni adjusted p-value.")
 
   return(tbl)
 }
@@ -1464,28 +1453,12 @@ create_wai_diffscore_tbl <- function(
 #| warning: false
 #| message: false
 #| label: tbl-anc-wai-coach-mmrm
-#| tbl-cap: Mixed model for repeated measures (MMRM) for the WAI-SR COACH.
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the Working Alliance Inventory-Short Revised (WAI-SR COACH).
 
 variable <- "wai_calc_total_coach"
 var_name <- "WAI-SR COACH (total score)"
 
 tbl <- create_wai_mmrm_table(variable, var_name)
-
-
-tbl <- tbl %>%
-    as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-mmrm.pdf")))
@@ -1500,7 +1473,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: fig-anc-wai-coach-estimated-marginal-means
-#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the  WAI-SR COACH"
+#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the Working Alliance Inventory-Short Revised (WAI-SR COACH)."
 
 variable <- "wai_calc_total_coach"
 who_clean <- create_wai_clean_data(variable)
@@ -1540,7 +1513,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal means +- 95%-CI",
+    y = "Estimated marginal means ± 95%-CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -1565,7 +1538,7 @@ ggsave(
 )
 ```
 
-![Estimated marginal means from the MMRM of WAI-SR COACH (total score).](_figures/fig-anc-wai-coach-estimated-marginal-means.png){#fig-anc-wai-coach-estimated-marginal-means width=100%}
+![Estimated marginal means from the MMRM of the Working Alliance Inventory-Short Revised (WAI-SR COACH).](_figures/fig-anc-wai-coach-estimated-marginal-means.png){#fig-anc-wai-coach-estimated-marginal-means}
 
 ::: {.landscape}
 
@@ -1574,7 +1547,7 @@ ggsave(
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-pre-post-pairwise-intervention
-#| tbl-cap: "Comparison of the WAI-SR COACH between before (pre) and after (post) of the first five modules for the intervention arm. The WAI-SR coach has been analyzed using the Brunner-Munzel test for paired data comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+#| tbl-cap: "Pairwise comparison of the Working Alliance Inventory-Short Revised (WAI-SR COACH total score) for the intervention arm."
 
 tbl <- create_wai_pairwise_tbls("Intervention", variable)
 
@@ -1609,7 +1582,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-pre-post-pairwise-placebo
-#| tbl-cap: "Comparison of the WAI-SR COACH between before (pre) and after (post) of the first five modules for the placebo arm."
+#| tbl-cap: "Pairwise comparison of the Working Alliance Inventory-Short Revised (WAI-SR COACH) for the placebo arm."
 
 tbl <- create_wai_pairwise_tbls("Placebo", variable)
 
@@ -1644,7 +1617,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-difference-from-baseline
-#| tbl-cap: "Pre-post differences of the WAI-SR COACH between before (pre) and after (post) of the first five modules. The table shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data."
+#| tbl-cap: "Pairwise comparisons of the pre-post differences of the Working Alliance Inventory-Short Revised (WAI-SR COACH)."
 
 tbl <- create_wai_diffscore_tbl(variable)
 
@@ -1682,7 +1655,7 @@ tbl
 #| warning: false
 #| message: false
 #| label: tbl-anc-wai-supervisor-mmrm
-#| tbl-cap: Mixed model for repeated measures (MMRM) for the WAI-SR SUPERVISOR.
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the Working Alliance Inventory-Short Revised (WAI-SR SUPERVISOR).
 
 variable <- "wai_calc_total_supervisor"
 var_name <- "WAI-SR SUPERVISOR (total score)"
@@ -1691,7 +1664,6 @@ tbl <- create_wai_mmrm_table(variable, var_name)
 
 
 tbl <- tbl %>%
-    as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
       table.font.size = 10,
@@ -1718,7 +1690,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: fig-anc-wai-supervisor-estimated-marginal-means
-#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the  WAI-SR SUPERVISOR"
+#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the Working Alliance Inventory-Short Revised (WAI-SR SUPERVISOR)."
 
 variable <- "wai_calc_total_supervisor"
 who_clean <- create_wai_clean_data(variable)
@@ -1758,7 +1730,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal means +- 95%-CI",
+    y = "Estimated marginal means ± 95%-CI",
     x = "Timepoint",
     color = "Treatment"
   )
@@ -1782,14 +1754,14 @@ ggsave(
 )
 ```
 
-![Estimated marginal means from the MMRM of WAI-SR SUPERVISOR (total score).](_figures/fig-anc-wai-supervisor-estimated-marginal-means.png){#ffig-anc-wai-supervisor-estimated-marginal-means width=100%}
+![Estimated marginal means from the MMRM of Working Alliance Inventory-Short Revised (WAI-SR SUPERVISOR).](_figures/fig-anc-wai-supervisor-estimated-marginal-means.png){#ffig-anc-wai-supervisor-estimated-marginal-means}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-supervisor-pre-post-pairwise-intervention
-#| tbl-cap: "Comparison of the WAI-SR SUPERVISOR between before (pre) and after (post) of the first five modules for the intervention arm. The WAI-SR supervisor has been analyzed using the Brunner-Munzel test for paired data comparing the pre- and post-module scores and adjusting the p-values using the Bonferroni-Holm’s method to control the family-wise error rate."
+#| tbl-cap: "Pairwise comparison of the Working Alliance Inventory-Short Revised (WAI-SR SUPERVISOR) for the intervention arm."
 
 tbl <- create_wai_pairwise_tbls("Intervention", variable)
 
@@ -1820,7 +1792,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-supervisor-pre-post-pairwise-placebo
-#| tbl-cap: "Comparison of the WAI-SR SUPERVISOR between before (pre) and after (post) of the first five modules for the placebo arm."
+#| tbl-cap: "Pairwise comparisons of the Working Alliance Inventory-Short Revised (WAI-SR SUPERVISOR) for the placebo arm."
 
 tbl <- create_wai_pairwise_tbls("Placebo", variable)
 
@@ -1846,14 +1818,12 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-
 tbl
 ```
 
-#### Difference from baseline
-
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-supervisor-difference-from-baseline
-#| tbl-cap: "Pre-post differences of the WAI-SR SUPERVISOR between before (pre) and after (post) of the first five modules. The table shows descriptive statistics as well as the results for the multiple Brunner-Munzel tests for unpaired data."
+#| tbl-cap: "Differences from baseline of the Working Alliance Inventory-Short Revised (WAI-SR SUPERVISOR)."
 
 tbl <- create_wai_diffscore_tbl(variable)
 
