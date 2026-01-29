@@ -88,7 +88,7 @@ poolObj
 
 rbmi_tab <- poolObj %>% tibble::as_tibble() %>%
   mutate(parameter = parameter %>%
-           gsub("trt_", "group_difference_", .) %>% gsub("lsm_ref_", "least_square_mean_Intervention_", .) %>% gsub("lsm_alt_", "least_square_mean_Placebo_", .),
+         gsub("trt_", "Group differences ", .) %>% gsub("lsm_ref_", "Least square mean [intervention] ", .) %>% gsub("lsm_alt_", "Least square mean [placebo] ", .),
          pval = pretty_Pvalues(pval, orgbold=TRUE),
          ci = paste0("(", round(lci, 2), ", ", round(uci, 2), ")"),
          est = round(est, 2)) %>%
@@ -182,7 +182,7 @@ poolObj
 
 rbmi_cares_tab <- poolObj %>% tibble::as_tibble() %>%
   mutate(parameter = parameter %>%
-           gsub("trt_", "group_difference_", .) %>% gsub("lsm_ref_", "least_square_mean_Intervention_", .) %>% gsub("lsm_alt_", "least_square_mean_Placebo_", .),
+        gsub("trt_", "Group differences ", .) %>% gsub("lsm_ref_", "Least square mean [intervention] ", .) %>% gsub("lsm_alt_", "Least square mean [placebo] ", .),
          pval = pretty_Pvalues(pval, orgbold=TRUE),
          ci = paste0("(", round(lci, 2), ", ", round(uci, 2), ")"),
          est = round(est, 2)) %>%

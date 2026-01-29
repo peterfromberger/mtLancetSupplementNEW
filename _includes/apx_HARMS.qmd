@@ -1,5 +1,6 @@
 ### Mood and Risk Questionnaire (MRQ)
 
+::: {.landscape}
 <!-- MRQ Post-->
 ```{r}
 #| echo: false
@@ -189,27 +190,29 @@ tbl <- mrq_at_least_one_highest_score_group %>%
     modify_header(
         label = "**MRQ subscale**",
         estimate = "**Cramer's V**",
-        p.value = "**p-value**"
+        p.value = "**p**"
     ) %>%
     add_overall() %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("q-value = Holm-Bonferroni adjusted p-value.") %>%
+    modify_abbreviation("p~adj~ = Holm-Bonferroni adjusted p.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 
 # save tbl as image
@@ -220,6 +223,9 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-v
 tbl
 ```
 
+:::
+
+::: {.landscape}
 <!-- MRQ Post-->
 ```{r}
 #| echo: false
@@ -253,7 +259,7 @@ tbl <- mrq_at_least_one_highest_score_group %>%
     modify_header(
         label = "**MRQ subscale**",
         estimate = "**Cramer's V**",
-        p.value = "**p-value**"
+        p.value = "**p**"
     ) %>%
     add_q(method = "holm") %>%
     add_overall() %>%
@@ -261,20 +267,22 @@ tbl <- mrq_at_least_one_highest_score_group %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("q-value = Holm-Bonferroni adjusted p-value.") %>%
+    modify_abbreviation("p~adj~ = Holm-Bonferroni adjusted p.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 
 # save tbl as image
@@ -285,7 +293,11 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-v
 tbl
 ```
 
+::::
+
 {{< pagebreak >}}
+
+::: {.landscape}
 
 ### Exclusion reasons
 
@@ -513,7 +525,7 @@ tbl <- tmp_wide %>%
     modify_header(
         label = "**Exclusion reason**",
         estimate = "**Cramer's V**",
-        p.value = "**p-value**"
+        p.value = "**p**"
     ) %>%
     add_q(method = "holm") %>%
     add_overall() %>%
@@ -521,21 +533,24 @@ tbl <- tmp_wide %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("q-value = Holm-Bonferroni adjusted p-value.") %>%
+    modify_abbreviation("p~adj~ = Holm-Bonferroni adjusted p.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 tbl
 ```
 
+:::

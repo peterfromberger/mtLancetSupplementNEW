@@ -1,9 +1,5 @@
 ### WHO-5
 
-::: {.callout-important}
-ES FEHLEN DIE VERGLEICHE FÜR DIE ZUSÄTZLIVHEN PRE_POST TIMEPOINTS !!!!
-:::
-
 ```{r}
 #| echo: false
 #| warning: false
@@ -153,13 +149,15 @@ create_who_mmrm_table <- function() {
           table.font.size = 10,
           quarto.use_bootstrap = FALSE,
           quarto.disable_processing = TRUE,
-          data_row.padding = px(2),
-          summary_row.padding = gt::px(2),
-          grand_summary_row.padding = gt::px(2),
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
           #footnotes.padding = gt::px(2),
           #source_notes.padding = gt::px(2),
-          row_group.padding = gt::px(2)
-        )
+          row_group.padding = gt::px(1)
+        ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
     return(lm_Table)
 }
@@ -643,7 +641,7 @@ ggsave(
 
 ::: {.landscape}
 
-![Rainplot for the WHO-5 Well-Being Index (WHO-5 total score).](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot}
+![Rainplot for the WHO-5 Well-Being Index (WHO-5, total score).](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot}
 
 :::
 
@@ -652,7 +650,7 @@ ggsave(
 #| warning: false
 #| message: false
 #| label: tbl-anc-who-mmrm
-#| tbl-cap: Mixed model for repeated measures (MMRM) for the WHO-5 Well-Being Index (WHO-5 total score).
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the WHO-5 Well-Being Index (WHO-5, total score).
 
 who_clean <- get_who_data()
 
@@ -671,7 +669,7 @@ tbl
 #| warning: false
 #| message: false
 #| label: fig-anc-who-estimated-marginal-means
-#| fig-cap: Estimated marginal means from the mixed model for repeated measures (MMRM) for the WHO-5 Well-Being Index (WHO-5 total score).
+#| fig-cap: Estimated marginal means from the mixed model for repeated measures (MMRM) for the WHO-5 Well-Being Index (WHO-5, total score).
 #| 
 # Estimated marginal means
 emm <- emmeans(fit_who, ~ treatment | timepoint)
@@ -732,23 +730,25 @@ ggsave(
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-pre-post-pairwise-intervention
-#| tbl-cap: "Pairwise comparison of the WHO-5 Well-Being Index (WHO-5 total score) for the intervention arm."
+#| tbl-cap: "Pairwise comparison of the WHO-5 Well-Being Index (WHO-5, total score, pre-post module) for the intervention arm."
 
 tbl <- create_who_pairwise_tbls(subgroup_str = "Intervention")
 
 tbl <- tbl %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwise-intervention.pdf")))
@@ -763,23 +763,25 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-pre-post-pairwise-placebo
-#| tbl-cap: "Pairwise comparison of the WHO-5 Well-Being Index (WHO-5 total score) for the placebo arm."
+#| tbl-cap: "Pairwise comparison of the WHO-5 Well-Being Index (WHO-5, total score, pre-post module) for the placebo arm."
 
 tbl_placebo <- create_who_pairwise_tbls(subgroup_str = "Placebo")
 
 tbl <- tbl %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-pre-post-pairwise-placebo.pdf")))
@@ -794,23 +796,25 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-difference-from-baseline
-#| tbl-cap: "Pairwise comparisons of the WHO-5 Well-Being Index (WHO-5 total score)."
+#| tbl-cap: "Pairwise comparisons of the WHO-5 Well-Being Index (WHO-5, total score, difference score)."
 
 tbl <- create_who_diffscore_tbl()
 
 tbl <- tbl %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-who-difference-from-baseline.pdf")))
@@ -1083,13 +1087,15 @@ create_wai_mmrm_table <- function(variable, var_name) {
           table.font.size = 10,
           quarto.use_bootstrap = FALSE,
           quarto.disable_processing = TRUE,
-          data_row.padding = px(2),
-          summary_row.padding = gt::px(2),
-          grand_summary_row.padding = gt::px(2),
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
           #footnotes.padding = gt::px(2),
           #source_notes.padding = gt::px(2),
-          row_group.padding = gt::px(2)
-        )
+          row_group.padding = gt::px(1)
+        ) %>%
+        tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+        tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
     return(lm_Table)
 }
@@ -1386,16 +1392,13 @@ create_prim_wai_diff_tbl <- function(data, dvs, label_list, grouping_var, abbrev
     add_stat(fns = everything() ~ bm_unpaired_test) %>%
     add_q(method = "holm") %>%
     modify_header(
-      p.hat = "**p-hat**",
-      t.value = "**t**",
-      ci.value = "**95% CI**",
-      p.value = "**p-value**"
+      p.value = "**p**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, 95% CI = Confidence interval of the estimated relative effect, p-hat = estimated relative effect, SD = Standard deviance, t = Brunner–Munzel test statistic for unpaired samples, q-value = Holm-Bonferroni adjusted p-value.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviance, p~adj~ = Holm-Bonferroni adjusted p.")
 
   return(tbl)
 }
@@ -1547,8 +1550,6 @@ ggsave(
 
 ![Estimated marginal means from the MMRM of the Working Alliance Inventory-Short Revised (WAI-SR COACH).](_figures/fig-anc-wai-coach-estimated-marginal-means.png){#fig-anc-wai-coach-estimated-marginal-means}
 
-::: {.landscape}
-
 ```{r}
 #| echo: false
 #| message: false
@@ -1561,16 +1562,18 @@ tbl <- create_wai_pairwise_tbls("Intervention", variable)
 tbl <- tbl %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-pairwise-intervention.pdf")))
@@ -1579,10 +1582,6 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-
 
 tbl
 ```
-
-:::
-
-::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -1596,16 +1595,18 @@ tbl <- create_wai_pairwise_tbls("Placebo", variable)
 tbl <- tbl %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-pairwise-placebo.pdf")))
@@ -1614,10 +1615,6 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-pre-post-
 
 tbl
 ```
-
-:::
-
-::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -1632,16 +1629,18 @@ tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-difference-from-baseline.pdf")))
@@ -1650,8 +1649,6 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-coach-differenc
 
 tbl
 ```
-
-:::
 
 {{< pagebreak >}}
 
@@ -1673,16 +1670,18 @@ tbl <- create_wai_mmrm_table(variable, var_name)
 tbl <- tbl %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-mmrm.pdf")))
@@ -1775,16 +1774,18 @@ tbl <- create_wai_pairwise_tbls("Intervention", variable)
 tbl <- tbl %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-post-pairwise-intervention.pdf")))
@@ -1806,16 +1807,18 @@ tbl <- create_wai_pairwise_tbls("Placebo", variable)
 tbl <- tbl %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-pre-post-pairwise-placebo.pdf")))
@@ -1837,17 +1840,19 @@ tbl <- create_wai_diffscore_tbl(variable)
 tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
-      table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+        table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-anc-wai-supervisor-difference-from-baseline.pdf")))

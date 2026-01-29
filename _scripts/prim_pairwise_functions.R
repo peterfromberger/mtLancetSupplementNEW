@@ -38,7 +38,7 @@ bm_paired_test <- function(data, variable, by, ...) {
     dplyr::mutate(
       ci.value = glue::glue("{Lower}, {Upper}")
     ) %>%
-    dplyr::select(c(p.hat, ci.value, t.value, p.value))
+    dplyr::select(c(p.value))
 
   return(df)
 }
@@ -95,32 +95,31 @@ create_prim_pairwise_tbl <- function(data, dvs, label_list, type_list, abbreviat
     add_q(method = "holm") %>%
     modify_header(
       label = "**Module**",
-      p.hat = "**p-hat**",
-      t.value = "**t**",
-      ci.value = "**95% CI**",
-      p.value = "**p-value**"
+      p.value = "**p**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("95% CI = Confidence interval of the estimated relative effect, Q1 = 25th percentile, Q3 = 75th percentile, p-hat = estimated relative effect, q-value = Holm-Bonferroni adjusted p-value, t = Brunner–Munzel test statistic for paired samples.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, p~adj~ = Holm-Bonferroni adjusted p.")
 
 
   tbl <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = gt::px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
   return(tbl)
 

@@ -83,7 +83,7 @@ bm_unpaired_test <- function(data, variable, by, ...) {
     dplyr::mutate(
       ci.value = glue::glue("{Lower}, {Upper}")
     ) %>%
-    dplyr::select(c(p.hat, ci.value, t.value, p.value))
+    dplyr::select(c(p.value))
 
   return(df)
 }
@@ -225,16 +225,18 @@ tbl <- fit_time_post_module %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-mmrm.pdf")))
@@ -351,29 +353,28 @@ tbl <- df_m1toEndModule %>%
     add_stat(fns = everything() ~ bm_unpaired_test) %>%
     add_q(method = "holm") %>%
     modify_header(
-      p.hat = "**p-hat**",
-      t.value = "**t**",
-      ci.value = "**95% CI**",
-      p.value = "**p-value**"
+      p.value = "**p**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, 95% CI = Confidence interval of the estimated relative effect, p-hat = estimated relative effect, t = Brunner–Munzel test statistic for unpaired samples, q-value = Holm-Bonferroni adjusted p-value.") %>%
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, p~adj~ = Holm-Bonferroni adjusted p.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-pairwise-comparisons.pdf")))
@@ -612,16 +613,18 @@ tbl <- fit_time_post_module %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.pdf")))
@@ -750,29 +753,28 @@ tbl <- df_wide %>%
     add_stat(fns = everything() ~ bm_unpaired_test) %>%
     add_q(method = "holm") %>%
     modify_header(
-      p.hat = "**p-hat**",
-      t.value = "**t**",
-      ci.value = "**95% CI**",
-      p.value = "**p-value**"
+      p.value = "**p**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, 95% CI = Confidence interval of the estimated relative effect, p-hat = estimated relative effect, t = Brunner–Munzel test statistic for unpaired samples, q-value = Holm-Bonferroni adjusted p-value.") %>%
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, p~adj~ = Holm-Bonferroni adjusted p.") %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.pdf")))

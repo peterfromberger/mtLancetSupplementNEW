@@ -5,7 +5,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-measurement-timepoints
-#| tbl-cap: "Measurement timepoints for all trial endpoints. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ Pre was assessed before each session, the MRQ Post after each session. The measurement time-points of the WAI-SR COACH and WAI-SR SUPERVISOR have been administered before session two in each module. Please see Fromberger et al. [@frombergerMyTabuAPlaceboControlled2021] for table of measurement timepoints with a higher time resolution. Abbreviations: BIS-15 = Barratt Impulsiveness Scale-15, BMS = Bumby Molest Scale, CUSI = Coping Using Sex Inventory, CVTRQ = Corrections Victoria Treatment Readiness Questionnaire, DERS = Difficulties in Emotion Regulation Scale, EKK-R = Questionnaire on Emotional Congruence with Children-Revised, ESIQ = Explicit Sexual Interest Questionnaire, F-Soz-U = Seven-item short version of the Social Support Questionnaire, HBI-19 = Hypersexual Behavior Inventory-19, NARQ = Negative Affect Repair Questionnaire, OQMPR = Questionnaire for the Measurement of Psychological Reactance, RCQ = Readiness to Change Questionnaire - German version, SOI-R = Sexual Outlet Inventory revised, subscale desire for sexual activity with children, SPSI-R = Social Problem-Solving Inventory Revised, SSIC = Specific self-efficacy for modifying Sexual Interest in Children, UCLA = UCLA Loneliness Scale - German short version."
+#| tbl-cap: "Measurement timepoints for all trial endpoints. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ Pre was assessed before each session, the MRQ Post after each session. The measurement time-points of the WAI-SR COACH and WAI-SR SUPERVISOR have been administered before session two in each module. Please see Fromberger et al. [@frombergerMyTabuAPlaceboControlled2021] for table of measurement timepoints with a higher time resolution."
 
 library(dplyr)
 library(gt)
@@ -62,21 +62,23 @@ tbl <- df %>%
     M6_pre = "pre", M6_post = "post",
     FollowUp = "Follow-Up"
   ) %>%
+  tab_source_note(
+    "Abbreviations: BIS-15 = Barratt Impulsiveness Scale-15, BMS = Bumby Molest Scale, CUSI = Coping Using Sex Inventory, CVTRQ = Corrections Victoria Treatment Readiness Questionnaire, DERS = Difficulties in Emotion Regulation Scale, EKK-R = Questionnaire on Emotional Congruence with Children-Revised, ESIQ = Explicit Sexual Interest Questionnaire, F-Soz-U = Seven-item short version of the Social Support Questionnaire, HBI-19 = Hypersexual Behavior Inventory-19, NARQ = Negative Affect Repair Questionnaire, OQMPR = Questionnaire for the Measurement of Psychological Reactance, RCQ = Readiness to Change Questionnaire - German version, SOI-R = Sexual Outlet Inventory revised, subscale desire for sexual activity with children, SPSI-R = Social Problem-Solving Inventory Revised, SSIC = Specific self-efficacy for modifying Sexual Interest in Children, UCLA = UCLA Loneliness Scale - German short version."
+  ) %>%
   tab_options(
     table.font.names = "Times New Roman",
     table.font.size = 10,
     quarto.use_bootstrap = FALSE,
     quarto.disable_processing = TRUE,
-    data_row.padding = gt::px(2),
-    summary_row.padding = gt::px(2),
-    grand_summary_row.padding = gt::px(2),
-    #footnotes.padding = gt::px(2),
-    #source_notes.padding = gt::px(2),
-    row_group.padding = gt::px(2),
+    data_row.padding = gt::px(1),
+    summary_row.padding = gt::px(1),
+    grand_summary_row.padding = gt::px(1),
+    row_group.padding = gt::px(1),
     column_labels.font.weight = "bold",
     row_group.font.weight = "bold"
-    #row_group.background.color = "#F0F0F0"
-  )
+  ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-measurement-timepoints.png")))

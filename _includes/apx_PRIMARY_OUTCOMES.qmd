@@ -50,16 +50,18 @@ tbl <- fit2_c %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.pdf")))
@@ -88,18 +90,23 @@ tbl <- rbmi_cares_tab %>%
       gt::cols_label(
         "est" = "Estimate",
         "ci" = "95% CI",
-        "pval" = "p-value",
+        "pval" = "p",
         "parameter" = "Parameter"
       ) %>%
       gt::tab_options(
+          table.font.names = "Times New Roman",
           table.font.size = 10,
-          data_row.padding = gt::px(2),
-          summary_row.padding = gt::px(2),
-          grand_summary_row.padding = gt::px(2),
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
           #footnotes.padding = gt::px(2),
           #source_notes.padding = gt::px(2),
-          row_group.padding = gt::px(2)
-      )
+          row_group.padding = gt::px(1)
+      ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-sensitivity-analysis.pdf")))
@@ -230,16 +237,18 @@ tbl <- fit %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.png")))
@@ -295,16 +304,18 @@ tbl <- fit1_c %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-mmrm-time-since-baseline.pdf")))
@@ -333,18 +344,23 @@ tbl <- rbmi_tab %>%
   gt::cols_label(
     "est" = "Estimate",
     "ci" = "95% CI",
-    "pval" = "p-value",
+    "pval" = "p",
     "parameter" = "Parameter"
   ) %>%
   gt::tab_options(
-    table.font.size = 10,
-    data_row.padding = gt::px(2),
-    summary_row.padding = gt::px(2),
-    grand_summary_row.padding = gt::px(2),
-    #footnotes.padding = gt::px(2),
-    #source_notes.padding = gt::px(2),
-    row_group.padding = gt::px(2)
-  )
+    table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+  ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-sensitivity-analysis.pdf")))
@@ -355,8 +371,6 @@ tbl
 ```
 
 <!-- PAIRWISE COMPARISONS -->
-
-::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -382,10 +396,6 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-inter
 tbl
 ```
 
-:::
-
-::: {.landscape}
-
 ```{r}
 #| echo: false
 #| message: false
@@ -404,11 +414,7 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-inter
 tbl
 ```
 
-:::
-
 <!-- DIFFERENCES FROM BASELINE -->
-
-::: {.landscape}
 
 ```{r}
 #| echo: false
@@ -433,8 +439,6 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.png"
 
 tbl
 ```
-
-:::
 
 <!-- RAIN PLOT -->
 ![Rainplot of the differences from baseline for the Index of Desistance (IoD total score).](_figures/fig-iod-rainplot-difference-from-baseline.png){#fig-iod-rainplot-difference-from-baseline}

@@ -157,7 +157,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### CVTRQ
 
 <!-- RAIN PLOT -->
 
@@ -209,16 +209,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.pdf")))
@@ -248,7 +250,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### RCQ
 
 <!-- RAIN PLOT -->
 
@@ -285,7 +287,7 @@ ggsave(
 
 ```
 
-![Diagnostic plots for the Readiness to Change Questionnaire (RCQ, total score).](_figures/fig-sec-diagnostic-plots-rcq-calc-total.png){#fig-sec-rainplot-rcq-calc-total}
+![Diagnostic plots for the Readiness to Change Questionnaire (RCQ, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models models showed similar results. ](_figures/fig-sec-diagnostic-plots-rcq-calc-total.png){#fig-sec-rainplot-rcq-calc-total}
 
 
 ```{r}
@@ -299,16 +301,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.pdf")))
@@ -337,7 +341,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### F-Soz-U
 
 <!-- RAIN PLOT -->
 
@@ -387,16 +391,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.pdf")))
@@ -425,11 +431,11 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### OQMPR
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Questionnaire for the Measurement of Psychological Reactance (QMPR, total score).](_figures/fig-sec-rainplot-ors-calc-total.png){#fig-sec-rainplot-ors-total-score}
+![Rainplot of the Questionnaire for the Measurement of Psychological Reactance (OQMPR, total score).](_figures/fig-sec-rainplot-ors-calc-total.png){#fig-sec-rainplot-ors-total-score}
 
 ```{r}
 #| label: fig-sec-lm-ors-calc-total
@@ -461,7 +467,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for the Questionnaire for the Measurement of Psychological Reactance (QMPR, total score).](_figures/fig-sec-diagnostic-plots-ors-calc-total.png){#fig-sec-rainplot-ors-calc-total}
+![Diagnostic plots for the Questionnaire for the Measurement of Psychological Reactance (OQMPR, total score).](_figures/fig-sec-diagnostic-plots-ors-calc-total.png){#fig-sec-rainplot-ors-calc-total}
 
 
 ```{r}
@@ -475,16 +481,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.pdf")))
@@ -513,11 +521,11 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### SOI-R
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Sexual Outlet Inventory revised (SOI, Item 2a).](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
+![Rainplot of the Sexual Outlet Inventory revised (SOI-R, Item 2a).](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
 
 ```{r}
 #| label: fig-sec-lm-soi-total-score
@@ -582,7 +590,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### UCLA
 
 <!-- RAIN PLOT -->
 
@@ -617,7 +625,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for the UCLA Loneliness Scale (UCLA, total score).](_figures/fig-sec-diagnostic-plots-ucla-calc-total.png){#fig-sec-rainplot-ucla-calc-total}
+![Diagnostic plots for the UCLA Loneliness Scale (UCLA, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models models showed similar results.](_figures/fig-sec-diagnostic-plots-ucla-calc-total.png){#fig-sec-rainplot-ucla-calc-total}
 
 
 ```{r}
@@ -631,16 +639,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.pdf")))
@@ -670,7 +680,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### BIS-15
 
 <!-- RAIN PLOT -->
 
@@ -705,7 +715,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for the Barratt Impulsiveness Scale-15 (BIS-15, total score).](_figures/fig-sec-diagnostic-plots-bis-calc-total.png){#fig-sec-rainplot-bis-calc-total}
+![Diagnostic plots for the Barratt Impulsiveness Scale-15 (BIS-15, total score). The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the bis score was log-transformed. ](_figures/fig-sec-diagnostic-plots-bis-calc-total.png){#fig-sec-rainplot-bis-calc-total}
 
 
 ```{r}
@@ -719,16 +729,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.pdf")))
@@ -758,7 +770,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### CUSI
 
 <!-- RAIN PLOT -->
 
@@ -795,7 +807,7 @@ ggsave(
 
 ```
 
-![Diagnostic plots for Coping Using Sex Inventory (CUSI, total score). The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers.](_figures/fig-sec-diagnostic-plots-cusi-calc-total.png){#fig-sec-rainplot-cusi-calc-total}
+![Diagnostic plots for Coping Using Sex Inventory (CUSI, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models models showed similar results.](_figures/fig-sec-diagnostic-plots-cusi-calc-total.png){#fig-sec-rainplot-cusi-calc-total}
 
 
 ```{r}
@@ -809,16 +821,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.pdf")))
@@ -847,7 +861,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### SPSI-R
 
 <!-- RAIN PLOT -->
 
@@ -897,16 +911,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.pdf")))
@@ -935,7 +951,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 
 {{< pagebreak >}}
 
-### `r q_name`
+### EKK-R
 
 <!-- RAIN PLOT -->
 
@@ -985,16 +1001,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.pdf")))
@@ -1024,7 +1042,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 {{< pagebreak >}}
 
-### `r q_name`
+### DERS
 
 <!-- RAIN PLOT -->
 
@@ -1073,16 +1091,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.pdf")))
@@ -1112,7 +1132,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 {{< pagebreak >}}
 
-### `r q_name`
+### NARQ
 
 <!-- RAIN PLOT -->
 
@@ -1161,16 +1181,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.pdf")))
@@ -1200,7 +1222,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 {{< pagebreak >}}
 
-### `r q_name`
+### ESIQ
 
 <!-- RAIN PLOT -->
 
@@ -1249,16 +1271,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total.pdf")))
@@ -1288,7 +1312,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 {{< pagebreak >}}
 
-### `r q_name`
+### BMS
 
 <!-- RAIN PLOT -->
 
@@ -1336,17 +1360,19 @@ ggsave(
 tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
-      table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+        table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.pdf")))
@@ -1376,8 +1402,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 {{< pagebreak >}}
 
-### `r q_name`
-
+### HBI-19
 <!-- RAIN PLOT -->
 
 ![Rainplot of the Hypersexual Behavior Inventory-19 (HBI-19, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.](_figures/fig-sec-rainplot-hbi-calc-total.png){#fig-sec-rainplot-hbi-total-score}
@@ -1425,16 +1450,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.pdf")))
@@ -1464,7 +1491,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 {{< pagebreak >}}
 
-### `r q_name`
+### SSIC
 
 <!-- RAIN PLOT -->
 
@@ -1512,16 +1539,18 @@ tbl <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
-      table.font.size = 10,
-      quarto.use_bootstrap = FALSE,
-      quarto.disable_processing = TRUE,
-      data_row.padding = px(2),
-      summary_row.padding = gt::px(2),
-      grand_summary_row.padding = gt::px(2),
-      #footnotes.padding = gt::px(2),
-      #source_notes.padding = gt::px(2),
-      row_group.padding = gt::px(2)
-    )
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          #footnotes.padding = gt::px(2),
+          #source_notes.padding = gt::px(2),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.pdf")))
