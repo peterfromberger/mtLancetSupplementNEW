@@ -10,10 +10,5 @@ manuscript:
 bibliography: references.bib
 csl: the-lancet.csl
 
-format:
-  html:
-    html-table-processing: none
-    tbl-cap-location: bottom
-
-    toc: true
-    toc-depth: 3
+execute:
+  freeze: auto

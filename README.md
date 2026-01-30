@@ -2,8 +2,18 @@
 
 ## Render
 To render the manuscript, use the following command:
+
 ```bash
 quarto render index.qmd
 ```
+## Publish to GitHub Pages
+To publish the rendered manuscript to GitHub Pages, use the following command:
 
-install.packages('rbmi', repos = c('https://insightsengineering.r-universe.dev/', 'https://cloud.r-project.org/'))
+```bash
+quarto publish gh-pages
+```
+The published manuscript can be accessed at: [https://peterfromberger.github.io/mtLancetSupplementNew/](https://peterfromberger.github.io/mtLancetSupplementNew/)
+
+## Data Folder
+In order to run some of the R scripts, ensure there is a `_data` folder at the first level in the folder structure (where the `README.md` file lives). If you want to run the scripts, please ask about data.
+```
