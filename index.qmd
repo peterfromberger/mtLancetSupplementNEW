@@ -1,0 +1,310 @@
+---
+title: "Supplementary materials"
+
+lightbox: true
+notebook-links: false
+
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: default
+    other-links:
+      - text: Figures and Tables
+        icon: file-earmark-zip
+        href: 'resources/figs_tbls.zip'
+      - text: Source code
+        icon: github
+        href: 'https://github.com/peterfromberger/mtLancetSupplementNew'
+  pdf:
+    toc: true
+    number-sections: true
+    fontsize: 10pt
+    fig-dpi: 300
+    keep-tex: true
+    include-in-header:
+      - text: |
+          \usepackage{pdfpages}
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: r-init
+
+library(here)
+library(glue)
+
+# SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): primary outcomes
+source(here::here("_scripts/Fromberger_SAP.R"))
+
+# SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): secodary outcomes
+source(here::here("_scripts/analysis_secondary_endpoints.R"))
+
+# SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): sensitivity analysis for primary outcomes
+source(here::here("_scripts/rbmi.R"))
+
+# SAP analysis script from MBSB (Dr. Fabian Kück und Dr. Andreas Leha): remove outlier
+source(here::here("_scripts/remove_outlier.R"))
+```
+
+<!-- 
+##################
+# TRIAL registration
+##################
+-->
+## Trial registry
+
+::: {.content-visible when-format="pdf"}
+
+\includepdf[pages=-, fitpaper=true]{resources/GermanClinicalTrialsRegister.pdf}
+
+:::
+
+::: {.content-visible when-format="html"}
+```{=html}
+<p>
+    Please <a href="resources/GermanClinicalTrialsRegister.pdf">click here</a> to
+    download the PDF file.
+</p>
+```
+:::
+
+{{< pagebreak >}}
+
+<!-- 
+##################
+# WBI description
+##################
+-->
+## The \@myTabu framework
+
+{{< include _includes/apx_WBI_DESCRIPTION.qmd >}}
+
+{{< pagebreak >}}
+
+<!-- 
+##################
+# OUTCOME measures
+##################
+-->
+
+## Outcomes and measurement timepoints
+
+{{< include _tables/tbl_description_outcomes.qmd >}}
+
+{{< include _tables/tbl_measurement_timepoints.qmd >}}
+
+<!-- 
+##################
+# RESULTS Section
+##################
+-->
+{{< pagebreak >}}
+
+## Baseline characteristics
+
+{{< include _includes/apx_BASELINE_CHARACTERISTICS.qmd >}}
+
+{{< pagebreak >}}
+
+## Timing (protocol deviations)
+
+{{< include _includes/apx_PROTOCOL_DEVIATIONS.qmd >}}
+
+{{< pagebreak >}}
+
+## Primary Outcomes
+
+{{< include _includes/apx_PRIMARY_OUTCOMES.qmd >}}
+
+{{< pagebreak >}}
+
+## Secondary Outcomes
+
+{{< include _includes/apx_SECONDARY_OUTCOMES.qmd >}}
+
+{{< pagebreak >}}
+
+## Adverse events
+
+{{< include _includes/apx_HARMS.qmd >}}
+
+{{< pagebreak >}}
+
+## Ancillary Outcomes
+
+{{< include _includes/apx_ANCILLARY_OUTCOMES.qmd >}}
+
+<!-- 
+##################
+# CONSORT checklist
+##################
+-->
+{{< pagebreak >}}
+
+## CONSORT checklist
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-consort-checklist
+#| tbl-cap: "CONSORT 2025 checklist. Adapated from [@hopewellCONSORT2025Statement2025]."
+
+library(gt)
+library(tibble)
+library(dplyr)
+
+consort_data <- tibble::tribble(
+  ~Section, ~Subsection, ~Number, ~Description, ~Page,
+  # Title and abstract
+  "Title and abstract", NA, NA, NA, NA,
+  NA, "Title and structured abstract", "1a", "Identification as a randomised trial", "p. 2 (Summary)",
+  NA, "", "1b", "Structured summary of the trial design, methods, results, and conclusions", "p. 2 (Summary)",
+  # Open science
+  "Open science", NA, NA, NA, NA,
+  NA, "Trial registration", "2", "Name of trial registry, identifying number (with URL) and date of registration", "p. 5 (Section 2.1)",
+  NA, "Protocol and statistical analysis plan", "3", "Where the trial protocol and statistical analysis plan can be accessed", "appendix section 1 (trial protocol); appendix section 11 (SAP)",
+  NA, "Data sharing", "4", "Where and how the individual de-identified participant data (including data dictionary), statistical code, and any other materials can be accessed", "p. 13 (Data sharing)",
+  NA, "Funding and conflicts of interest", "5a", "Sources of funding and other support (eg, supply of drugs), and role of funders in the design, conduct, analysis, and reporting of the trial", "Summary; p. 8 (Section 2.6); p. 13 (Acknowledgements)",
+  NA, "", "5b", "Financial and other conflicts of interest of the manuscript authors", "p. 13 (Declaration of interests)",
+  # Introduction
+  "Introduction", NA, NA, NA, NA,
+  NA, "Background and rationale", "6", "Scientific background and rationale", "p. 4-5 (Section 1)",
+  NA, "Objectives", "7", "Specific objectives related to benefits and harms", "p. 5 (Section 1)",
+  # Methods
+  "Methods", NA, NA, NA, NA,
+  NA, "Patient and public involvement", "8", "Details of patient or public involvement in the design, conduct, and reporting of the trial", "p. 5 Section 2.1)",
+  NA, "Trial design", "9", "Description of trial design including type of trial (eg, parallel group, crossover), allocation ratio, and framework (eg, superiority, equivalence, non-inferiority, or exploratory)", "p. 5 (Section 2.1)",
+  NA, "Changes to trial protocol", "10", "Important changes to the trial after it commenced including any outcomes or analyses that were not prespecified, with reason", "p. 6 (Section 2.4)",
+  NA, "Trial setting", "11", "Settings (eg, community, hospital) and locations (eg, countries, sites) where the trial was conducted", "p. 5 (Section 2.1)",
+  NA, "Eligibility criteria", "12a", "Eligibility criteria for participants", "p. 5 (Section 2.1)",
+  NA, "", "12b", "If applicable, eligibility criteria for sites and for individuals delivering the interventions (eg, surgeons, physiotherapists)", "not applicable",
+  NA, "Intervention and comparator", "13", "Intervention and comparator with sufficient details to allow replication. If relevant, where additional materials describing the intervention and comparator (eg, intervention manual) can be accessed", "p. 5 (Section 2.3)",
+  NA, "Outcomes", "14", "Prespecified primary and secondary outcomes, including the specific measurement variable (eg, systolic blood pressure), analysis metric (eg, change from baseline, final value, time to event), method of aggregation (eg, median, proportion), and timepoint for each outcome", "p. 6-7 (Section 2.4); Table 2; appendix Section 3",
+  NA, "Harms", "15", "How harms were defined and assessed (eg, systematically, non-systematically)", "p. 6 (Section 2.4)",
+  NA, "Sample size", "16a", "How sample size was determined, including all assumptions supporting the sample size calculation", "p. 7 (Section 2.5)",
+  NA, "", "16b", "Explanation of any interim analyses and stopping guidelines", "p. 7 (Section 2.5)",
+  # Randomisation
+  "Randomisation", NA, NA, NA, NA,
+  NA, "Sequence generation", "17a", "Who generated the random allocation sequence and the method used", "p. 5 (Section 2.2)",
+  NA, "", "17b", "Type of randomisation and details of any restriction (eg, stratification, blocking and block size)", "p. 5 (Section 2.2)",
+  NA, "Allocation concealment mechanism", "18", "Mechanism used to implement the random allocation sequence (eg, central computer/telephone; sequentially numbered, opaque, sealed containers), describing any steps to conceal the sequence until interventions were assigned", "p. 5 (Section 2.2)",
+  NA, "Implementation", "19", "Whether the personnel who enrolled and those who assigned participants to the interventions had access to the random allocation sequence", "p. 5 (Section 2.2)",
+  NA, "Blinding", "20a", "Who was blinded after assignment to interventions (eg, participants, care providers, outcome assessors, data analysts)", "p. 5 (Section 2.2)",
+  NA, "", "20b", "If blinded, how blinding was achieved and description of the similarity of interventions", "p. 5 (Section 2.2)",
+  NA, "Statistical methods", "21a", "Statistical methods used to compare groups for primary and secondary outcomes, including harms", "p. 7-8 (Section 2.5)",
+  NA, "", "21b", "Definition of who is included in each analysis (eg, all randomised participants), and in which group", "p. 7-8 (Section 2.5)",
+  NA, "", "21c", "How missing data were handled in the analysis", "p. 7-8 (Section 2.5)",
+  NA, "", "21d", "Methods for any additional analyses (eg, subgroup and sensitivity analyses), distinguishing prespecified from post hoc", "p. 7-8 (Section 2.5)",
+  # Results
+  "Results", NA, NA, NA, NA,
+  NA, "Participant flow, including flow diagram", "22a", "For each group, the numbers of participants who were randomly assigned, received intended intervention, and were analysed for the primary outcome", "p. 8 (Section 3) and Figure 1",
+  NA, "", "22b", "For each group, losses and exclusions after randomisation, together with reasons", "Figure 1",
+  NA, "Recruitment", "23a", "Dates defining the periods of recruitment and follow-up for outcomes of benefits and harms", "p. 8 (Section 3)",
+  NA, "", "23b", "If relevant, why the trial ended or was stopped", "p. 8 (Section 3)",
+  NA, "Intervention and comparator delivery", "24a", "Intervention and comparator as they were actually administered (eg, where appropriate, who delivered the intervention/comparator, how participants adhered, whether they were delivered as intended [fidelity])", "Table 1; Figure 1; p. 5-6 (Section 2.3)",
+  NA, "", "24b", "Concomitant care received during the trial for each group", "p. 8 (Section 3)",
+  NA, "Baseline data", "25", "A table showing baseline demographic and clinical characteristics for each group", "Table 3",
+  NA, "Numbers analysed, outcomes and estimation", "26", "For each primary and secondary outcome, by group: •the number of participants included in the analysis •the number of participants with available data at the outcome timepoint •result for each group, and the estimated effect size and its precision (such as 95% confidence interval) •for binary outcomes, presentation of both absolute and relative effect size", "p. 8-11 (Section 3); appendix",
+  NA, "Harms", "27", "All harms or unintended events in each group", "p. 10 (Section 3)",
+  NA, "Ancillary analyses", "28", "Any other analyses performed, including subgroup and sensitivity analyses, distinguishing prespecified from post hoc", "pp. 10-11 (Section 3); appendix",
+  # Discussion
+  "Discussion", NA, NA, NA, NA,
+  NA, "Interpretation", "29", "Interpretation consistent with results, balancing benefits and harms, and considering other relevant evidence", "p. 11-12 (Section 4)",
+  NA, "Limitations", "30", "Trial limitations, addressing sources of potential bias, imprecision, generalisability, and, if relevant, multiplicity of analyses", "p. 11-12 (Section 4)"
+)
+
+# Markiere die Überschriften-Zeilen (wo Section nicht NA)
+header_rows <- which(!is.na(consort_data$Section))
+# gt bauen
+
+tbl <- consort_data %>%
+  gt() %>%
+  cols_label(
+    Subsection = "Subsection",
+    Section = "Section",
+    Number = "Number",
+    Page = "Reference"
+  ) %>%
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_body(rows = header_rows)
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(columns = everything())
+  ) %>%
+  fmt_missing(
+    columns = everything(), # NA überall durch "" ersetzen
+    missing_text = ""
+  ) %>%
+  cols_width(
+    Section ~ px(80),
+    Description ~ px(150),
+    Subsection ~ px(80),
+    Number  ~ px(80),
+    Page ~ px(80),
+  ) %>%
+  gt::tab_options(
+    table.font.names = "Times New Roman",
+    table.font.size = 10,
+    quarto.use_bootstrap = FALSE,
+    quarto.disable_processing = TRUE,
+    data_row.padding = px(1),
+    summary_row.padding = gt::px(1),
+    grand_summary_row.padding = gt::px(1),
+    #footnotes.padding = gt::px(2),
+    #source_notes.padding = gt::px(2),
+    row_group.padding = gt::px(1)
+  ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-consort-checklist.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-consort-checklist.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-consort-checklist.png")))
+
+tbl
+```
+
+<!-- 
+##################
+# SAP
+##################
+-->
+
+{{< pagebreak >}}
+
+## Statistical analysis plan
+
+::: {.content-visible when-format="pdf"}
+
+\includepdf[pages=-, fitpaper=true]{resources/myTabu_SAP_signed.pdf}
+
+:::
+
+::: {.content-visible when-format="html"}
+```{=html}
+<p>
+    Please <a href="resources/myTabu_SAP_signed.pdf">click here</a> to
+    download the PDF file.
+</p>
+```
+:::
+
+<!-- 
+##################
+# SUPP References
+##################
+-->
+
+{{< pagebreak >}}
+
+## References
+
+::: {#refs}
+:::
