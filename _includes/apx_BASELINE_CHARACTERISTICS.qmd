@@ -11,11 +11,14 @@ library(here)
 library(tidyr)
 library(gtsummary)
 library(gt)
+library(arrow)
 
 # global theme for gtsummary
 gtsummary::theme_gtsummary_journal(journal = "lancet")
 
 # read in data
+rds <- read_feather(here('_data/finalData/randomizedMaster.feather'))
+write.csv(rds, here::here("_data/finalData/randomizedMaster.csv"))
 data <- read.csv(here::here("_data/finalData/randomizedMaster.csv"))
 
 # itt
