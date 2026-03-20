@@ -144,7 +144,7 @@ create_sec_diff_tbl <- function(data, dvs, label_list, grouping_var, abbreviatio
     score_columns <- c("diff_cvtrq_calc_total", "diff_rcq_calc_total", "diff_fsozu_calc_total", "diff_ors_calc_total",
                    "diff_ucla_calc_total", "diff_bis_calc_total", "diff_cusi_calc_total", "diff_ders_calc_imp",
                    "diff_narq_calc_ris", "diff_spsi_calc_total", "diff_kvm_score", "diff_ekk_calc_total",
-                   "diff_esiq_calc_total", "diff_hbi_calc_total", "diff_ssik_calc_total", "diff_soi_total_score")
+                   "diff_esiq_calc_total_child", "diff_hbi_calc_total", "diff_ssik_calc_total", "diff_soi_total_score")
     data <- df_diff %>% select(treatment, all_of(score_columns))
   }
 

@@ -63,7 +63,7 @@ dat_complete_sec_ekk %<>% mutate(timepoint=case_match(timepoint,
                                                       "Module 5 (post)" ~ "pre",
                                                       "Module 6 (post)" ~ "post") %>%
                                    factor())
-dat_complete_sec_esiq <- dat_complete %>% dplyr::filter(!is.na(esiq_calc_total))
+dat_complete_sec_esiq <- dat_complete %>% dplyr::filter(!is.na(esiq_calc_total_child))
 dat_complete_sec_esiq %<>% mutate(timepoint=case_match(timepoint,
                                                       "Module 5 (post)" ~ "pre",
                                                       "Module 6 (post)" ~ "post") %>%
@@ -230,12 +230,13 @@ tests <- c(`cvtrq_calc_total` = "w.nparcomp.paired",
            # spsi_calc_ics = "w.nparcomp.paired",
            kvm_score = "w.nparcomp.paired",
            ekk_calc_total = "w.nparcomp.paired",
-           esiq_calc_total = "w.nparcomp.paired",
+           esiq_calc_total_child = "w.nparcomp.paired",
            hbi_calc_total = "w.nparcomp.paired",
-           ssik_calc_total = "w.nparcomp.paired")
+           ssik_calc_total = "w.nparcomp.paired", 
+           soi_total_score = "w.nparcomp.paired")
 
 # dtab_sec <- dat_complete_sec_intervention %>%
-#   dplyr::select(cvtrq_calc_total, rcq_calc_total, fsozu_calc_total, ors_calc_total, ucla_calc_total, bis_calc_total, cusi_calc_total, ders_calc_imp, narq_calc_ris, spsi_calc_total, kvm_score, ekk_calc_total, esiq_calc_total, hbi_calc_total, ssik_calc_total, soi_total_score, timepoint) %>%
+#   dplyr::select(cvtrq_calc_total, rcq_calc_total, fsozu_calc_total, ors_calc_total, ucla_calc_total, bis_calc_total, cusi_calc_total, ders_calc_imp, narq_calc_ris, spsi_calc_total, kvm_score, ekk_calc_total, esiq_calc_total_child, hbi_calc_total, ssik_calc_total, soi_total_score, timepoint) %>%
 #   descsuppR::buildDescrTbl(
 #     groupby = "timepoint",
 #     useutf8 = "utf8",
@@ -251,7 +252,7 @@ tests <- c(`cvtrq_calc_total` = "w.nparcomp.paired",
 #     report_testmessages = FALSE)
 
 # dtab_sec_placebo <- dat_complete_sec_placebo %>%
-#   dplyr::select(cvtrq_calc_total, rcq_calc_total, fsozu_calc_total, ors_calc_total, ucla_calc_total, bis_calc_total, cusi_calc_total, ders_calc_imp, narq_calc_ris, spsi_calc_total, kvm_score, ekk_calc_total, esiq_calc_total, hbi_calc_total, ssik_calc_total, soi_total_score, timepoint) %>%
+#   dplyr::select(cvtrq_calc_total, rcq_calc_total, fsozu_calc_total, ors_calc_total, ucla_calc_total, bis_calc_total, cusi_calc_total, ders_calc_imp, narq_calc_ris, spsi_calc_total, kvm_score, ekk_calc_total, esiq_calc_total_child, hbi_calc_total, ssik_calc_total, soi_total_score, timepoint) %>%
 #   descsuppR::buildDescrTbl(
 #     groupby = "timepoint",
 #     useutf8 = "utf8",
@@ -267,7 +268,7 @@ tests <- c(`cvtrq_calc_total` = "w.nparcomp.paired",
 #     report_testmessages = FALSE)
 
 # dtab_sec_expl <- dat_complete_sec_intervention %>%
-#   dplyr::select("esiq_calc_fan", "esiq_calc_ver", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics", timepoint) %>%
+#   dplyr::select("esiq_calc_fan_child", "esiq_calc_ver_child", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics", timepoint) %>%
 #   descsuppR::buildDescrTbl(
 #     groupby = "timepoint",
 #     useutf8 = "utf8",
@@ -283,7 +284,7 @@ tests <- c(`cvtrq_calc_total` = "w.nparcomp.paired",
 #     report_testmessages = FALSE)
 
 # dtab_sec_placebo_expl <- dat_complete_sec_placebo %>%
-#   dplyr::select("esiq_calc_fan", "esiq_calc_ver", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics", timepoint) %>% descsuppR::buildDescrTbl(
+#   dplyr::select("esiq_calc_fan_child", "esiq_calc_ver_child", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics", timepoint) %>% descsuppR::buildDescrTbl(
 #     groupby = "timepoint",
 #     useutf8 = "utf8",
 #     show.IQR = TRUE,
@@ -300,8 +301,8 @@ tests <- c(`cvtrq_calc_total` = "w.nparcomp.paired",
 score_columns <- c("cvtrq_calc_total", "rcq_calc_total", "fsozu_calc_total", "ors_calc_total",
                    "ucla_calc_total", "bis_calc_total", "cusi_calc_total", "ders_calc_imp",
                    "narq_calc_ris", "spsi_calc_total", "kvm_score", "ekk_calc_total",
-                   "esiq_calc_total", "hbi_calc_total", "ssik_calc_total", "soi_total_score")
-score_columns_exploratory <- c("esiq_calc_fan", "esiq_calc_ver", "rcq_calc_current_stage", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics")
+                   "esiq_calc_total_child", "hbi_calc_total", "ssik_calc_total", "soi_total_score")
+score_columns_exploratory <- c("esiq_calc_fan_child", "esiq_calc_ver_child", "rcq_calc_current_stage", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics")
 
 
 
@@ -473,7 +474,7 @@ tab_lm <- function(fit, exponentiate=FALSE)
         narq_calc_ris_pre = "Baseline value (pre)",
         spsi_calc_total_pre = "Baseline value (pre)",
         kvm_calc_total_pre = "Baseline value (pre)",
-        esiq_calc_total_pre = "Baseline value (pre)",
+        esiq_calc_total_child_pre = "Baseline value (pre)",
         hbi_calc_total_pre = "Baseline value (pre)",
         ssik_calc_total_pre = "Baseline value (pre)",
         ekk_calc_total_pre = "Baseline value (pre)",
@@ -521,7 +522,7 @@ tab_lm <- function(fit, exponentiate=FALSE)
         narq_calc_ris_pre = "Baseline value (pre)",
         spsi_calc_total_pre = "Baseline value (pre)",
         kvm_calc_total_pre = "Baseline value (pre)",
-        esiq_calc_total_pre = "Baseline value (pre)",
+        esiq_calc_total_child_pre = "Baseline value (pre)",
         hbi_calc_total_pre = "Baseline value (pre)",
         ssik_calc_total_pre = "Baseline value (pre)",
         ekk_calc_total_pre = "Baseline value (pre)",
@@ -575,7 +576,7 @@ tab_glm <- function(fit)
                       narq_calc_ris_pre = "Baseline value (pre)",
                       spsi_calc_total_pre = "Baseline value (pre)",
                       `kvm_score_pre>=43` = "Baseline value (pre)",
-                      esiq_calc_total_pre = "Baseline value (pre)",
+                      esiq_calc_total_child_pre = "Baseline value (pre)",
                       `hbi_calc_total_pre>=24` = "Baseline value (pre)",
                       `ssik_calc_total_pre>=30` = "Baseline value (pre)",
                       ssik_calc_total_pre = "Baseline value (pre)",
@@ -623,7 +624,7 @@ else
                       narq_calc_ris_pre = "Baseline value (pre)",
                       spsi_calc_total_pre = "Baseline value (pre)",
                       `kvm_score_pre>=43` = "Baseline value (pre)",
-                      esiq_calc_total_pre = "Baseline value (pre)",
+                      esiq_calc_total_child_pre = "Baseline value (pre)",
                       `hbi_calc_total_pre>=24` = "Baseline value (pre)",
                       `ssik_calc_total_pre>=30` = "Baseline value (pre)",
                       ssik_calc_total_pre = "Baseline value (pre)",
@@ -692,8 +693,8 @@ fit_kvm_score <- lm(kvm_score_post ~ kvm_score_pre + treatment + `Indexdelikt` +
 fit_ekk_calc_total <- lm(ekk_calc_total_post ~ ekk_calc_total_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
 lm_Table_ekk_calc_total <- fit_ekk_calc_total %>% tab_lm
 
-fit_esiq_calc_total <- lm(esiq_calc_total_post ~ esiq_calc_total_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
-lm_Table_esiq_calc_total <- fit_esiq_calc_total %>% tab_lm
+fit_esiq_calc_total_child <- lm(esiq_calc_total_child_post ~ esiq_calc_total_child_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
+lm_Table_esiq_calc_total_child <- fit_esiq_calc_total_child %>% tab_lm
 
 fit_hbi_calc_total <- lm(hbi_calc_total_post ~ hbi_calc_total_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
 
@@ -757,18 +758,18 @@ factor(ordered = TRUE, levels = c("5", "6", "7", "8", "9", ">9")),
   kvm_score_pre<50 & kvm_score_pre>=40 ~ "40-49",
   kvm_score_pre>49 ~ ">49") %>%
   factor(ordered = TRUE, levels = c("<40", "40-49", ">49")),
-  esiq_calc_total_post_ordinal = case_when(esiq_calc_total_post<80 ~ "<80",
-    esiq_calc_total_post==80 ~ "80",
-    esiq_calc_total_post>80 ~ ">80") %>%
+  esiq_calc_total_child_post_ordinal = case_when(esiq_calc_total_child_post<80 ~ "<80",
+    esiq_calc_total_child_post==80 ~ "80",
+    esiq_calc_total_child_post>80 ~ ">80") %>%
   factor(ordered = TRUE, levels = c("<80", "8",  ">80")),
-  esiq_calc_total_pre_ordinal = case_when(esiq_calc_total_pre<80 ~ "<80",
-    esiq_calc_total_pre==80 ~ "80",
-    esiq_calc_total_pre>80 ~ ">80") %>%
+  esiq_calc_total_child_pre_ordinal = case_when(esiq_calc_total_child_pre<80 ~ "<80",
+    esiq_calc_total_child_pre==80 ~ "80",
+    esiq_calc_total_child_pre>80 ~ ">80") %>%
   factor(ordered = TRUE, levels = c("<80", "8",  ">80")))
 
-df_diff %<>% dplyr::mutate(diff_esiq_calc_total_ordinal = case_when(diff_esiq_calc_total<0 ~ "Verbesserung",
-                                                                     diff_esiq_calc_total==0 ~ "keine Veränderung",
-                                                                     diff_esiq_calc_total>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
+df_diff %<>% dplyr::mutate(diff_esiq_calc_total_child_ordinal = case_when(diff_esiq_calc_total_child<0 ~ "Verbesserung",
+                                                                     diff_esiq_calc_total_child==0 ~ "keine Veränderung",
+                                                                     diff_esiq_calc_total_child>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
                            diff_ders_calc_imp_ordinal = case_when(diff_ders_calc_imp<0 ~ "Verbesserung",
                                                                     diff_ders_calc_imp==0 ~ "keine Veränderung",
                                                                     diff_ders_calc_imp>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
@@ -780,19 +781,22 @@ df_diff %<>% dplyr::mutate(diff_esiq_calc_total_ordinal = case_when(diff_esiq_ca
                                                               diff_hbi_calc_total>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
                            diff_narq_calc_ris_ordinal = case_when(diff_narq_calc_ris<0 ~ "Verbesserung",
                                                                        diff_narq_calc_ris==0 ~ "keine Veränderung",
-                                                                       diff_narq_calc_ris>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE)) %>%
+                                                                       diff_narq_calc_ris>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
+                           diff_soi_total_score_ordinal = case_when(diff_soi_total_score<0 ~ "Verbesserung",
+                                                                    diff_soi_total_score==0 ~ "keine Veränderung",
+                                                                    diff_soi_total_score>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE)) %>%
   merge(., df_wide %>%
   dplyr::select(client_id, `Indexdelikt`, `Aktuelle Betreuung`, `Aktuelle zusätzliche Behandlung`, `Baseline Static-99-Score`, static99_modified_calc))
 
-df_diff_expl %<>% dplyr::mutate(diff_esiq_calc_fan_ordinal = case_when(diff_esiq_calc_fan<0 ~ "Verbesserung",
-                                                                       diff_esiq_calc_fan==0 ~ "keine Veränderung",
-                                                                       diff_esiq_calc_fan>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                                diff_esiq_calc_ver_ordinal = case_when(diff_esiq_calc_ver<0 ~ "Verbesserung",
-                                                                       diff_esiq_calc_ver==0 ~ "keine Veränderung",
-                                                                       diff_esiq_calc_ver>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                                diff_esiq_calc_ver_ordinal = case_when(diff_esiq_calc_ver<0 ~ "Verbesserung",
-                                                                       diff_esiq_calc_ver==0 ~ "keine Veränderung",
-                                                                       diff_esiq_calc_ver>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE)) %>%
+df_diff_expl %<>% dplyr::mutate(diff_esiq_calc_fan_child_ordinal = case_when(diff_esiq_calc_fan_child<0 ~ "Verbesserung",
+                                                                       diff_esiq_calc_fan_child==0 ~ "keine Veränderung",
+                                                                       diff_esiq_calc_fan_child>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
+                                diff_esiq_calc_ver_child_ordinal = case_when(diff_esiq_calc_ver_child<0 ~ "Verbesserung",
+                                                                       diff_esiq_calc_ver_child==0 ~ "keine Veränderung",
+                                                                       diff_esiq_calc_ver_child>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
+                                diff_esiq_calc_ver_child_ordinal = case_when(diff_esiq_calc_ver_child<0 ~ "Verbesserung",
+                                                                       diff_esiq_calc_ver_child==0 ~ "keine Veränderung",
+                                                                       diff_esiq_calc_ver_child>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE)) %>%
   merge(., df_wide %>%
           dplyr::select(client_id, `Indexdelikt`, `Aktuelle Betreuung`, `Aktuelle zusätzliche Behandlung`, `Baseline Static-99-Score`, static99_modified_calc))
 
@@ -833,30 +837,34 @@ fit_kvm_score_logistic <- glm(`kvm_score_post>=43` ~ `kvm_score_pre>=43` + treat
 glm_Table_kvm_score <- fit_kvm_score_logistic %>% tab_glm
 
 # esiq #
-fit_esiq_calc_total_ordinal_diff <- clm(diff_esiq_calc_total_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff)
-glm_Table_esiq_calc_total_ordinal_diff <- fit_esiq_calc_total_ordinal_diff %>% tab_glm
+fit_esiq_calc_total_child_ordinal_diff <- clm(diff_esiq_calc_total_child_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff)
+glm_Table_esiq_calc_total_child_ordinal_diff <- fit_esiq_calc_total_child_ordinal_diff %>% tab_glm
 
 fit_narq_calc_ris_ordinal_diff <- clm(diff_narq_calc_ris_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff)
 glm_Table_narq_calc_ris_ordinal_diff <- fit_narq_calc_ris_ordinal_diff %>% tab_glm
 
-fit_esiq_calc_ver_ordinal_diff <- clm(diff_esiq_calc_ver_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff_expl)
-glm_Table_esiq_calc_ver_ordinal_diff <- fit_esiq_calc_ver_ordinal_diff %>% tab_glm
+fit_esiq_calc_ver_child_ordinal_diff <- clm(diff_esiq_calc_ver_child_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff_expl)
+glm_Table_esiq_calc_ver_child_ordinal_diff <- fit_esiq_calc_ver_child_ordinal_diff %>% tab_glm
 
 fit_rcq_calc_current_stage_ordinal_diff <- clm(diff_rcq_calc_current_stage ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff_expl)
 glm_Table_rcq_calc_current_stage_ordinal_diff <- fit_rcq_calc_current_stage_ordinal_diff %>% tab_glm
 
-fit_esiq_calc_fan_ordinal_diff <- clm(diff_esiq_calc_fan_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff_expl)
-glm_Table_esiq_calc_fan_ordinal_diff <- fit_esiq_calc_fan_ordinal_diff %>% tab_glm
+fit_esiq_calc_fan_child_ordinal_diff <- clm(diff_esiq_calc_fan_child_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff_expl)
+glm_Table_esiq_calc_fan_child_ordinal_diff <- fit_esiq_calc_fan_child_ordinal_diff %>% tab_glm
 
-glm(factor(diff_esiq_calc_total>0) ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff, family = "binomial") %>% summary()
+glm(factor(diff_esiq_calc_total_child>0) ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff, family = "binomial") %>% summary()
 
-fit_esiq_calc_total_ordinal <- clm(esiq_calc_total_post_ordinal ~ esiq_calc_total_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
+#fit_esiq_calc_total_child_ordinal <- clm(esiq_calc_total_child_post_ordinal ~ esiq_calc_total_child_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
 
-fit_esiq_calc_total_ordinal <- clm(esiq_calc_total_post_ordinal ~ esiq_calc_total_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
-# scale_test(fit_esiq_calc_total_ordinal)
-# fit_esiq_calc_total_ordinal2 <- polr(esiq_calc_total_post_ordinal ~ kvm_score_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, Hess=TRUE)
-# poTest(fit_esiq_calc_total_ordinal2)
-glm(factor(esiq_calc_total_post>0) ~ factor(esiq_calc_total_pre>90) + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, family = "binomial") %>% summary()
+fit_soi_calc_total_ordinal_diff <- clm(diff_soi_total_score_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff)
+glm_Table_soi_calc_total_ordinal_diff <- fit_soi_calc_total_ordinal_diff %>% tab_glm
+
+
+#fit_esiq_calc_total_child_ordinal <- clm(esiq_calc_total_child_post_ordinal ~ esiq_calc_total_child_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
+# scale_test(fit_esiq_calc_total_child_ordinal)
+# fit_esiq_calc_total_child_ordinal2 <- polr(esiq_calc_total_child_post_ordinal ~ kvm_score_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, Hess=TRUE)
+# poTest(fit_esiq_calc_total_child_ordinal2)
+# glm(factor(esiq_calc_total_child_post>0) ~ factor(esiq_calc_total_child_pre>90) + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, family = "binomial") %>% summary()
 
 # hbi #
 glm(factor(hbi_calc_total_post>=24) ~ factor(hbi_calc_total_pre>=24) + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, family = "binomial") %>% summary()
@@ -884,7 +892,7 @@ p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_narq_ca
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_total$table_body$p.value[-(1:4)])))
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_kvm_score$table_body$p.value[-(1:5)])))
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_ekk_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_esiq_calc_total$table_body$p.value[-(1:4)])))
+p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_esiq_calc_total_child$table_body$p.value[-(1:4)])))
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_hbi_calc_total$table_body$p.value[-(1:5)])))
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_ssik_calc_total$table_body$p.value[-(1:5)])))
 # p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_rcq_calc_contemplation$table_body$p.value[-(1:4)])))
@@ -909,7 +917,7 @@ glm_Table_narq_calc_ris$table_body$adjusted_p_value[-(1:3)] <- p.val.df[10,] %>%
 lm_Table_spsi_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[11,] %>% as.numeric() %>% pretty_Pvalues()
 glm_Table_kvm_score$table_body$adjusted_p_value[-(1:5)] <- p.val.df[12,] %>% as.numeric() %>% pretty_Pvalues()
 lm_Table_ekk_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[13,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_esiq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[14,] %>% as.numeric() %>% pretty_Pvalues()
+lm_Table_esiq_calc_total_child$table_body$adjusted_p_value[-(1:4)] <- p.val.df[14,] %>% as.numeric() %>% pretty_Pvalues()
 glm_Table_hbi_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[15,] %>% as.numeric() %>% pretty_Pvalues()
 glm_Table_ssik_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[16,] %>% as.numeric() %>% pretty_Pvalues()
 # lm_Table_rcq_calc_contemplation$table_body$adjusted_p_value[-(1:4)] <- p.val.df[17,] %>% as.numeric() %>% pretty_Pvalues()
@@ -933,9 +941,10 @@ p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_narq_ca
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_total$table_body$p.value[-(1:4)])))
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_kvm_score$table_body$p.value[-(1:5)])))
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_ekk_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_esiq_calc_total_ordinal_diff$table_body$p.value[-(1:2)])))
+p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_esiq_calc_total_child_ordinal_diff$table_body$p.value[-(1:2)])))
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_hbi_calc_total$table_body$p.value[-(1:5)])))
 p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_ssik_calc_total$table_body$p.value[-(1:5)])))
+p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_soi_calc_total_ordinal_diff$table_body$p.value[-(1:2)])))
 # p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_rcq_calc_contemplation$table_body$p.value[-(1:4)])))
 # p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_rcq_calc_action$table_body$p.value[-(1:4)])))
 # p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_ppo$table_body$p.value[-(1:4)])))
@@ -944,7 +953,7 @@ p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_ssik_ca
 # p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_ics$table_body$p.value[-(1:4)])))
 
 p.val.df %<>% mutate_all(~p.adjust(., method = "holm") %>% pretty_Pvalues())
-glm_Table_esiq_calc_total_ordinal_diff$table_body$adjusted_p_value[-(1:2)] <- p.val.df[14,] %>% as.numeric() %>% pretty_Pvalues()
+glm_Table_esiq_calc_total_child_ordinal_diff$table_body$adjusted_p_value[-(1:2)] <- p.val.df[14,] %>% as.numeric() %>% pretty_Pvalues()
 lm_Table_cvtrq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[1,] %>% as.numeric() %>% pretty_Pvalues()
 lm_Table_rcq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[2,] %>% as.numeric() %>% pretty_Pvalues()
 lm_Table_fsozu_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[3,] %>% as.numeric() %>% pretty_Pvalues()
@@ -960,6 +969,7 @@ glm_Table_kvm_score$table_body$adjusted_p_value[-(1:5)] <- p.val.df[12,] %>% as.
 lm_Table_ekk_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[13,] %>% as.numeric() %>% pretty_Pvalues()
 glm_Table_hbi_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[15,] %>% as.numeric() %>% pretty_Pvalues()
 glm_Table_ssik_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[16,] %>% as.numeric() %>% pretty_Pvalues()
+glm_Table_soi_calc_total_ordinal_diff$table_body$adjusted_p_value[-(1:2)] <- p.val.df[17,] %>% as.numeric() %>% pretty_Pvalues()
 # lm_Table_rcq_calc_contemplation$table_body$adjusted_p_value[-(1:4)] <- p.val.df[17,] %>% as.numeric() %>% pretty_Pvalues()
 # lm_Table_rcq_calc_action$table_body$adjusted_p_value[-(1:4)] <- p.val.df[18,] %>% as.numeric() %>% pretty_Pvalues()
 # lm_Table_spsi_calc_ppo$table_body$adjusted_p_value[-(1:4)] <- p.val.df[20,] %>% as.numeric() %>% pretty_Pvalues()

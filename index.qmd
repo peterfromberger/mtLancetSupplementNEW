@@ -112,7 +112,7 @@ source(here::here("_scripts/remove_outlier.R"))
 
 ## Timing (protocol deviations)
 
-{{< include _includes/apx_PROTOCOL_DEVIATIONS.qmd >}}
+{{< include _includes/apx_TIMING.qmd >}}
 
 {{< pagebreak >}}
 

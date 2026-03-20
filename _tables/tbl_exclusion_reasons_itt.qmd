@@ -8,7 +8,6 @@
 
 library(tidyr)
 library(dplyr)
-library(arrow)
 library(here)
 library(flextable)
 library(stringr)

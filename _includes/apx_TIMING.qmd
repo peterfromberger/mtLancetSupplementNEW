@@ -49,6 +49,7 @@ add_gg_theme <- function(plt) {
 gtsummary::theme_gtsummary_journal(journal = "lancet")
 
 #df <- readRDS(here::here("_data/finalData/randomizedMaster2.Rds"))
+#dat_clean <- readRDS("dat_clean.RDS")
 df <- dat_clean
 
 bm_unpaired_test <- function(data, variable, by, ...) {
@@ -104,9 +105,18 @@ tmp_tmp = dat_clean %>%
 # convert to days
 tmp_tmp <- tmp_tmp %>%
   mutate(Zeit_seit_Beginn_Modul_1_in_Jahren = Zeit_seit_Beginn_Modul_1_in_Jahren* 365.25)
+
+tmp_tmp <- tmp_tmp %>%
+  group_by(client_id) %>%
+  arrange(client_id, timepoint) %>%
+  mutate(
+    Zeit_seit_Ende_des_vorigen_Moduls = Zeit_seit_Beginn_Modul_1_in_Jahren -
+      lag(Zeit_seit_Beginn_Modul_1_in_Jahren, default = 0)
+  ) %>%
+  ungroup()
     
 # RAIN plot (descriptive)
-plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = Zeit_seit_Beginn_Modul_1_in_Jahren, color = treatment)
+plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = Zeit_seit_Ende_des_vorigen_Moduls, color = treatment)
   ) +
   geom_rain(
     seed = 42,
@@ -145,8 +155,9 @@ plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = Zeit_seit_Beginn
       width = 1.2
     ),
   ) +
+  scale_y_log10() +
   labs(
-    y = "Time from baseline to post module (days)",
+    y = "Time since end of previous module (days)",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -171,7 +182,7 @@ ggsave(
 )
 ```
 
-![Cumulative time from baseline to finish module. The cumulative time from baseline to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the cumulative time from baseline to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-rainplot.png){#fig-time-to-post-module-rainplot width=100%}
+![Rainplot for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI). The y-axis is shown on a logarithmic scale.](_figures/fig-time-to-post-module-rainplot.png){#fig-time-to-post-module-rainplot width=100%}
 
 ```{r}
 #| echo: false
@@ -192,6 +203,58 @@ fit_time_post_module <- mmrm(
     data = tmp_tmp %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
         dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
 )
+
+r_norm <- resid(fit_time_post_module, type = "normalized")
+
+# QQ-plot & histogram
+qqnorm(r_norm); qqline(r_norm)
+hist(r_norm, breaks = "FD")
+
+formular <- as.formula(
+  paste(
+      "log(Zeit_seit_Beginn_Modul_1_in_Jahren) ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
+  )
+)
+
+fit_time_post_module_log <- mmrm(
+    formula = formular,
+    data = tmp_tmp %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+        dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
+)
+
+r_norm <- resid(fit_time_post_module_log, type = "normalized")
+
+# QQ-plot & histogram
+qqnorm(r_norm); qqline(r_norm)
+hist(r_norm, breaks = "FD")
+
+tmp_tmp <- tmp_tmp %>%
+  group_by(client_id) %>%
+  arrange(client_id, timepoint) %>%
+  mutate(
+    Zeit_seit_Ende_des_vorigen_Moduls = Zeit_seit_Beginn_Modul_1_in_Jahren -
+      lag(Zeit_seit_Beginn_Modul_1_in_Jahren, default = 0)
+  ) %>%
+  ungroup()
+
+formular <- as.formula(
+  paste(
+      "log(Zeit_seit_Ende_des_vorigen_Moduls) ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
+  )
+)
+
+fit_time_post_module_non_cum <- mmrm(
+    formula = formular,
+    data = tmp_tmp %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+        dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
+)
+
+r_norm <- resid(fit_time_post_module_non_cum, type = "normalized")
+
+# QQ-plot & histogram
+qqnorm(r_norm); qqline(r_norm)
+hist(r_norm, breaks = "FD")
+
 ```
 
 ```{r}
@@ -199,9 +262,22 @@ fit_time_post_module <- mmrm(
 #| message: false
 #| warning: false
 #| label: tbl-time-to-post-module-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for the cumulative time from baseline to finish module. The cumulative time from baseline to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the cumulative time from baseline to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
+#| tbl-cap: "Mixed model for repeated measures (MMRM) for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
 
-tbl <- fit_time_post_module %>%
+my_log_lm_tidy <- function(x, ...) {
+  df_tidy <- broom::tidy(x, ...)
+  
+  # exponentiate coef and CI
+  if (TRUE) {
+    df_tidy <-
+      df_tidy %>%
+      mutate_at(vars(any_of(c("estimate", "conf.low", "conf.high"))), exp)
+  }
+  
+  df_tidy
+}
+
+tbl <- fit_time_post_module_non_cum %>%
     tbl_regression(
       add_estimate_to_reference_rows = TRUE,
       intercept = TRUE,
@@ -209,9 +285,12 @@ tbl <- fit_time_post_module %>%
         treatment = "Treatment",
         timepoint = "Timepoint",
         `Timepoint * treatment` = "Timepoint * treatment"
-      )
+      ), 
+      tidy_fun = my_log_lm_tidy,
+      estimate_fun = purrr::partial(style_ratio, digits = 2)
     ) %>%
-    modify_header(label ~ "**Variable**") %>%
+    modify_header(label ~ "**Variable**",
+                  estimate ~ "**exp(β)**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("StGB = German penalty law") %>%
@@ -255,14 +334,15 @@ tbl
 library(emmeans)
 
 # Estimated marginal means
-emm <- emmeans(fit_time_post_module, ~ treatment | timepoint)
+emm <- emmeans(fit_time_post_module_non_cum, ~ treatment | timepoint,
+               type = "response")
 emm_df <- as.data.frame(emm)
 
 plt <- ggplot(
     emm_df, 
     aes(
       x = timepoint,
-      y = emmean, 
+      y = response, 
       color = treatment, 
       group = treatment
     )
@@ -277,12 +357,12 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal means ± 95%-CI",
+    y = "Estimated marginal mean time (95%-CI)",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
   )
-  
+
 plt <- add_gg_theme(plt)
 
 ggsave(
@@ -302,28 +382,26 @@ ggsave(
 )
 ```
 
-![Estimated marginal means of the MMRM for the cumulative time from baseline to finish module. The cumulative time from baseline to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the cumulative time from baseline to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-estimated-marginal-means.png){#fig-time-to-post-module-estimated-marginal-means width=100%}
-
-::: {.landscape}
+![Estimated marginal means of the MMRM for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-estimated-marginal-means.png){#fig-time-to-post-module-estimated-marginal-means width=100%}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-time-to-post-module-pairwise-comparisons
-#| tbl-cap: "Pairwise comparisons for the cumulative time from baseline to finish module is defined as time from beginning of module one to the end of the respective module. Note, that the cumulative time from baseline to finish module consist of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
+#| tbl-cap: "Pairwise comparisons for time to finish the module defined as time from end of the previous module to the end of the respective module. Note, that this time consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
 
 df_m1toEndModule <- tmp_tmp %>%
   mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
   pivot_wider(
     names_from = timepoint,
-    values_from = Zeit_seit_Beginn_Modul_1_in_Jahren,
+    values_from = Zeit_seit_Ende_des_vorigen_Moduls,
     names_prefix = "module_"
   )
 
 
 tbl <- df_m1toEndModule %>%
-  dplyr::select(-client_id) %>%
+  dplyr::select(-client_id, -Zeit_seit_Beginn_Modul_1_in_Jahren) %>%
   tbl_summary(
     by = treatment,
     statistic = all_continuous() ~ c(
@@ -333,11 +411,11 @@ tbl <- df_m1toEndModule %>%
           ),
     label = list(
       module_1 = "Module 1 (advised: 28 days)",
-      module_2 = "Module 2 (advised: 56 days)",
-      module_3 = "Module 3 (advised: 84 days)",
-      module_4 = "Module 4 (advised: 112 days)",
-      module_5 = "Module 5 (advised: 140 days)",
-      module_6 = "Module 6 (advised: 168 days)"
+      module_2 = "Module 2 (advised: 28 days)",
+      module_3 = "Module 3 (advised: 28 days)",
+      module_4 = "Module 4 (advised: 28 days)",
+      module_5 = "Module 5 (advised: 28 days)",
+      module_6 = "Module 6 (advised: 28 days)"
     ),
     type = list(
       module_1 = "continuous2",
@@ -384,16 +462,19 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-pai
 tbl
 ```
 
-:::
-
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: r-init-time-working-on-module
+dataDir  <- file.path(projectDir, "data") # added
+inDir    <- file.path(dataDir,    "input/2024-11-22/mtDatabase_26112024_FINAL") # added
 
-log2 <- readRDS(here::here("_data/MBSB/data/input/2024-11-22/mtDatabase_26112024_FINAL/client_clientinterventionprogressdetailed.rds")) %>% mutate(
-  lesson_duration = (lession_finished - lession_started)) # seconds 
+log2 <- readRDS(file.path(inDir, "client_clientinterventionprogressdetailed.rds")) %>% mutate(
+  lesson_duration = (lession_finished - lession_started)) # seconds  # added
+
+# log2 <- readRDS(here::here("_data/MBSB/data/input/2024-11-22/mtDatabase_26112024_FINAL/client_clientinterventionprogressdetailed.rds")) %>% mutate(
+#  lesson_duration = (lession_finished - lession_started)) # seconds 
 
 # Create complete grid of all combinations
 complete_grid <- expand.grid(
@@ -534,6 +615,7 @@ plt <- ggplot(log2_joined, aes(fill = treatment, x = timepoint, y = time_sum_dur
       width = 1.2
     ),
   ) +
+  scale_y_log10() +
   labs(
     y = "Time working on content (hours)",
     x = "Timepoint",
@@ -560,7 +642,7 @@ ggsave(
 )
 ```
 
-![Rainplot for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot width=100%}
+![Rainplot for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection. The y-axis is shown on a logarithmic scale.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot width=100%}
 
 ```{r}
 #| echo: false
@@ -581,6 +663,27 @@ fit_time_post_module <- mmrm(
     data = log2_joined %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
     dplyr::mutate(treatment = relevel(treatment, ref="Placebo")) %>% mutate(timepoint = factor(timepoint))
 )
+r_norm <- resid(fit_time_post_module, type = "normalized")
+# QQ-plot & histogram
+# qqnorm(r_norm); qqline(r_norm)
+# hist(r_norm, breaks = "FD")
+
+# log transformed:
+formular <- as.formula(
+  paste(
+      "log(time_sum_duration_lections_hours) ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
+  )
+)
+
+fit_time_post_module_log <- mmrm(
+    formula = formular,
+    data = log2_joined %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+    dplyr::mutate(treatment = relevel(treatment, ref="Placebo")) %>% mutate(timepoint = factor(timepoint))
+)
+r_norm <- resid(fit_time_post_module_log, type = "normalized")
+# QQ-plot & histogram
+# qqnorm(r_norm); qqline(r_norm) # looks good
+# hist(r_norm, breaks = "FD")
 ```
 
 ```{r}
@@ -590,17 +693,20 @@ fit_time_post_module <- mmrm(
 #| label: tbl-time-working-on-module-mmrm
 #| tbl-cap: "Mixed model for repeated measures (MMRM) for time working on content of one module of the WBI. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
 
-tbl <- fit_time_post_module %>%
+tbl <- fit_time_post_module_log %>%
     tbl_regression(
       add_estimate_to_reference_rows = TRUE,
       intercept = TRUE,
       label = list(
         treatment = "Treatment",
         timepoint = "Timepoint",
-        `Timepoint * treatment` = "Timepoint * treatment"
+        `Timepoint * treatment` = "Timepoint * treatment", 
+      tidy_fun = my_log_lm_tidy,
+      estimate_fun = purrr::partial(style_ratio, digits = 2)
       )
     ) %>%
-    modify_header(label ~ "**Variable**") %>%
+    modify_header(label ~ "**Variable**",
+                  estimate ~ "**exp(β)**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval, StGB = German penalty law.") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
@@ -643,14 +749,15 @@ tbl
 library(emmeans)
 
 # Estimated marginal means
-emm <- emmeans(fit_time_post_module, ~ treatment | timepoint)
+emm <- emmeans(fit_time_post_module_log, ~ treatment | timepoint,
+               type = "response")
 emm_df <- as.data.frame(emm)
 
 plt <- ggplot(
     emm_df, 
     aes(
       x = timepoint,
-      y = emmean, 
+      y = response, 
       color = treatment, 
       group = treatment
     )
@@ -665,7 +772,7 @@ plt <- ggplot(
     alpha = 0.2
   ) +
   labs(
-    y = "Estimated marginal means ± 95%-CI",
+    y = "Estimated marginal mean time (95%-CI)",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -692,8 +799,6 @@ ggsave(
 
 ![Estimated marginal means for for time working on content of one module of the WBI. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-estimated-marginal-means.png){#fig-time-working-on-module-estimated-marginal-means width=100%}
 
-::: {.landscape}
-
 ```{r}
 #| echo: false
 #| message: false
@@ -708,14 +813,14 @@ df_working_time <- log2_joined %>%
     values_from = time_sum_duration_lections_hours,
     names_prefix = "module_"
   ) %>%
-  select(-module_duration_days, - current_module_nr, - total_module_duration)
+  select(-module_duration_days, -current_module_nr, -total_module_duration)
 
 df_wide <- df_working_time %>%
   group_by(client_id) %>%
   summarise(
     across(
       starts_with("module_"),
-      ~ if (all(is.na(.x))) NA_real_ else first(na.omit(.x))
+      ~ if (all(is.na(.x))) NA else first(na.omit(.x))
     ),
     treatment = first(treatment),
     .groups = "drop"
@@ -783,5 +888,3 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-
 
 tbl
 ```
-
-:::

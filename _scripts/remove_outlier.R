@@ -110,11 +110,11 @@ fit_rcq_calc_total3 <- lm(rcq_calc_total_post ~ rcq_calc_total_pre + treatment +
 # fit_esiq_calc_total #
 
 df_no_na  <- df_wide %>%
-  dplyr::select(esiq_calc_total_post, esiq_calc_total_pre, treatment, `Indexdelikt`, `Aktuelle Betreuung`, `Aktuelle zusätzliche Behandlung`, `Baseline Static-99-Score`) %>%
+  dplyr::select(esiq_calc_total_child_post, esiq_calc_total_child_pre, treatment, `Indexdelikt`, `Aktuelle Betreuung`, `Aktuelle zusätzliche Behandlung`, `Baseline Static-99-Score`) %>%
   na.omit
 
 # calculate Cook's distances
-cook_distance <- cooks.distance(fit_esiq_calc_total)
+cook_distance <- cooks.distance(fit_esiq_calc_total_child)
 
 # find influential cases
 influential <- as.numeric(names(cook_distance)[cook_distance > (4 / nrow(df_no_na))])
@@ -123,10 +123,10 @@ influential <- as.numeric(names(cook_distance)[cook_distance > (4 / nrow(df_no_n
 df_no_influentials <- df_no_na[-influential,]
 
 # fit model again on this new dataset
-fit_esiq_calc_total2 <- lm(esiq_calc_total_post ~ esiq_calc_total_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `Baseline Static-99-Score`, data = df_no_influentials)
+fit_esiq_calc_total_child2 <- lm(esiq_calc_total_child_post ~ esiq_calc_total_child_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `Baseline Static-99-Score`, data = df_no_influentials)
 
 # Create a column of the residuals
-df_no_na$residuals <- residuals(fit_esiq_calc_total)
+df_no_na$residuals <- residuals(fit_esiq_calc_total_child)
 
 # Calculate the IQR of the residuals
 residual_IQR <- IQR(df_no_na$residuals, na.rm = TRUE)
@@ -142,7 +142,7 @@ df_wide_no_res_outliers <- df_no_na[!(df_no_na$residuals < lower_threshold | df_
 df_wide_no_res_outliers$residuals <- NULL
 
 # fit model again on this new dataset
-fit_esiq_calc_total3 <- lm(esiq_calc_total_post ~ esiq_calc_total_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `Baseline Static-99-Score`, data = df_wide_no_res_outliers)
+fit_esiq_calc_total_child3 <- lm(esiq_calc_total_child_post ~ esiq_calc_total_child_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `Baseline Static-99-Score`, data = df_wide_no_res_outliers)
 
 # fit_ucla_calc_total #
 

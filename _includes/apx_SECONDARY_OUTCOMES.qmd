@@ -33,7 +33,7 @@ dvs_mbsb <- c(
   "narq_calc_ris",
   "spsi_calc_total",
   "kvm_score",
-  "esiq_calc_total",
+  "esiq_calc_total_child",
   "soi_total_score",
   "ssik_calc_total",
   "ekk_calc_total",
@@ -52,7 +52,7 @@ dvs <- c(
   "narq_calc_ris",
   "spsi_calc_total",
   "kvm_calc_total",
-  "esiq_calc_total",
+  "esiq_calc_total_child",
   "soi_total_score",
   "ssik_calc_total",
   "ekk_calc_total",
@@ -72,7 +72,7 @@ labels <- c(
   "NARQ (subscale externalizing strategies)",
   "SPSI-R (total score)",
   "BMS (total score)",
-  "ESIQ (total score)",
+  "ESIQ (subscore child)",
   "SOI (Item 2a)",
   "SSIC (total score)",
   "EKK-R (total score)",
@@ -715,7 +715,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for the Barratt Impulsiveness Scale-15 (BIS-15, total score). The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the bis score was log-transformed. ](_figures/fig-sec-diagnostic-plots-bis-calc-total.png){#fig-sec-rainplot-bis-calc-total}
+![Diagnostic plots for the Barratt Impulsiveness Scale-15 (BIS-15, total score). The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the bis score was log-transformed.](_figures/fig-sec-diagnostic-plots-bis-calc-total.png){#fig-sec-rainplot-bis-calc-total}
 
 
 ```{r}
@@ -1077,7 +1077,7 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for Difficulties in Emotion Regulation Scale (DERS, subscale impulsivity). Note, that for the dependent variable, values greater than 9 were merged into a single category..](_figures/fig-sec-diagnostic-plots-ders-calc-imp.png){#fig-sec-rainplot-ders-calc-imp}
+![Diagnostic plots for Difficulties in Emotion Regulation Scale (DERS, subscale impulsivity). Note, that for the dependent variable, values greater than 9 were merged into a single category.](_figures/fig-sec-diagnostic-plots-ders-calc-imp.png){#fig-sec-rainplot-ders-calc-imp}
 
 
 ```{r}
@@ -1209,14 +1209,14 @@ tbl
 #| message: false
 #| warning: false
 #| label: sec-init-esiq-calc-total
-var <- "esiq_calc_total"
-var_nice <- "esiq-calc-total"
-q_name <- "ESIQ (total score)"
-fit1 <- fit_esiq_calc_total_ordinal_diff
-fit2 <- fit_esiq_calc_total
-lm_table <- glm_Table_esiq_calc_total_ordinal_diff
+var <- "esiq_calc_total_child"
+var_nice <- "esiq-calc-total-child"
+q_name <- "ESIQ (subscore child)"
+fit1 <- fit_esiq_calc_total_child_ordinal_diff
+fit2 <- fit_esiq_calc_total_child
+lm_table <- glm_Table_esiq_calc_total_child_ordinal_diff
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Ordinal regression model for the Explicit Sexual Interest Questionnaire ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
+tbl_cap <- paste0("Ordinal regression model for the Explicit Sexual Interest Questionnaire (ESIQ, subscale child) ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
 fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
 ```
 
@@ -1226,10 +1226,10 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Explicit Sexual Interest Questionnaire (ESIQ, total score). Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).](_figures/fig-sec-rainplot-esiq-calc-total.png){#fig-sec-rainplot-esiq-calc-total}
+![Rainplot of the Explicit Sexual Interest Questionnaire (ESIQ, total score). Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).](_figures/fig-sec-rainplot-esiq-calc-total-child.png){#fig-sec-rainplot-esiq-calc-total}
 
 ```{r}
-#| label: fig-sec-lm-esiq-calc-total
+#| label: fig-sec-lm-esiq-calc-total-child
 #| echo: false
 #| message: false
 #| warning: false
@@ -1257,11 +1257,11 @@ ggsave(
 )
 ```
 
-![Diagnostic plots for the Explicit Sexual Interest Questionnaire (ESIQ, total score). Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease)](_figures/fig-sec-diagnostic-plots-esiq-calc-total.png){#fig-sec-rainplot-esiq-calc-total}
+![Diagnostic plots for the Explicit Sexual Interest Questionnaire (ESIQ, subscore child). Note, that the dependent variable has three ordered categories: worsening (increase), no change, improvement (decrease).](_figures/fig-sec-diagnostic-plots-esiq-calc-total-child.png){#fig-sec-rainplot-esiq-calc-total}
 
 
 ```{r}
-#| label: tbl-sec-lm-esiq-calc-total
+#| label: tbl-sec-lm-esiq-calc-total-child
 #| echo: false
 #| message: false
 #| warning: false
@@ -1285,9 +1285,9 @@ tbl <- lm_table %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total.png")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.png")))
 
 tbl
 ```

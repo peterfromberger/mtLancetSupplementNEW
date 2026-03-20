@@ -1805,47 +1805,44 @@ ekk %<>% dplyr::mutate(timepoint = if_else(current_session_nr==1, "Module 5 (pos
                          factor(levels = levels(dat_complete$timepoint)))
 
 # ESIQ: questionnaires_api_esiq
+# Neue Berechnung: total score kann nur für ein subsample berechnet werden; sexuelles Interesse gegenüber Erwachsene 
+# oder sexuelles Interesse gegenüber Kinder; für unsere Hypothese ist daher die Variable esiq_calc_total_child entscheidend
+# Die Variable esiq_calc_total_adult sollten wir aber auch einmal durchrechnen. 
+# Ebenso die jeweiligen Subscores (Fantasie und Verhalten)
 infile <- file.path(exportDirmyTabu, "questionnaires_api_esiq.rds")
 esiq <- readRDS(infile) %>% as_tibble
-# Reverse Coding
-max_value <- 5 # Maximalwert der Skala
-min_value <- 1 # Minimalwert der Skala
-
-# Liste der Spalten für Reverse Coding
-columns_to_reverse <- c('esiq_1', 'esiq_2', 'esiq_3', 'esiq_6', 'esiq_8',
-                        'esiq_11', 'esiq_13', 'esiq_15', 'esiq_16', 'esiq_18',
-                        'esiq_19', 'esiq_24', 'esiq_25', 'esiq_26', 'esiq_28',
-                        'esiq_31', 'esiq_32', 'esiq_34', 'esiq_35', 'esiq_37')
-
-# Für jede Spalte Reverse Coding anwenden
-for (col in columns_to_reverse) {
-  esiq[[paste0(col, '_reverse')]] <- max_value + min_value - esiq[[col]]
-}
 
 # Total Score
-esiq$esiq_calc_total <- rowSums(esiq[, c('esiq_1_reverse', 'esiq_2_reverse', 'esiq_3_reverse', 'esiq_4', 'esiq_5',
-                                     'esiq_6_reverse', 'esiq_7', 'esiq_8_reverse', 'esiq_9', 'esiq_10',
-                                     'esiq_11_reverse', 'esiq_12', 'esiq_13_reverse', 'esiq_14', 'esiq_15_reverse',
-                                     'esiq_16_reverse', 'esiq_17', 'esiq_18_reverse', 'esiq_19_reverse', 'esiq_20',
-                                     'esiq_21', 'esiq_22', 'esiq_23', 'esiq_24_reverse', 'esiq_25_reverse',
-                                     'esiq_26_reverse', 'esiq_27', 'esiq_28_reverse', 'esiq_29', 'esiq_30',
-                                     'esiq_31_reverse', 'esiq_32_reverse', 'esiq_33', 'esiq_34_reverse', 'esiq_35_reverse',
-                                     'esiq_36', 'esiq_37_reverse', 'esiq_38', 'esiq_39', 'esiq_40')], na.rm = FALSE)
+esiq$esiq_calc_total_adult <- rowSums(esiq[, c(
+  'esiq_1', 'esiq_2', 'esiq_3', 'esiq_6', 'esiq_8', 
+  'esiq_11', 'esiq_13', 'esiq_15', 'esiq_16', 'esiq_18', 
+  'esiq_19', 'esiq_24', 'esiq_25', 'esiq_26', 'esiq_28', 
+  'esiq_31', 'esiq_32', 'esiq_34', 'esiq_35', 'esiq_37')], na.rm = FALSE)
+
+esiq$esiq_calc_total_child <- rowSums(esiq[, c(
+  'esiq_4', 'esiq_5','esiq_7','esiq_9', 'esiq_10',
+  'esiq_12', 'esiq_14','esiq_17','esiq_20', 'esiq_21',
+  'esiq_22', 'esiq_23','esiq_27', 'esiq_29', 'esiq_30',
+  'esiq_33', 'esiq_36', 'esiq_38', 'esiq_39', 'esiq_40')], na.rm = FALSE)
 
 # Verhalten
-esiq$esiq_calc_ver <- rowSums(esiq[, c('esiq_2_reverse', 'esiq_3_reverse', 'esiq_5', 'esiq_7', 'esiq_9', 'esiq_10',
-                                   'esiq_11_reverse', 'esiq_13_reverse', 'esiq_14', 'esiq_15_reverse',
-                                   'esiq_16_reverse', 'esiq_18_reverse', 'esiq_20', 'esiq_24_reverse', 'esiq_25_reverse',
-                                   'esiq_27', 'esiq_31_reverse',
-                                   'esiq_36', 'esiq_38', 'esiq_40')], na.rm = FALSE)
+esiq$esiq_calc_ver_adult <- rowSums(esiq[, c(
+  'esiq_2', 'esiq_3', 'esiq_11', 'esiq_13', 'esiq_15',
+  'esiq_16', 'esiq_18', 'esiq_24', 'esiq_25', 'esiq_31')], na.rm = FALSE)
+
+esiq$esiq_calc_ver_child <- rowSums(esiq[, c(
+  'esiq_5', 'esiq_7', 'esiq_9', 'esiq_10', 'esiq_14', 
+  'esiq_20', 'esiq_27', 'esiq_36', 'esiq_38', 'esiq_40')], na.rm = FALSE)
 
 # Fantasie
-esiq$esiq_calc_fan <- rowSums(esiq[, c('esiq_1_reverse', 'esiq_4', 'esiq_6_reverse', 'esiq_8_reverse', 'esiq_12',
-                                   'esiq_17', 'esiq_19_reverse',
-                                   'esiq_21', 'esiq_22', 'esiq_23',
-                                   'esiq_26_reverse', 'esiq_28_reverse', 'esiq_29', 'esiq_30',
-                                   'esiq_32_reverse', 'esiq_33', 'esiq_34_reverse', 'esiq_35_reverse',
-                                   'esiq_37_reverse', 'esiq_39')], na.rm = FALSE)
+esiq$esiq_calc_fan_adult <- rowSums(esiq[, c(
+  'esiq_1', 'esiq_6', 'esiq_8', 'esiq_19', 'esiq_26', 
+  'esiq_28', 'esiq_32', 'esiq_34', 'esiq_35', 'esiq_37')], na.rm = FALSE)
+esiq$esiq_calc_fan_child <- rowSums(esiq[, c(
+  'esiq_4', 'esiq_12','esiq_17', 'esiq_21', 'esiq_22', 
+  'esiq_23','esiq_29', 'esiq_30','esiq_33', 'esiq_39')], na.rm = FALSE)
+
+#######
 
 esiq %<>% dplyr::mutate(timepoint = if_else(current_session_nr==1, "Module 5 (post)", "Module 6 (post)") %>%
                          factor(levels = levels(dat_complete$timepoint)))
@@ -3115,7 +3112,7 @@ generate_named_vector <- function(variable_names, value) {
   named_vector <- setNames(rep(value, length(variable_names)), variable_names)
   return(named_vector)
 }
-variable_names <- df_diff_iod %>% dplyr::select(contains("diff")) %>% names
+variable_names <- df_diff_iod %>% select(contains("diff")) %>% names
 tests <- generate_named_vector(variable_names, "w.npar.t.test")
 
 # dtab_iod <- df_diff_iod %>% dplyr::select(-client_id) %>%
