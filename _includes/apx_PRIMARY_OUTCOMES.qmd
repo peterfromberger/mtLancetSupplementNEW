@@ -1,7 +1,7 @@
 ### CARES
 
 <!-- RAIN PLOT -->
-![Rainplot of the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score).](_figures/fig-cares-rainplot.png){#fig-cares-rainplot}
+![Distribution of CARES total scores across study timepoints for the intervention and placebo groups. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Higher CARES scores indicate high risk to re-offense.](_figures/fig-cares-rainplot.png){#fig-cares-rainplot}
 
 <!-- ESTIMATED MARGINAL MEANS -->
 ![Estimated marginal means of the MMRM for the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score).](_figures/fig-cares-estimated-marginal-means.png){#fig-cares-estimated-marginal-means}
@@ -184,14 +184,14 @@ tbl
 ```
 
 <!-- RAIN PLOT -->
-![Rainplot of primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES difference from baseline scores).](_figures/fig-cares-rainplot-difference-from-baseline.png){#fig-cares-rainplot-difference-from-baseline}
+![Distribution of the difference from baseline for the CARES total scores across study timepoints for the intervention and placebo groups. Shown are scores after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease.](_figures/fig-cares-rainplot-difference-from-baseline.png){#fig-cares-rainplot-difference-from-baseline}
 
 {{< pagebreak >}}
 
 ### Index of Desistance (IoD)
 
 <!-- RAIN PLOT -->
-![Rainplot of the Index of Desistance (IoD total score). Note, that the IoD is the preliminary version of the CARES and mentioned in the Statistical analysis protocol as primary outcome.](_figures/fig-iod-rainplot.png){#fig-iod-rainplot}
+![Distribution of the Index of Desistance (IoD) total scores across study timepoints for the intervention and placebo groups. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Higher CARES scores indicate high risk to re-offense. Note, that the IoD is the preliminary version of the CARES and mentioned in the Statistical analysis protocol as primary outcome.](_figures/fig-iod-rainplot.png){#fig-iod-rainplot}
 
 
 <!-- MMRM -->
@@ -208,7 +208,7 @@ library(gt)
 # global theme for gtsummary
 gtsummary::theme_gtsummary_journal(journal = "lancet")
 
-tbl <- fit %>%
+tbl <- fit1 %>%
     tbl_regression(
       add_estimate_to_reference_rows = TRUE,
       intercept = TRUE,
@@ -441,5 +441,5 @@ tbl
 ```
 
 <!-- RAIN PLOT -->
-![Rainplot of the differences from baseline for the Index of Desistance (IoD total score).](_figures/fig-iod-rainplot-difference-from-baseline.png){#fig-iod-rainplot-difference-from-baseline}
+![Distribution of the difference from baseline for the Index of Desistance (IoD) total scores across study timepoints for the intervention and placebo groups. Shown are scores after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease](_figures/fig-iod-rainplot-difference-from-baseline.png){#fig-iod-rainplot-difference-from-baseline}
 

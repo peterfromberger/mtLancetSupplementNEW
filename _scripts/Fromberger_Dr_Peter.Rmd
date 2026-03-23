@@ -1,0 +1,1844 @@
+---
+title: Biometrische Auswertung
+author: Dr. Andreas Leha
+email: andreas.leha@med.uni-goettingen.de
+fax: 0551 / 39-65605
+phone: 0551 / 39-64829
+date: '`r localebak <- Sys.getlocale("LC_TIME"); lll <- Sys.setlocale("LC_TIME", "de_DE.utf8"); ddd <- format(Sys.time(), "%d. %B %Y"); lll <- Sys.setlocale("LC_TIME", localebak); ddd `'
+projectnumber: 
+address: |
+    Dr. Peter Fromberger\
+    Department for Forensic Psychiatry and Psychotherapy\
+    Clinic of Psychiatry and Psychotherapy\
+    University Medical Centre Göttingen\
+    \
+    37075 Göttingen\
+bibliography: literature-copy.bib
+language: de
+odt-toc: yes
+odt-toc-title: Inhalt
+output:
+    html_document:
+        template: .template/template.html
+        df_print: paged
+        number_sections: true
+        toc: yes
+        toc_float:
+            collapsed: true
+            smooth_scroll: true
+        fig_width: 3
+        fig_height: 2
+        fig_caption: yes
+        keep_md: true
+    pdf_document:
+        latex_engine: xelatex
+        template: .template/MBSBreport.tex
+        toc: true
+        fig_caption: true
+        keep_tex: true
+        keep_md: true
+        extra_dependencies: ["float"]
+    odt_document:
+        reference_odt: .template/reference.odt
+        template: .template/corefacility.opendocument
+        pandoc_args: ["--lua-filter=/SAN/bioinf_core/programs/markdown/pandoc_filters/lua_filters/odt-custom-styles.lua", "--lua-filter=/SAN/bioinf_core/programs/markdown/pandoc_filters/lua_filters/pagebreak.lua"]
+        keep_md: true
+        fig_caption: true
+header-includes:
+    - \usepackage{caption}
+    - \captionsetup[table]{labelformat=empty}
+    - \captionsetup[figure]{labelformat=empty}
+    - \usepackage{fontspec}
+    - \setmainfont{Carlito}
+    - \usepackage{csquotes}
+---
+
+
+
+```{r init_markdown, echo = FALSE, message=FALSE, include=FALSE}
+## make sure, renv is running
+requireNamespace("renv")
+renv::activate()
+
+## load the project specific package
+##library(FrombergerDrPeterSAP)
+
+## load packages for the report generation
+library("pander")
+panderOptions('table.split.table', Inf)
+library("knitr")
+library("rmdcaptions") ## renv::install("git::https://gitlab.gwdg.de/aleha/rmdcaptions")
+library("remember")    ## renv::install("git::https://gitlab.gwdg.de/aleha/remember")
+requireNamespace("RefManageR")
+requireNamespace("bibtex")
+requireNamespace("git2r")
+
+## packages necessary for the project
+library(ggplot2)
+theme_set(theme_bw())
+library("patchwork")
+requireNamespace("lubridate")
+library("tidyr")
+library("DT")
+library("descsuppR")
+library("readxl")
+library("ggbeeswarm")
+
+
+## setup project directories
+projectDir <- file.path(".")
+
+imgDir   <- file.path(projectDir, "img")
+cacheDir <- file.path(projectDir, "cache")
+
+dataDir  <- file.path(projectDir, "data")
+inDir    <- file.path(dataDir,    "input")
+procDir  <- file.path(dataDir,    "proc")
+outDir   <- file.path(dataDir,    "output")
+
+## load helper functions for git/bibtex
+source("init.R")
+source("Fromberger_SAP.R")
+source("analysis_secondary_endpoints.R")
+source("remove_outlier.R")
+source("rbmi.R")
+
+
+if (!interactive()) {
+
+  ## default option fo code blocks
+  opts_chunk$set(
+    fig.path   = "img/",
+    echo       = FALSE,
+    warning    = FALSE,
+    cache.path = "cache/",
+    results    = "asis",
+    fig.width  = 6.26,
+    fig.height = 6.26,
+    dpi        = 300,
+    dev        = "png",
+    message    = FALSE
+  )
+
+  ## do not float figures
+  if (knitr::is_latex_output()) {
+    knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+  }
+
+}
+
+## configure table and figure labeling:
+options( tabcap.prefix = "Table",                 tabcap.sep = ":",  tabcap.prefix.highlight = "")
+options( figcap.prefix = "Figure",                figcap.sep = ":",  figcap.prefix.highlight = "**")
+options(stabcap.prefix = "Supplementary Table",  stabcap.sep = ":", stabcap.prefix.highlight = "**")
+options(sfigcap.prefix = "Supplementary Figure", sfigcap.sep = ":", sfigcap.prefix.highlight = "**")
+if (knitr::is_latex_output()) {
+  ## proper bolding (e.g. via \textbf) not possible
+  ## see https://github.com/yihui/knitr/issues/1351#issuecomment-298337714
+  ## or https://github.com/rstudio/rmarkdown/issues/1034
+  options( figcap.prefix.highlight = "")
+  options(sfigcap.prefix.highlight = "")
+}
+
+## colour palette with black:
+cbbPalette <- c(
+  "#000000", # black
+  "#E69F00", # orange
+  "#56B4E9", # light blue
+  "#009E73", # green
+  "#F0E442", # yellow
+  "#0072B2", # blue
+  "#D55E00", # red
+  "#CC79A7" # pink
+)
+## To use for fills, add
+## scale_fill_manual(values=cbbPalette)
+## To use for line and point colors, add
+## scale_colour_manual(values=cbbPalette)
+
+## insert current citation info for R
+#replaceBibtexEntry(citation(), "R", file = "literature.bib")
+
+## reproducibility
+set.seed(489)
+
+
+
+## parallelization
+library("doMC")
+if (system("hostname", intern = TRUE) == "umgngs1.gwdg.de") {
+  ncores <- 40
+} else if (system("hostname", intern = TRUE) == "umgngs2.gwdg.de") {
+  ncores <- 60
+} else {
+  ncores <- detectCores() - 1  ## use all cores but leave one free
+  ncores <- max(ncores, 1)     ## but use at least one core
+}
+message(paste("registering", ncores, "cores"))
+registerDoMC(ncores)
+
+verbose <- interactive()
+knitting <- !is.null(knitr::opts_knit$get("rmarkdown.pandoc.to"))
+
+```
+
+`r githashFmt(git_renv_status()) `
+
+***
+
+> PLEASE NOTE: This report was authored by the Scientific
+> Core Facility for Medical Biometry and Statistical Bioinformatics
+> (MBSB) of the University Medical Center Göttingen (UMG). In
+> accordance with the Vancouver Recommendations
+> (http://www.icmje.org/recommendations/) and the user agreement of
+> the MBSB, the authors of this report must be acknowledged as
+> co-authors in any publication (e.g. paper, presentation, poster)
+> using any results of this report. If used in a thesis, the
+> contributions of the authors and MBSB must be clearly
+> acknowledged. Any use of the results as well as citation or the
+> naming of MBSB or persons of the MBSB for other purposes (e.g. grant
+> or ethics board application) requires the explicit approval of the
+> contact person. Upon completion, a copy of any work based on this
+> report must be submitted to the contact person at MBSB.
+>  MBSB reserves the right to publish corrections regarding results
+> in this report and their interpretation without the consent of the
+> coauthors.
+
+
+***
+
+The aim was to recruit n = `r n_aim_total ` participants
+(n = `r n_aim_placebo ` Placebo and n = `r n_aim_interve ` Intervention).
+
+By `r export_date ` n = `r n_total ` participants have been recruited
+(n = `r n_placebo ` Placebo and n = `r n_interve ` Intervention).
+
+
+`r figRef("recruitment") ` shows the recruitment progress. Each new
+line represents a new participant, its height representing the accumulated
+total number recruited at that timepoint. Monthly recruitment is shown
+in `r figRef("monthly_recruitment") ` over all states.
+
+
+
+```{r recruitment }
+recr_dates <- recruitment %>% filter(!is.na(treatment)) %>% .$recruitmentdate %>% sort
+if (verbose) recr_dates
+
+recruitment <- recruitment %>%
+  mutate(recruitmentdate = recruitmentdate %>% as.Date())
+
+brks <- seq(from = min(recruitment$recruitmentdate), to = max(recruitment$recruitmentdate), by = 1) %>%
+  as.character %>%
+  grep("-15$", ., value = TRUE) %>%
+  as.Date
+if (verbose) brks
+
+p_recruitment_total <-
+  recruitment %>%
+  filter(!is.na(treatment)) %>%
+  mutate(treatment = "total") %>%
+  arrange(recruitmentdate) %>%
+  mutate(n = 1:n()) %>%
+  ggplot(aes(x = recruitmentdate, y = n)) +
+  geom_vline(aes(xintercept = export_date), lty = "dashed", colour = "gray20") +
+  geom_segment(aes(yend = 0, xend = recruitmentdate)) +
+  scale_x_date(breaks = brks) +
+  facet_grid(treatment ~ .) +
+  labs(x = NULL,
+       y = "number recruited") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.4),
+        panel.grid.major.x = element_blank())
+if (!knitting) cairo_pdf(file.path(imgDir, 'recruitment_total.pdf'), width=8, height=3)
+#p_recruitment_total %>% plot
+if (!knitting) dev.off()
+
+p_recruitment_byarm <-
+  recruitment %>%
+  filter(!is.na(treatment) & treatment %in% c("Intervention", "Placebo")) %>%
+  arrange(recruitmentdate) %>%
+  mutate(n = 1:n()) %>%
+  ggplot(aes(x = recruitmentdate, y = n)) +
+  geom_vline(aes(xintercept = export_date), lty = "dashed", colour = "gray20") +
+  geom_segment(aes(yend = 0, xend = recruitmentdate, colour = treatment)) +
+  scale_x_date(breaks = brks) +
+  facet_grid(treatment ~ .) +
+  labs(x = NULL,
+       y = "number recruited") +
+  guides(colour = "none") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.4),
+        panel.grid.major.x = element_blank())
+if (!knitting) cairo_pdf(file.path(imgDir, 'recruitment_byarm.pdf'), width=8, height=3)
+#p_recruitment_byarm %>% plot
+if (!knitting) dev.off()
+
+p_recruitment <-
+  (p_recruitment_total + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.y = element_blank())) +
+  p_recruitment_byarm +
+  plot_layout(ncol = 1, heights = 1:1.3) +
+  plot_annotation(title = "Recruitment",
+                  subtitle = paste("Export ", export_date))
+if (!knitting) pdf(file.path(imgDir, 'recruitment_all.pdf'), width=8, height=5)
+#p_recruitment %>% plot
+if (!knitting) dev.off()
+```
+
+```{r u, include = TRUE, fig.width=8, fig.height=5, dpi = 300, fig.cap = figRef("recruitment", "Recruitment progress") }
+if (knitting) p_recruitment %>% print
+```
+
+
+
+```{r recruitment_monthly}
+month15 <- function(x) {
+  lubridate::day(x) <- 15
+  return(x)
+}
+if (verbose) recruitment %>% mutate(recruitment_month = month15(recruitmentdate))
+
+p_recr_month <-
+  recruitment %>%
+  filter(!is.na(treatment) & treatment %in% c("Intervention", "Placebo")) %>%
+  mutate(month = lubridate::floor_date(recruitmentdate, "month"),
+         month = month15(month)) %>%
+  group_by(treatment, month) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = month, y = n)) +
+  geom_bar(aes(fill = treatment), stat = "identity") +
+  scale_x_date(breaks = brks, labels = gsub("-[[:digit:]]{2}$", "", as.character(brks))) +
+  labs(title = "Recruitment per Month",
+       subtitle = paste("Export ", export_date),
+       x = NULL,
+       y = "number recruited") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.4),
+        ##axis.title.x = element_blank(),
+        panel.grid.major.x = element_blank())
+if (!knitting) pdf(file.path(imgDir, 'recruitment_monthly.pdf'), width=8, height=4)
+#p_recr_month %>% print
+if (!knitting) dev.off()
+```
+
+
+```{r i, include = TRUE, fig.width=8, fig.height=5, dpi = 300, fig.cap = figRef("monthly_recruitment", "Recruitment by month")}
+if (knitting) p_recr_month %>% print
+```
+
+
+```{r recruitment_monthly_bystate}
+p_recr_month_bystate <-
+  recruitment %>%
+  left_join((randdat %>% dplyr::select(ID, Bundesland = `4.2 Bundesland:`))) %>%
+  filter(!is.na(treatment)) %>%
+  mutate(month = lubridate::floor_date(recruitmentdate, "month"),
+         month = month15(month)) %>%
+  group_by(treatment, month, Bundesland) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = month, y = n)) +
+  geom_bar(aes(fill = treatment), stat = "identity") +
+  facet_grid(Bundesland ~ .) +
+  scale_x_date(breaks = brks, labels = gsub("-[[:digit:]]{2}$", "", as.character(brks))) +
+  labs(title = "Recruitment per Month",
+       subtitle = paste("Export ", export_date),
+       x = NULL,
+       y = "number recruited") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.4),
+        ##axis.title.x = element_blank(),
+        panel.grid.major.x = element_blank())
+if (!knitting) pdf(file.path(imgDir, 'recruitment_monthly_bystate.pdf'), width=8, height=8)
+#p_recr_month_bystate %>% print
+if (!knitting) dev.off()
+```
+
+
+```{r d, include = FALSE, fig.width=8, fig.height=8, dpi = 300, fig.cap = figRef("monthly_recruitment_bystate", "Recruitment by month per state")}
+if (knitting) p_recr_month_bystate %>% print
+```
+
+
+```{r recruitment_tables}
+recruitment_by_state <-
+  recruitment %>%
+  left_join((randdat %>% dplyr::select(ID, Bundesland = `4.2 Bundesland:`))) %>%
+  filter(!is.na(treatment)) %>%
+  mutate(month = lubridate::floor_date(recruitmentdate, "month"),
+         month = month15(month)) %>%
+  arrange(month) %>%
+  mutate(monthstr = as.character(month, format = "%Y %b")) %>%
+  mutate(monthstr = factor(monthstr, levels = unique(monthstr))) %>%
+  group_by(monthstr, treatment, Bundesland) %>%
+  summarise(n = n()) %>%
+  ungroup
+if (verbose) recruitment_by_state
+
+## over all arms
+recruitment_by_state_all <-
+  recruitment_by_state %>%
+  ungroup %>%
+  group_by(monthstr, Bundesland) %>%
+  summarize(n = sum(n)) %>%
+  ungroup
+if (verbose) recruitment_by_state_all
+## add total column
+recruitment_by_state_all <-
+  recruitment_by_state_all %>%
+  bind_rows((
+    recruitment_by_state_all %>%
+    group_by(Bundesland) %>%
+    summarize(monthstr = "total",
+              n = sum(n)))) %>%
+  mutate(monthstr = factor(monthstr, levels = c("total", levels(recruitment_by_state$monthstr))))
+if (verbose) recruitment_by_state_all %>% tail
+## make wide table
+tab_recruitment_by_state_all <-
+  recruitment_by_state_all %>%
+  spread(monthstr, n, fill = 0) %>%
+  arrange(desc(total))
+if (verbose) tab_recruitment_by_state_all
+
+## subset for arm
+recruitment_by_state_placebo <-
+  recruitment_by_state %>%
+  filter(treatment == "Placebo")
+if (verbose) recruitment_by_state_placebo
+## add total column
+recruitment_by_state_placebo <-
+  recruitment_by_state_placebo %>%
+  bind_rows((
+    recruitment_by_state_placebo %>%
+    group_by(Bundesland) %>%
+    summarize(monthstr = "total",
+              n = sum(n)))) %>%
+  mutate(monthstr = factor(monthstr, levels = c("total", levels(recruitment_by_state$monthstr))))
+if (verbose) recruitment_by_state_placebo %>% tail
+## make wide table
+tab_recruitment_by_state_placebo <-
+  recruitment_by_state_placebo %>%
+  dplyr::select(-treatment) %>%
+  spread(monthstr, n, fill = 0) %>%
+  arrange(desc(total))
+if (verbose) tab_recruitment_by_state_placebo
+
+## subset for arm
+recruitment_by_state_intervention <-
+  recruitment_by_state %>%
+  filter(treatment == "Intervention")
+if (verbose) recruitment_by_state_intervention
+## add total column
+recruitment_by_state_intervention <-
+  recruitment_by_state_intervention %>%
+  bind_rows((
+    recruitment_by_state_intervention %>%
+    group_by(Bundesland) %>%
+    summarize(monthstr = "total",
+              n = sum(n)))) %>%
+  mutate(monthstr = factor(monthstr, levels = c("total", levels(recruitment_by_state$monthstr))))
+if (verbose) recruitment_by_state_intervention %>% tail
+## make wide table
+tab_recruitment_by_state_intervention <-
+  recruitment_by_state_intervention %>%
+  dplyr::select(-treatment) %>%
+  spread(monthstr, n, fill = 0) %>%
+  arrange(desc(total))
+if (verbose) tab_recruitment_by_state_intervention
+```
+
+
+```{r, include = FALSE}
+if (knitting)
+  tab_recruitment_by_state_all %>%
+    datatable(options = list(pageLength = 16),
+              caption = tabRef("monthly_recr_total",
+                               paste("Distribution of all participants over states and time."
+                                     ),
+                               prefix.highlight = ""))
+```
+
+
+```{r, include = FALSE}
+if (knitting)
+  tab_recruitment_by_state_placebo %>%
+    datatable(options = list(pageLength = 16),
+              caption = tabRef("monthly_recr_placebo",
+                               paste("Distribution of Placebo participants over states and time."
+                                     ),
+                               prefix.highlight = ""))
+```
+
+
+```{r, include = FALSE}
+if (knitting)
+  tab_recruitment_by_state_intervention %>%
+    datatable(options = list(pageLength = 16),
+              caption = tabRef("monthly_recr_intervetion",
+                               paste("Distribution of Intervention participants over states and time."
+                                     ),
+                               prefix.highlight = ""))
+```
+
+
+
+# Baseline Characteristics {-}
+
+`r tabRef("dtab") ` gives a summary of selected baseline variables
+including basis data, strata and main characteristics of the verdict. It shows
+absolute and relative frequencies, number missing values and, in case
+of continuous variables, means, standard deviation, median, minimum
+and maximum values.  Columns give the descriptive statistics for all
+participants as well as per study arm. Only participants who completed at least one module (not necessarily the corresponding questionnaire) were considered.
+
+```{r}
+dtab <-
+  randdat %>%
+  filter(client_id %in% client_list) %>% # Only participants who completed at least one module
+  filter(!is.na(treatment)) %>%
+  inner_join(matching %>% select(-client_group)) %>%
+  left_join(samplesupervisor) %>%
+  mutate(`5.4 Datum der Verurteilung:` = as.character(`5.4 Datum der Verurteilung:`),
+         `5.4 Datum der Verurteilung:` = as.Date(`5.4 Datum der Verurteilung:`, format = "%Y%m%d")) %>%
+  dplyr::select(treatment,
+                `8.1 Indexdelikt:`,
+                `8.2 Aktuelle Betreuung:`,
+                `8.3 Aktuelle zusätzliche Behandlung:`,
+                `8.4 Rückfallrisiko nach Static-99:`,
+                `8.4 Rückfallrisiko nach Static-99: --- Static-Score:`,
+                `4.2 Bundesland:`,
+                `4.3 Aktuelles Alter:`,
+                `4.4 Geschlecht:`,
+                `4.5 Partnerschaftliche Beziehung, die länger als zwei Jahre andauert:`,
+                `5.4 Datum der Verurteilung:`,
+                `Staatsangehörigkeit`,
+                `Staatsangehörigkeit2`,
+                `Anlassdelikt`,
+                `Freiheitsstrafe`,
+                `Dauer Freiheitsstrafe (Monate)`,
+                `Freiheitsstrafe vollstreckt`,
+                `Dauer der Bewährungszeit (Monate)`,
+                `Bisherige Bewährungszeit (Monate)`,
+                `Dauer der Führungsaufsicht (Monate)`,
+                `Bisherige Führungsaufsicht (Monate)`,
+                `psychiatrische Diagnosen (nach ICD oder DSM)`,
+                `gerichtliche Therapieweisung`,
+                `Schuldfähigkeit`
+                 ##`6.3 Verurteilung aufgrund von nicht-sexuellem Gewaltdelikten:`,
+                 ##`6.4 Frühere Verurteilung aufgrund sexuell motivierter Straftaten: --- Anzahl Anklage und Weisungsvertstöße zusammen:`,
+                 ##`7.8 Aktuelle zusätzliche Behandlung:`,
+                ##`7.9 Aktuelle Betreuung:`,
+                 ##`10.7 Insgesamt würde mir ein Online-Programm während meiner Bewährungszeit bzw. Führungsaufsicht helfen:`,
+                 ##`10.8 Die Nutzung eines Online-Programms würde einfach sein:`,
+                 ##`10.25 Für @myTabu Geld zu erhalten, motiviert mich an Sitzungen teilzunehmen:`,
+                ##`9.20 Behandlungsprogramme sind für Weicheier:`
+                ) %>%
+  mutate_if(is.character, as.factor) %>%
+  buildDescrTbl(groupby = "treatment",
+                addungrouped = TRUE,
+                includeNAs = TRUE,
+                useutf8 = "utf8")
+if (verbose) dtab
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("dtab", "Baseline characteristics for all participants as well as per treament arm."))
+dtab %>% pander
+```
+
+# Follow-Up {-}
+
+## Completed Modules {-}
+
+```{r, include=FALSE}
+if (verbose) acute %>% dplyr::select(current_module_nr, current_session_nr, current_lesson_nr, client_id, created_by_id)
+if (verbose) cmc   %>% dplyr::select(current_module_nr, current_session_nr, current_lesson_nr, client_id, created_by_id)
+if (verbose) cte   %>% dplyr::select(current_module_nr, current_session_nr, current_lesson_nr, client_id, created_by_id)
+fudat <-
+  acute %>% dplyr::select(current_module_nr, current_session_nr, current_lesson_nr, timepoint, client_id, created_by_id, created_time) %>%
+  inner_join((cmc %>% dplyr::select(current_module_nr, current_session_nr, current_lesson_nr, timepoint, client_id, created_by_id))) %>%
+  inner_join((cte %>% dplyr::select(current_module_nr, current_session_nr, current_lesson_nr, timepoint, client_id, created_by_id)))
+if (verbose) fudat
+if (verbose) fudat %>% group_by(timepoint) %>% summarise(n = n())
+
+## add grouping
+fudat <-
+  fudat %>%
+  inner_join(matching) %>% ## TODO : why are we loosing 2 entries
+  left_join((randdat %>% dplyr::select(ID, treatment, `4.2 Bundesland:`)))
+if (verbose) fudat
+
+## add recruitment date
+fudat <-
+  fudat %>%
+  inner_join(matching) %>%
+  inner_join((recruitment %>% dplyr::select(ID, recruitmentdate)))
+if (verbose) fudat
+
+## add end dates
+fudat <-
+  fudat %>%
+  inner_join((
+    clcl %>%
+    dplyr::select(client_id = id, excluded_at, finished_at) %>%
+    mutate(excluded_at = as.Date(excluded_at), finished_at = as.Date(finished_at)))) %>%
+  mutate(fu.date = if_else(!is.na(excluded_at), excluded_at,
+                           if_else(!is.na(finished_at), finished_at,
+                                   export_date)))
+if (verbose) fudat
+
+module_times <-
+  fudat %>%
+  mutate(timepoint2 = dplyr::recode(timepoint,
+                             Baseline          = "Module 1 (prä)",
+                             `Module 1 (post)` = "Module 2 (prä)",
+                             `Module 2 (post)` = "Module 3 (prä)",
+                             `Module 3 (post)` = "Module 4 (prä)",
+                             `Module 4 (post)` = "Module 5 (prä)",
+                             `Module 5 (post)` = "Module 6 (prä)",
+                             `Module 6 (post)` = "End")) %>%
+  dplyr::select(client_id, recruitmentdate, excluded_at, finished_at, fu.date, timepoint, timepoint2, created_time)
+if (verbose) module_times
+
+module_times_prä <-
+  module_times %>%
+  dplyr::select(client_id, recruitmentdate, excluded_at, finished_at, fu.date, timepoint2, created_time) %>%
+  filter(grepl("^Module", timepoint2)) %>%
+  mutate(module = gsub(" \\(prä\\)", "", timepoint2)) %>%
+  dplyr::rename(time_pre = created_time) %>%
+  dplyr::select(-timepoint2)
+if (verbose) module_times_prä
+
+module_times_post <-
+  module_times %>%
+  dplyr::select(client_id, recruitmentdate, excluded_at, finished_at, fu.date, timepoint, created_time) %>%
+  filter(grepl("^Module", timepoint)) %>%
+  mutate(module = gsub(" \\(post\\)", "", timepoint)) %>%
+  dplyr::rename(time_post = created_time) %>%
+  dplyr::select(-timepoint)
+if (verbose) module_times_post
+
+module_btimes <-
+  module_times_prä %>%
+  full_join(module_times_post)
+if (verbose) module_btimes
+saveRDS(module_btimes, "module_btimes.RDS")
+
+p_fu <-
+  module_btimes %>%
+  arrange(recruitmentdate) %>%
+  mutate(client_id = factor(client_id, levels = unique(client_id)),
+         time_pre = as.Date(time_pre),
+         time_post = as.Date(time_post)) %>%
+  ggplot(aes(x = time_pre, y = client_id)) +
+  geom_vline(aes(xintercept = export_date), lty = "dashed", colour = "gray20") +
+  geom_segment(aes(x = recruitmentdate, xend = fu.date, yend = client_id), colour = "gray70") +
+  geom_point(aes(x = recruitmentdate), pch = "|") +
+  geom_point(aes(x = time_pre), pch = "|") +
+  geom_point(aes(x = time_post), pch = "|") +
+  geom_point(aes(x = excluded_at), colour = "red", pch = "x") +
+  geom_point(aes(x = finished_at), colour = "green", pch = 15) +
+  geom_segment(aes(xend = time_post, yend = client_id, colour = module)) +
+  labs(y = "participant",
+       x = NULL,
+       colour = NULL) +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        panel.grid.major.y = element_blank())
+cairo_pdf(file.path(imgDir, "fu.pdf"))
+# p_fu %>% print
+dev.off()
+```
+
+```{r futimes, include = TRUE, fig.cap = figRef("fu", "Participants with their time and progress in the study"), fig.width = 7, fig.height = 7, dpi = 300 }
+if (knitting) p_fu %>% print
+```
+
+
+
+```{r, include=FALSE}
+p_modulescomplete <-
+  (fudat %>% mutate(treatment = "total")) %>%
+  filter(!is.na(treatment)) %>% ## TODO why necessary?
+  ##bind_rows((fudat %>% mutate(treatment = sample(c("Placebo", "Intervention"), n(), replace = TRUE)))) %>%
+  bind_rows((fudat %>% filter(!is.na(treatment)))) %>%
+  mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  ggplot(aes(x = timepoint, fill = treatment)) +
+  geom_bar() +
+  facet_grid(treatment ~ ., scales = "free_y", space = "free_y") +
+  guides(fill = "none") +
+  scale_fill_manual(values = c(Placebo = "#00BFC4", Intervention = "#F8766D", total = "gray30")) +
+  labs(x = NULL,
+       y = "n")
+cairo_pdf(file.path(imgDir, "modules_complete.pdf"))
+p_modulescomplete
+dev.off()
+```
+
+```{r t, include = TRUE, fig.cap = figRef("modulescomplete", "Number of participants having completed the different modules including the corresponding questionnaires."), fig.width = 7, fig.height = 7, dpi = 300 }
+if (knitting) p_modulescomplete %>% print
+```
+
+
+
+```{r}
+fudat_bl <-
+  fudat %>%
+  filter(timepoint == "Baseline") %>%
+  dplyr::rename(bl_time = created_time) %>%
+  dplyr::select(client_id, bl_time)
+if (verbose) fudat_bl
+
+fumoddat <-
+  fudat %>%
+  inner_join(fudat_bl) %>%
+  mutate(time2modulecompletion = as.Date(created_time) - as.Date(bl_time),
+         futime = export_date - as.Date(bl_time)) %>%
+  dplyr::select(client_id, timepoint, bl_time, created_time, time2modulecompletion, futime)
+if (verbose) fumoddat
+
+fumodtimes <-
+  fumoddat %>%
+  filter(timepoint != "Baseline") %>%
+  mutate(module = gsub(" \\(post\\)", "", timepoint)) %>%
+  group_by(module) %>%
+  summarise(min    = min(time2modulecompletion),
+            median = median(time2modulecompletion),
+            mean   = round(mean(time2modulecompletion)),
+            max    = max(time2modulecompletion)) %>%
+  mutate(advised = dplyr::recode(module,
+                          `Module 1` = paste(1*4*7, "days"),
+                          `Module 2` = paste(2*4*7, "days"),
+                          `Module 3` = paste(3*4*7, "days"),
+                          `Module 4` = paste(4*4*7, "days"),
+                          `Module 5` = paste(5*4*7, "days"),
+                          `Module 6` = paste(6*4*7, "days"))) %>%
+  dplyr::select(module, advised, everything())
+if (verbose) fumodtimes
+
+## group_by(client_id) %>%
+##   arrange(desc(last_module_time)) %>%
+##   dplyr::slice(1) %>%
+##   ungroup %>%
+## if (verbose) fumoddat
+
+
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("fumodtimes", "Advised and observed times to module completion"))
+fumodtimes %>%
+  dplyr::rename(`observed min` = min,
+                `observed median` = median,
+                `observed mean` = mean,
+                `observed max` = max) %>%
+  pander
+```
+
+
+
+
+```{r}
+futab_total <-
+  fudat %>%
+  mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  group_by(`4.2 Bundesland:`, timepoint) %>%
+  summarise(n = n()) %>%
+  spread(timepoint, n, fill = 0) %>%
+  dplyr::rename(Bundesland = `4.2 Bundesland:`)
+if (verbose) futab_total
+
+futab_Placebo <-
+  fudat %>%
+  filter(treatment == "Placebo") %>%
+  mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  group_by(`4.2 Bundesland:`, timepoint) %>%
+  summarise(n = n()) %>%
+  spread(timepoint, n, fill = 0) %>%
+  dplyr::rename(Bundesland = `4.2 Bundesland:`)
+if (verbose) futab_Placebo
+
+futab_Intervention <-
+  fudat %>%
+  filter(treatment == "Intervention") %>%
+  mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  group_by(`4.2 Bundesland:`, timepoint) %>%
+  summarise(n = n()) %>%
+  spread(timepoint, n, fill = 0) %>%
+  dplyr::rename(Bundesland = `4.2 Bundesland:`)
+if (verbose) futab_Intervention
+```
+
+```{r, include = FALSE}
+set.caption(tabRef("futab_total", "Completed Modules including the corresponding questionnaires by State"))
+futab_total %>% pander
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("futab_Placebo", "Completed Modules including the corresponding questionnaires by State in the Placebo Arm"))
+futab_Placebo %>% pander
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("futab_Intervention", "Completed Modules including the corresponding questionnaires by State in the Intervention Arm"))
+futab_Intervention %>% pander
+```
+
+
+
+## Drop-outs {-}
+
+```{r}
+# q_exclusion <- readRDS(file.path(exportDirmyTabu, "questionnaires_api_clientexclusionquestionnairesupervisor_blinded.rds")) %>% as_tibble
+# if (verbose) q_exclusion
+# 
+# ##    YES_NO = [(1, 'Ja'), (2, 'Nein'), (3, 'NaN')]
+# 
+# tab_exclusions <-
+#   q_exclusion %>%
+#   dplyr::select(client_id,
+#                 matches("^reason_[[:digit:]]$")) %>%
+#   gather(reason, yesno, -client_id) %>%
+#   filter(yesno == 1)
+# if (verbose) tab_exclusions
+# if (verbose) tab_exclusions$client_id %>% duplicated %>% any
+# if (verbose) tab_exclusions$reason %>% table
+# 
+# 
+# ## status labels
+# status_labels <- c('Ja', 'Nein')
+# status_levels = c(1,2)
+# 
+# q_exclusion <-
+#   q_exclusion %>%
+#   mutate_at(c(
+#     "reason_1",
+#     "reason_2",
+#     "reason_3",
+#     "reason_3b",
+#     "reason_3c",
+#     "reason_4",
+#     "reason_5",
+#     "reason_6",
+#     "reason_7",
+#     "reason_8",
+#     "reason_9"),
+#     function(x) factor(x, levels = status_levels, labels = status_labels))
+# 
+# 
+# ## rename columns
+# q_exclusion <-
+#   q_exclusion %>%
+#   dplyr::select(client_id, starts_with("reason_")) %>%
+#   dplyr::rename(
+#     `Widerruf der Einverständniserklärung`                                                      = reason_1,
+#     `Die Zeit der Bewährungsaufsicht/Führungsaufsicht ist abgelaufen`                           = reason_2,
+#     `Verstoß gegen Weisungen`                                                                   = reason_3,
+#     `Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?`          = reason_3a,
+#     `Kam es zu einem Strafantrag gemäß § 145a StGB?`                                            = reason_3b,
+#     `Kam es zu einer Verurteilung?`                                                             = reason_3c,
+#     `Verstoß gegen Auflagen`                                                                    = reason_4,
+#     `Gegen welche Auflagen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?`           = reason_4a,
+#     `Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen`                       = reason_5,
+#     `Klient hat eine Straftat gemäß § 184b StGB begangen`                                       = reason_6,
+#     `Klient hat eine andere Straftat begangen (nicht gemäß §§ 176, 176a, 176b oder 184b StGB)`  = reason_7,
+#     `akute Selbstgefährdung des Klienten (z.B. konkrete Suizidplanung)`                         = reason_8,
+#     `andere Gründe als die bisher genannten Gründe`                                             = reason_9,
+#     `Welche Gründe (Bitte Auflistung mittels KOMMA trennen)?`                                   = reason_9a)
+# 
+# categorize_reason <- function(reason) {
+#   
+#   reason <- tolower(as.character(reason))
+#   
+#   if (grepl('technisch|zugang|einloggen', reason)) {
+#     return("Technische Probleme")
+#   } else if (grepl('überfordert|überforderung|überlastet|ungenügendes intellektuelles know how|kognitiv', reason)) {
+#     return("Kognitive Überforderung")
+#   } else if (grepl('emotional|psychisch|psychologische|abschließen|vergangenheit|einsam|nicht mehr aushalten', reason)) {
+#     return("Emotionale Überforderung")
+#   } else if (grepl('keine zeit|weniger zeit|zeitmangel|verpflichtungen|zeitaufwand|zeitlich|augenscheinlich die zeit', reason)) {
+#     return("Zeitmangel")
+#   } else if (grepl('therapie|behandlung|zusätzliche behandlung|anbindung an|angebunden|niedergelassen|therapeut', reason)) {
+#     return("Anbindung an externe f2f-Therapie")
+#   } else if (grepl('nicht zufrieden|nicht passende|erwartung|bedarf|gefällt nicht|nicht zurecht|bevormundet|geeignet|mehrwert|mehrwehrt', reason)) {
+#     return("Unzufriedenheit mit dem Programm")
+#   } else if (grepl('herzinfarkt|krank|krankheit', reason)) {
+#     return("Gesundheitsprobleme")
+#   } else if (grepl('gestorben|verstorben', reason)) {
+#     return("Tod")
+#   } else if (grepl('verstoß gegen interventionsvereinbarung', reason)) {
+#     return("Verstoß gegen Interventionsvereinbarung")
+#   } else if (grepl('u-haft|untersuchungshaft|hausdurchsuchung|hausdurchsuchngen|polizei|schwebendes verfahren|straftat', reason)) {
+#     return("Verdacht auf erneute Stratat")
+#   } else if (grepl('von sich aus beendet|0|klient arbeitet nicht an der studie mit, obwohl er sich dazu entschieden hatte.', reason)) {
+#     return("Keine Angabe von Gründen")
+#   } else if (grepl('internet|internetverbindung', reason)) {
+#     return("Internetprobleme")
+#   } else if (grepl('kein interesse|nicht interessiert|keine motivation|desinteresse|keine lust|interesse verloren|möchte nicht mehr|aufraffen|fehlende motivation|interesse an der studie verloren|klient arbeitet nicht an der studie mit, obwohl er sich dazu entschieden hatte', reason)) {
+#     return("Fehlendes Interesse oder fehlende Motivation")
+#   } else if (grepl('email des klienten', reason)) {
+#     return("Unzufriedenheit mit dem Programm")
+#   } else {
+#     return("Keine passende Kategorie")
+#   }
+# }
+# 
+# dat_exclusion <-
+#   q_exclusion %>%
+#   inner_join(matching) %>%
+#   left_join((randdat %>% dplyr::select(ID, treatment, `4.2 Bundesland:`))) %>%
+#   filter(!is.na(treatment)) %>% ## todo why necessary
+#   mutate(Category = `Welche Gründe (Bitte Auflistung mittels KOMMA trennen)?` %>% sapply(categorize_reason) %>% factor(),
+#     `recidivism` = if_else(`Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen`=="Ja" | `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Ja" |
+#            (`Verstoß gegen Weisungen`=="Ja" & `Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?` %in% c("erneute Straftaten", "Kontakt zu Kindern unter 16 Jahren", "Kontaktaufnahme zum Kind am Sportplatz ( darf sich nicht an Plätzen wie Sportstätten etc. aufhalten)", "Sich nicht an Plätzen aufzuhalten, die üblicherweise von Kindern und Jugendlichen frequentiert werden, keinerlei Tätigkeiten auszuüben, die im Zusammenhang mit der Betreuung von Kindern und Jugendlichen stehen.") & `Kam es zu einer Verurteilung?`=="Ja") |
+#              Category == "Verdacht auf erneute Stratat", "Ja", "Nein"))
+
+
+
+dat_exclusion %<>% merge(., module_btimes %>%
+                           dplyr::select(client_id, excluded_at) %>%
+                           dplyr::filter(!is.na(excluded_at)) %>% # client_id %in% dat_exclusion$client_id & 
+                           bind_rows(tibble(client_id = c(506, 376, 254, 475, 524, 496) %>% as.integer(), excluded_at = rep("2024-10-02", 6) %>% as.Date())) %>%
+                           group_by(client_id) %>%
+                           dplyr::slice(1),
+                         all = TRUE) %>%
+  dplyr::mutate(`Studienende` = if_else(excluded_at>="2024-10-02", "Ja", "Nein") %>%
+                  factor()) %>%
+  dplyr::select(-excluded_at) %>%
+  mutate_at(c("Widerruf der Einverständniserklärung", "Die Zeit der Bewährungsaufsicht/Führungsaufsicht ist abgelaufen", "Verstoß gegen Weisungen", "Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?", "Kam es zu einem Strafantrag gemäß § 145a StGB?", "Kam es zu einer Verurteilung?", "Verstoß gegen Auflagen", "Gegen welche Auflagen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?", "Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen", "Klient hat eine Straftat gemäß § 184b StGB begangen", "Klient hat eine andere Straftat begangen (nicht gemäß §§ 176, 176a, 176b oder 184b StGB)", "akute Selbstgefährdung des Klienten (z.B. konkrete Suizidplanung)", "Studienende"), ~tidyr::replace_na(., "Nein")) %>%
+  dplyr::select(-treatment) %>%
+  merge(., randdat %>% dplyr::select(client_id, treatment), all.x=TRUE)
+  
+n_exclusions_total = dat_exclusion %>% nrow
+n_exclusions_Placebo = dat_exclusion %>% filter(treatment == "Placebo") %>% nrow
+n_exclusions_Intervention = dat_exclusion %>% filter(treatment == "Intervention") %>% nrow
+if (verbose) n_exclusions_total
+if (verbose) n_exclusions_Placebo
+if (verbose) n_exclusions_Intervention  
+
+dtab_exclusion <-
+  dat_exclusion %>%
+  mutate(`recidivism`=factor(`recidivism`),
+         `evidence_for_recidivism`=factor(`evidence_for_recidivism`)) %>%
+  dplyr::select(-client_id, -client_group, -Category) %>%
+  buildDescrTbl(groupby = "treatment",
+                addungrouped = TRUE)
+if (verbose) dtab_exclusion
+
+dtab_exclusion_itt <-
+  dat_exclusion %>%
+  filter(client_id %in% client_list) %>%
+  mutate(`recidivism`=factor(`recidivism`),
+         `evidence_for_recidivism`=factor(`evidence_for_recidivism`)) %>%
+  dplyr::select(-client_id, -client_group, -Category) %>%
+  buildDescrTbl(groupby = "treatment",
+                addungrouped = TRUE)
+
+dat_exclusion <-
+  dat_exclusion %>%
+  merge((clcl %>% dplyr::rename(client_id = id) %>% dplyr::select(client_id, date_joined, excluded_at)), by="client_id", all.x = TRUE) %>%
+  mutate(date_joined = as.Date(date_joined),
+         excluded_at = as.Date(excluded_at)) %>%
+  dplyr::select(client_id, treatment, `4.2 Bundesland:`, date_joined, excluded_at, everything()) %>%
+  dplyr::select(-ID)
+if (verbose) dat_exclusion
+
+```
+
+There were `r n_exclusions_total ` drop-outs
+(`r n_exclusions_Placebo ` in the Placebo arm and
+`r n_exclusions_Intervention ` in the Intervention arm). (`r tabRef("dtab_exclusions") `).
+`r tabRef("tabExclusions") ` lists all drop-outs
+
+
+```{r, include = TRUE}
+set.caption(tabRef("dtab_exclusions", "Reasons for drop-out"))
+dtab_exclusion %>% pander
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("dtab_exclusion_itt", "Reasons for drop-out for patients having completed at least 1 module"))
+dtab_exclusion_itt %>% pander
+```
+
+```{r, include = TRUE}
+if (knitting)
+  dat_exclusion %>%
+  dplyr::select(-client_group, -Category) %>%
+    datatable(options = list(pageLength = 10),
+              caption = tabRef("tabExclusions",
+                               paste("Drop-outs"
+                                     ),
+                               prefix.highlight = ""))
+```
+
+# Risk {-}
+
+As defined in the study protocol these analyses are
+based on patients having completed at least 1 module.
+
+```{r}
+if (verbose) iod
+
+## following the study protocol
+## here we analyse only participants having completed at least 1 module
+## of those we take the latest timepoint
+
+participants_2mod <-
+  iod %>%
+  filter(timepoint == "Module 2 (post)") %>%
+  .$client_id
+if (verbose) participants_2mod
+
+iod_2mod <-
+  iod %>%
+  filter(client_id %in% participants_2mod)
+if (verbose) iod_2mod
+```
+
+
+```{r}
+## add study arm
+iod_2mod <-
+  iod_2mod %>%
+  inner_join(matching) %>%
+  left_join((randdat %>% dplyr::select(ID, treatment, `4.2 Bundesland:`))) %>%
+  filter(!is.na(treatment)) ## TODO: why necessary
+if (verbose) iod_2mod
+
+participants_2mod <- participants_2mod %>% intersect(iod_2mod$client_id)
+```
+
+```{r}
+n_2mod <- participants_2mod %>% length
+if (verbose) n_2mod
+```
+
+
+
+
+## IoD (Main Endpoint) {-}
+
+```{r, include=FALSE}
+if (verbose) iod_2mod
+
+p_iod <-
+  dat_complete %>%
+  ##filter(timepoint %in% c("Baseline", "Module 2 (post)")) %>%
+  filter(!is.na(treatment) & !client_id %in% c(253, 396) ) %>%
+  mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  ggplot(aes(x = timepoint, y = IoD)) +
+  geom_line(aes(colour = treatment, group = interaction(client_id, treatment))) +
+  geom_point(aes(colour = treatment)) +#, position = position_dodge(0.75)) +
+  geom_boxplot(aes(fill = treatment), alpha = 0.6, outlier.shape = NA) +
+  labs(x = NULL,
+       y = "Index of Desistance (IoD)")
+cairo_pdf(file.path(imgDir, "IoD.pdf"))
+p_iod %>% print
+dev.off()
+```
+
+```{r, include=FALSE}
+p_iod_delta <-
+  dat_complete %>%
+  ##filter(timepoint %in% c("Baseline", "Module 2 (post)")) %>%
+  filter(!is.na(treatment) & !client_id %in% c(253, 396) ) %>%
+  mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  dplyr::select(treatment, client_id, timepoint, IoD) %>%
+  spread(timepoint, IoD) %>%
+  mutate(`Module 1` = `Module 1` - Baseline,
+         `Module 2` = `Module 2` - Baseline,
+         `Module 3` = `Module 3` - Baseline,
+         `Module 4` = `Module 4` - Baseline,
+         `Module 5` = `Module 5` - Baseline,
+         `Module 6` = `Module 6` - Baseline) %>%
+  gather(timepoint, deltaIoD, -treatment, -client_id, -Baseline) %>%
+  ggplot(aes(x = timepoint, y = deltaIoD)) +
+  geom_hline(aes(yintercept = 0), lty = "dashed", colour = "gray20") +
+  geom_quasirandom(aes(colour = treatment), dodge.width = 0.75) +
+  geom_boxplot(aes(fill = treatment), alpha = 0.6, outlier.shape = NA) +
+  labs(x = NULL,
+       fill = NULL,
+       colour = NULL,
+       y = "Difference in Index of Desistance (IoD): Module - Baseline")
+cairo_pdf(file.path(imgDir, "delta_IoD.pdf"))
+p_iod_delta %>% print
+dev.off()
+```
+
+```{r, include=FALSE}
+p_iod_both <-
+  p_iod + p_iod_delta + plot_layout(ncol = 2) + plot_annotation(tag_levels = "A")
+cairo_pdf(file.path(imgDir, "IoD_plus_deltaIoD.pdf"), width = 14, height = 7)
+p_iod_both %>% print
+dev.off()
+```
+
+```{r, include = TRUE, fig.cap = figRef("iod", "Index of Desitstance (IoD) Over Time.  (A) Dots represent the achieved IoD at each timepoint, lines connect values from the same participant, boxplots show the distributions at each timepoint. (B) differences to baseline after each module."), fig.width = 14, fig.height = 7 }
+if (knitting) p_iod_both
+```
+
+
+```{r, include=FALSE}
+if (verbose) iod_2mod
+
+p_iod <-
+  dat_complete %>%
+  ##filter(timepoint %in% c("Baseline", "Module 2 (post)")) %>%
+  filter(!is.na(treatment) & !client_id %in% c(253, 396)) %>%
+  mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  ggplot(aes(x = timepoint, y = IoD_reduced)) +
+  geom_line(aes(colour = treatment, group = interaction(client_id, treatment))) +
+  geom_point(aes(colour = treatment)) +#, position = position_dodge(0.75)) +
+  geom_boxplot(aes(fill = treatment), alpha = 0.6, outlier.shape = NA) +
+  labs(x = NULL,
+       y = "reduced Index of Desistance (IoD)")
+cairo_pdf(file.path(imgDir, "IoD_reduced.pdf"))
+p_iod %>% print
+dev.off()
+```
+
+```{r, include=FALSE}
+p_iod_delta <-
+  dat_complete %>%
+  ##filter(timepoint %in% c("Baseline", "Module 2 (post)")) %>%
+  filter(!is.na(treatment) & !client_id %in% c(253, 396) ) %>%
+  mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  dplyr::select(treatment, client_id, timepoint, IoD_reduced) %>%
+  spread(timepoint, IoD_reduced) %>%
+  mutate(`Module 1` = `Module 1` - Baseline,
+         `Module 2` = `Module 2` - Baseline,
+         `Module 3` = `Module 3` - Baseline,
+         `Module 4` = `Module 4` - Baseline,
+         `Module 5` = `Module 5` - Baseline,
+         `Module 6` = `Module 6` - Baseline) %>%
+  gather(timepoint, deltaIoD_reduced, -treatment, -client_id, -Baseline) %>%
+  ggplot(aes(x = timepoint, y = deltaIoD_reduced)) +
+  geom_hline(aes(yintercept = 0), lty = "dashed", colour = "gray20") +
+  geom_quasirandom(aes(colour = treatment), dodge.width = 0.75) +
+  geom_boxplot(aes(fill = treatment), alpha = 0.6, outlier.shape = NA) +
+  labs(x = NULL,
+       fill = NULL,
+       colour = NULL,
+       y = "Difference in the reduced Index of Desistance (IoD): Module - Baseline")
+cairo_pdf(file.path(imgDir, "delta_IoD_reduced.pdf"))
+p_iod_delta %>% print
+dev.off()
+```
+
+```{r, include=FALSE}
+p_iod_both <-
+  p_iod + p_iod_delta + plot_layout(ncol = 2) + plot_annotation(tag_levels = "A")
+cairo_pdf(file.path(imgDir, "IoD_reduced_plus_deltaIoD.pdf"), width = 14, height = 7)
+p_iod_both %>% print
+dev.off()
+```
+
+```{r, include = TRUE, fig.cap = figRef("iod_reduced", "Reduced Index of Desitstance (IoD) Over Time.  (A) Dots represent the achieved reduced IoD at each timepoint, lines connect values from the same participant, boxplots show the distributions at each timepoint. (B) differences to baseline after each module."), fig.width = 14, fig.height = 7 }
+if (knitting) p_iod_both
+```
+
+```{r, include = TRUE}
+library(flextable)
+as_flex_table(lm_Table) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table"), paste0("Mixed model for repeated measures (MMRM) for the classical IoD (",  component(fit1, "n_obs"), " observations from ", component(fit1, "n_subjects"), " subjects)")))
+```
+
+```{r plot1, include = TRUE, fig.width=8, fig.height=5, dpi = 300, fig.cap = figRef("plot1", "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the classical IoD") }
+plot1
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table2) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table2"), paste0("Mixed model for repeated measures (MMRM) for the reduced IoD (",  component(fit2, "n_obs"), " observations from ", component(fit2, "n_subjects"), " subjects)" )))
+```
+
+```{r plot2, include = TRUE, fig.width=8, fig.height=5, dpi = 300, fig.cap = figRef("plot2", "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the reduced IoD") }
+plot2
+```
+
+```{r dtab_intervention_iod}
+set.caption(tabRef("dtab_intervention_iod", "Comparison of the IoD between before (pre) and after (post) the each module for the intervention group."))
+rownames(dtab_intervention_iod) <- NULL
+pander(dtab_intervention_iod)
+```
+
+```{r dtab_placebo_iod}
+set.caption(tabRef("dtab_placebo_iod", "Comparison of the IoD between before (pre) and after (post) each module for the Placebo group."))
+rownames(dtab_placebo_iod) <- NULL
+pander(dtab_placebo_iod)
+```
+
+```{r dtab_iod}
+set.caption(tabRef("dtab_iod", "Difference of the IoD between before (pre) and after (post) each module."))
+rownames(dtab_iod) <- NULL
+pander(dtab_iod)
+```
+
+```{r dtab_intervention_iod_reduced}
+set.caption(tabRef("dtab_intervention_iod_reduced", "Comparison of the IoD_reduced between before (pre) and after (post) the each module for the intervention group."))
+rownames(dtab_intervention_iod_reduced) <- NULL
+pander(dtab_intervention_iod_reduced)
+```
+
+```{r dtab_placebo_iod_reduced}
+set.caption(tabRef("dtab_placebo_iod_reduced", "Comparison of the IoD_reduced between before (pre) and after (post) each module for the Placebo group."))
+rownames(dtab_placebo_iod_reduced) <- NULL
+pander(dtab_placebo_iod_reduced)
+```
+
+```{r dtab_iod_reduced}
+set.caption(tabRef("dtab_iod_reduced", "Difference of the IoD_reduced between before (pre) and after (post) each module."))
+rownames(dtab_iod_reduced) <- NULL
+pander(dtab_iod_reduced)
+```
+
+### Sensitivity analysis: Reference Based Multiple Imputation {-}
+
+```{r rbmi_tab}
+set.caption(tabRef("rbmi_tab", "Results of reference-based multiple imputation followed by ANCOVA models for the difference in the classical IoD compared to baseline."))
+pander(rbmi_tab)
+```
+
+## Secondary Endpoints {-}
+
+```{r dtab_sec}
+set.caption(tabRef("dtab_sec", "Comparison of various scores between before (pre) and after (post) the corresponding module for the intervention group."))
+rownames(dtab_sec) <- NULL
+pander(dtab_sec)
+```
+
+```{r dtab_sec_placebo}
+set.caption(tabRef("dtab_sec_placebo", "Comparison of various scores between before (pre) and after (post) the corresponding module for the Placebo group."))
+rownames(dtab_sec_placebo) <- NULL
+pander(dtab_sec_placebo)
+```
+
+```{r, include = TRUE}
+
+IsolatedChild <- function(input, ...) {
+
+  evaluationEnv <- list2env(x = list(...), parent = as.environment(2))
+  cat(asis_output(knit_child(input = input, envir = evaluationEnv, quiet = TRUE)))
+  return(evaluationEnv)
+}
+```
+
+```{r, include = TRUE}
+# library(ggstatsplot)
+# library(rlang)
+
+for(variable_name in c("cvtrq_calc_total", 
+"rcq_calc_total",
+# "rcq_calc_action",
+# "rcq_calc_precontemplation", 
+"fsozu_calc_total", 
+"ors_calc_total", 
+"ucla_calc_total", 
+"bis_calc_total", 
+"cusi_calc_total", 
+"ders_calc_imp", 
+"narq_calc_ris", 
+"spsi_calc_total",
+# "spsi_calc_ppo",
+# "spsi_calc_rps",
+# "spsi_calc_npo",
+# "spsi_calc_ics",
+"kvm_score", 
+"ekk_calc_total", 
+"esiq_calc_total", 
+"hbi_calc_total",
+"ssik_calc_total"))
+{
+   child <- IsolatedChild(input = "child.Rmd",
+                          variable_name = variable_name,
+                          dat = dat_complete_sec_intervention)
+}
+
+
+
+```
+
+```{r dtab_sec2}
+set.caption(tabRef("dtab_sec2", "Difference of various scores between before (pre) and after (post) the corresponding module ."))
+rownames(dtab_sec2) <- NULL
+pander(dtab_sec2)
+```
+
+```{r}
+library(gtsummary)
+library(flextable)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_cvtrq_calc_total,
+                           fit = fit_cvtrq_calc_total)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_rcq_calc_total,
+                           fit = fit_rcq_calc_total)
+# child <- IsolatedChild(input = "child_lm.Rmd",
+#                            Table = lm_Table_rcq_calc_contemplation,
+#                            fit = fit_rcq_calc_contemplation)
+# child <- IsolatedChild(input = "child_lm.Rmd",
+#                            Table = lm_Table_rcq_calc_action,
+#                            fit = fit_rcq_calc_action)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_fsozu_calc_total,
+                           fit = fit_fsozu_calc_total)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_ors_calc_total,
+                           fit = fit_ors_calc_total)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_ucla_calc_total,
+                           fit = fit_ucla_calc_total)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_bis_calc_total,
+                           fit = fit_bis_calc_total2)
+```
+
+```{r, include = FALSE}
+  # as_flex_table(lm_Table_bis_calc_total) %>% 
+  # flextable::set_caption(tabRef(paste0("lm_table", all.vars(formula(fit_bis_calc_total))[1]) , paste0("Linear regression model for log(", all.vars(formula(fit_bis_calc_total))[1], ") (Number of observations: ",  as.character(nobs(fit_bis_calc_total)), ")." )))
+```
+
+```{r, include = TRUE}
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_cusi_calc_total,
+                           fit = fit_cusi_calc_total)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = glm_Table_ders_calc_imp,
+                           fit = fit_ders_calc_imp_ordinal)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = glm_Table_narq_calc_ris,
+                           fit = fit_narq_calc_ris_ordinal)
+
+# child <- IsolatedChild(input = "child_lm.Rmd",
+#                            Table = lm_Table_narq_calc_ris,
+#                            fit = fit_narq_calc_ris)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_spsi_calc_total,
+                           fit = fit_spsi_calc_total)
+# child <- IsolatedChild(input = "child_lm.Rmd",
+#                            Table = lm_Table_spsi_calc_ppo,
+#                            fit = fit_spsi_calc_ppo)
+# child <- IsolatedChild(input = "child_lm.Rmd",
+#                            Table = lm_Table_spsi_calc_rps,
+#                            fit = fit_spsi_calc_rps)
+# child <- IsolatedChild(input = "child_lm.Rmd",
+#                            Table = lm_Table_spsi_calc_npo,
+#                            fit = fit_spsi_calc_npo)
+# child <- IsolatedChild(input = "child_lm.Rmd",
+#                            Table = lm_Table_spsi_calc_ics,
+#                            fit = fit_spsi_calc_ics)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = glm_Table_kvm_score,
+                           fit = fit_kvm_score_logistic)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_ekk_calc_total,
+                           fit = fit_ekk_calc_total)
+
+# child <- IsolatedChild(input = "child_lm.Rmd",
+#                            Table = lm_Table_esiq_calc_total,
+#                            fit = fit_esiq_calc_total)
+
+child <- IsolatedChild(input = "child_ordinal.Rmd",
+                       var = "esiq_calc_total",
+                       fit = fit_esiq_calc_total_ordinal_diff,
+                       Table = glm_Table_esiq_calc_total_ordinal_diff)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = glm_Table_hbi_calc_total,
+                           fit = fit_hbi_calc_total_logistic)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = glm_Table_ssik_calc_total,
+                           fit = fit_ssik_calc_total_logistic)
+
+```
+
+
+
+### Diagnostic plots {-}
+
+```{r, include = TRUE}
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "cvtrq_calc_total",
+                           fit = fit_cvtrq_calc_total)
+
+child <- IsolatedChild(input = "child_diagnostic_plots_outlier.Rmd",
+                       var = "rcq_calc_total",
+                       fit1 = fit_rcq_calc_total,
+                       fit2 = fit_rcq_calc_total3)
+# child <- IsolatedChild(input = "child_diagnostic_plots_outlier.Rmd",
+#                        var = "rcq_calc_contemplation",
+#                        fit1 = fit_rcq_calc_contemplation,
+#                        fit2 = fit_rcq_calc_contemplation3)
+# child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+#                            var = "rcq_calc_action",
+#                            fit = fit_rcq_calc_action)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "fsozu_calc_total",
+                           fit = fit_fsozu_calc_total)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "ors_calc_total",
+                           fit = fit_ors_calc_total)
+
+child <- IsolatedChild(input = "child_diagnostic_plots_outlier.Rmd",
+                       var = "ucla_calc_total",
+                       fit1 = fit_ucla_calc_total,
+                       fit2 = fit_ucla_calc_total3)
+
+# child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+#                            var = "bis_calc_total",
+#                            fit = fit_bis_calc_total)
+child <- IsolatedChild(input = "child_diagnostic_plots_outlier.Rmd",
+                       var = "bis_calc_total",
+                       fit1 = fit_bis_calc_total2,
+                       fit2 = fit_bis_calc_total)
+
+child <- IsolatedChild(input = "child_diagnostic_plots_outlier.Rmd",
+                       var = "cusi_calc_total",
+                       fit1 = fit_cusi_calc_total,
+                       fit2 = fit_cusi_calc_total3)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "spsi_calc_total",
+                           fit = fit_spsi_calc_total)
+# child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+#                            var = "spsi_calc_ppo",
+#                            fit = fit_spsi_calc_ppo)
+# child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+#                            var = "spsi_calc_rps",
+#                            fit = fit_spsi_calc_rps)
+# child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+#                            var = "spsi_calc_npo",
+#                            fit = fit_spsi_calc_npo)
+# child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+#                            var = "spsi_calc_ics",
+#                            fit = fit_spsi_calc_ics)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "ekk_calc_total",
+                           fit = fit_ekk_calc_total)
+
+
+```
+
+### Diagnostic plots for models not shown above {-}
+
+```{r, include = TRUE}
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "kvm_score",
+                           fit = fit_kvm_score)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "hbi_calc_total",
+                           fit = fit_hbi_calc_total)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "ssik_calc_total",
+                           fit = fit_ssik_calc_total)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "ders_calc_imp",
+                           fit = fit_ders_calc_imp)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "narq_calc_ris",
+                           fit = fit_narq_calc_ris)
+
+child <- IsolatedChild(input = "child_diagnostic_plots.Rmd",
+                           var = "esiq_calc_total",
+                           fit = fit_esiq_calc_total)
+
+```
+
+## Safety endpoint {-}
+
+```{r, include = TRUE, fig.width = 6, fig.height = 5, fig.cap = figRef("km_risktab_itt", "Kaplan-Meier Curves for Time-to-Safety-Event where the safety event is recidivism. Lines show the Kaplan-Meier estimates, shaded areas show pointwise 95% confidence intervals estimated using the beta product confidence procedure for right censored data [@fay13_point_confid_inter_surviv_distr], different colours show the different groups.")}
+if (knitting) p_km_risktab_itt %>% plot
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("proportions_noevent_safety_itt", "Proportions of participants without recidivism one year after the beginning of module 1 in each group with 95% confidence intervals."))
+proportions_noevent_safety_itt %>%
+  pander(digits = 2)
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("cidelta_safety_pp", "Difference in proportions of participants without recidivism one year after the beginning of module 1 with 95% confidence interval."))
+cidelta_safety_pp %>% pander(digits = 2)
+```
+
+## Exploratory analysis {-}
+
+```{r dtab_sec_expl}
+set.caption(tabRef("dtab_sec_expl", "Comparison of various scores between before (pre) and after (post) the corresponding module for the intervention group."))
+rownames(dtab_sec_expl) <- NULL
+pander(dtab_sec_expl)
+```
+
+```{r dtab_sec_placebo_expl}
+set.caption(tabRef("dtab_sec_placebo_expl", "Comparison of various scores between before (pre) and after (post) the corresponding module for the Placebo group."))
+rownames(dtab_sec_placebo_expl) <- NULL
+pander(dtab_sec_placebo_expl)
+```
+
+```{r, include = TRUE}
+for(variable_name in c("esiq_calc_fan", 
+"esiq_calc_ver", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics"))
+{
+   child <- IsolatedChild(input = "child.Rmd",
+                          variable_name = variable_name,
+                          dat = dat_complete_sec_intervention)
+}
+
+
+
+```
+
+```{r dtab_sec2_expl}
+set.caption(tabRef("dtab_sec2_expl", "Difference of various scores between before (pre) and after (post) the corresponding module ."))
+rownames(dtab_sec2_expl) <- NULL
+pander(dtab_sec2_expl)
+```
+
+```{r, include = TRUE}
+child <- IsolatedChild(input = "child_ordinal.Rmd",
+                       var = "esiq_calc_ver",
+                       fit = fit_esiq_calc_ver_ordinal_diff,
+                       Table = glm_Table_esiq_calc_ver_ordinal_diff)
+
+child <- IsolatedChild(input = "child_ordinal.Rmd",
+                       var = "esiq_calc_fan",
+                       fit = fit_esiq_calc_fan_ordinal_diff,
+                       Table = glm_Table_esiq_calc_fan_ordinal_diff)
+
+child <- IsolatedChild(input = "child_ordinal.Rmd",
+                       var = "narq_calc_ris",
+                       fit = fit_narq_calc_ris_ordinal_diff,
+                       Table = glm_Table_narq_calc_ris_ordinal_diff)
+
+child <- IsolatedChild(input = "child_ordinal.Rmd",
+                       var = "rcq_calc_current_stage",
+                       fit = fit_rcq_calc_current_stage_ordinal_diff,
+                       Table = glm_Table_rcq_calc_current_stage_ordinal_diff)
+
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_spsi_calc_ppo,
+                           fit = fit_spsi_calc_ppo)
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_spsi_calc_rps,
+                           fit = fit_spsi_calc_rps)
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_spsi_calc_npo,
+                           fit = fit_spsi_calc_npo)
+child <- IsolatedChild(input = "child_lm.Rmd",
+                           Table = lm_Table_spsi_calc_ics,
+                           fit = fit_spsi_calc_ics)
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table_b) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table_b"), paste0("Mixed model for repeated measures (MMRM) for the classical IoD (",  component(fit1_b, "n_obs"), " observations from ", component(fit1_b, "n_subjects"), " subjects)")))
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table2_b) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table2_b"), paste0("Mixed model for repeated measures (MMRM) for the reduced IoD (",  component(fit2_b, "n_obs"), " observations from ", component(fit2_b, "n_subjects"), " subjects)" )))
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table_c) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table_c"), paste0("Mixed model for repeated measures (MMRM) for the classical IoD (",  component(fit1_c, "n_obs"), " observations from ", component(fit1_c, "n_subjects"), " subjects)")))
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table2_c) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table2_c"), paste0("Mixed model for repeated measures (MMRM) for the reduced IoD (",  component(fit2_c, "n_obs"), " observations from ", component(fit2_c, "n_subjects"), " subjects)" )))
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table_acute_calc_classic) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table_acute_calc_classic"), paste0("Mixed model for repeated measures (MMRM) for the classical acute (",  component(fit1_acute_calc_classic, "n_obs"), " observations from ", component(fit1_acute_calc_classic, "n_subjects"), " subjects)")))
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table_acute_calc_reduced) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table_acute_calc_reduced"), paste0("Mixed model for repeated measures (MMRM) for the reduced acute (",  component(fit1_acute_calc_reduced, "n_obs"), " observations from ", component(fit1_acute_calc_reduced, "n_subjects"), " subjects)")))
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table_stable_calc_classic) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table_stable_calc_classic"), paste0("Mixed model for repeated measures (MMRM) for the classical stable (",  component(fit1_stable_calc_classic, "n_obs"), " observations from ", component(fit1_stable_calc_classic, "n_subjects"), " subjects)")))
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table_stable_calc_reduced) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table_stable_calc_reduced"), paste0("Mixed model for repeated measures (MMRM) for the reduced stable (",  component(fit1_stable_calc_reduced, "n_obs"), " observations from ", component(fit1_stable_calc_reduced, "n_subjects"), " subjects)")))
+```
+
+```{r, include = TRUE}
+as_flex_table(lm_Table_cmc_calc_classic) %>% 
+  flextable::set_caption(tabRef(paste0("lm_Table_cmc_calc_classic"), paste0("Mixed model for repeated measures (MMRM) for the cmc (",  component(fit1_cmc_calc_classic, "n_obs"), " observations from ", component(fit1_cmc_calc_classic, "n_subjects"), " subjects)")))
+```
+
+
+<!--
+#### Change from BL to Post Module2 {-}
+
+```{r}
+
+## select baseline and the last completed module per participant
+iod_2mod <-
+  iod_2mod %>%
+  mutate(modnum = gsub("Module ", "", timepoint),
+         modnum = gsub(" \\(post\\)", "", modnum),
+         modnum = ifelse(timepoint == "Baseline", 0, modnum),
+         modnum = as.numeric(modnum))
+if (verbose) iod_2mod
+
+iod_2mod <-
+  iod_2mod %>%
+  group_by(client_id) %>%
+  arrange(modnum) %>%
+  dplyr::slice(c(1, n())) %>%
+  ungroup
+if (verbose) iod_2mod
+
+## ignore the module number
+iod_2mod <-
+  iod_2mod %>%
+  mutate(timepoint2 = ifelse(timepoint == "Baseline", "Baseline", "post"))
+if (verbose) iod_2mod
+
+p_iod_m2 <-
+  iod_2mod %>%
+  ##filter(timepoint %in% c("Baseline", "Module 2 (post)")) %>%
+  ##mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  filter(!is.na(treatment)) %>%
+  ggplot(aes(x = timepoint2, y = IoD)) +
+  geom_line(aes(colour = treatment, group = client_id)) +
+  geom_point(aes(colour = treatment)) +
+  geom_boxplot(aes(fill = treatment), alpha = 0.8) +
+  labs(x = NULL,
+       y = "Index of Desistance (IoD)")
+cairo_pdf(file.path(imgDir, "IoD_BL_module2.pdf"))
+p_iod_m2 %>% print
+dev.off()
+
+p_iod_delta_blm2 <-
+  iod_2mod %>%
+  ##filter(timepoint %in% c("Baseline", "Module 2 (post)")) %>%
+  ##mutate(timepoint = gsub(" \\(post\\)", "", timepoint)) %>%
+  filter(!is.na(treatment)) %>%
+  dplyr::select(client_id, treatment, timepoint2, IoD) %>%
+  spread(timepoint2, IoD) %>%
+  mutate(deltaIoD = `post` - Baseline) %>%
+  ggplot(aes(x = "post", y = deltaIoD)) +
+  geom_quasirandom(aes(colour = treatment), dodge.width = 0.75) +
+  geom_boxplot(aes(fill = treatment), alpha = 0.8, outlier.shape = NA) +
+  labs(x = NULL,
+       y = "Difference in Index of Desistance (IoD): post at least Module2 - Baseline")
+cairo_pdf(file.path(imgDir, "delta_IoD_BL_module2.pdf"))
+p_iod_delta_blm2 %>% print
+dev.off()
+
+p_iod_m2_both <-
+  p_iod_m2 + p_iod_delta_blm2 + plot_layout(ncol = 2) + plot_annotation(tag_levels = "A")
+cairo_pdf(file.path(imgDir, "IoD_m2_plus_deltaIoD.pdf"), width = 14, height = 7)
+p_iod_m2_both %>% print
+dev.off()
+```
+
+
+```{r, include = TRUE, fig.cap = figRef("iod_m2", "Index of Desitstance (IoD) Between Baseline and post at least Module 2.  (A) Dots represent the achieved IoD at each timepoint, lines connect values from the same participant, boxplots show the distributions at each timepoint. (B) differences in IoD to baseline after at least module 2."), fig.width = 14, fig.height = 7 }
+if (knitting) p_iod_m2_both
+```
+
+
+#### Risk comparison Placebo vs Intervention {-}
+
+```{r}
+testtab <-
+  iod_2mod %>%
+  filter(timepoint != "Baseline") %>%
+  ##wilcox.test(IoD ~ treatment, data = .)
+  dplyr::select(treatment, IoD) %>%
+  filter(!is.na(treatment)) %>%
+  buildDescrTbl(groupby = "treatment",
+                includeNAs = TRUE,
+                dopvals = TRUE,
+                tests = list(IoD = w.wilcox.test),
+                report_tests = TRUE,
+                useutf8 = "utf8") %>%
+  dplyr::select(-`adjusted p value`)
+if (verbose) testtab
+
+testtab <-
+  iod %>%
+  filter(timepoint == "Module 2 (post)") %>%
+  inner_join(matching) %>%
+  left_join((randdat %>% dplyr::select(ID, treatment, `4.2 Bundesland:`))) %>%
+  ##wilcox.test(IoD ~ treatment, data = .)
+  dplyr::select(treatment, IoD) %>%
+  filter(!is.na(treatment)) %>%
+  buildDescrTbl(groupby = "treatment",
+                includeNAs = TRUE,
+                dopvals = TRUE,
+                tests = list(IoD = w.wilcox.test),
+                report_tests = TRUE,
+                useutf8 = "utf8") %>%
+  dplyr::select(-`adjusted p value`)
+if (verbose) testtab
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("IoD_test", "Comparison of IoD between study arms after completion of module 2"))
+testtab %>% pander
+```
+
+#### Proportion of High-Risk Participants {-}
+
+As the IoD is not fully established yet, there is no agreed definition of 'high-risk' in terms of IoD.
+
+```{r}
+cutoff <-
+  iod %>%
+  filter(timepoint == "Baseline") %>%
+  .$IoD %>%
+  quantile(probs = 0.9) %>%
+  round
+if (verbose) cutoff
+```
+
+Here, we assume that 10% of the participants might be high-risk
+subjects, which corresponds to a cutoff at `r cutoff ` for the the
+IoD.  For this definition the IoD at baseline of all participants (not
+only the ones who at least completed module 2) have been used.
+
+```{r}
+w.mcnemar.test <- function(values, grouping, ...) {
+  mcnemar.test(table(values, grouping), ...)
+}
+
+
+testres <-
+iod_2mod %>%
+  mutate(`high-risk` = ifelse(IoD > cutoff, "Yes", "No"),
+         `high-risk` = as.factor(`high-risk`)) %>%
+    dplyr::select(client_id, timepoint2, `high-risk`) %>%
+    spread(timepoint2, `high-risk`) %>%
+    dplyr::select(Baseline, post) %>%
+    table %>%
+  mcnemar.test
+if (verbose) testres
+
+proptab <-
+  iod_2mod %>%
+  mutate(`high-risk` = ifelse(IoD > cutoff, "Yes", "No"),
+         `high-risk` = as.factor(`high-risk`)) %>%
+  dplyr::select(timepoint2, `high-risk`) %>%
+  buildDescrTbl(groupby = "timepoint2",
+                dopvals = TRUE,
+                tests = list(`high-risk` = w.mcnemar.test),
+                report_tests = TRUE) %>%
+  mutate(`p value` = ifelse(parameter == "high-risk",
+                            descutils::prettyPvalues(testres$p.value, digits = 3, orgbold = FALSE),
+                            `p value`)) %>%
+  dplyr::select(-`adjusted p value`)
+if (verbose) proptab
+```
+
+```{r, include = TRUE}
+set.caption(tabRef("proptab", "Proportion of 'high-risk' participants at baseline and after completion of at least module 2"))
+proptab %>% pander
+```
+
+
+### Number of Reported Significant Events {-}
+
+No Significant Events have been reported so far.
+
+-->
+
+# CONSORT diagram {-}
+
+```{r, include = TRUE, fig.cap = figRef("CONSORT", "CONSORT diagram."), fig.width = 14, fig.height = 7 }
+source("consort.R")
+p_consort
+```
+
+# References {-}
+
+
+<div id="refs"></div>
+
+
+
+
+\newpage
+
+# Session Info {-}
+
+
+```{r zipMemory}
+if (verbose) printMemory()
+
+zipfile <- file.path("supportfiles.zip")
+
+## remove zip if existant
+if (file.exists(zipfile)) unlink(zipfile)
+
+## zip all remembered files
+zipMemory(zipfile)
+```
+
+```{r warnmissingfigurereferences, include = TRUE, warning = TRUE}
+if (!all(environment(figRef)$created)) {
+    missingFig <- which(!environment(figRef)$created)
+    warning("Figure(s) ", paste(missingFig, sep = ", "), " with label(s) '",
+        paste(names(environment(figRef)$created)[missingFig],
+            collapse = "', '"), "' are referenced in the text but have never been created.")
+}
+if (!all(environment(figRef)$used)) {
+    missingRef <- which(!environment(figRef)$used)
+    warning("Figure(s) ", paste(missingRef, sep = ", "), " with label(s) '",
+        paste(names(environment(figRef)$used)[missingRef], collapse = "', '"),
+        "' are present in the document but are never referred to in the text.")
+}
+```
+
+```{r warnmissingtablereferences, include = TRUE, warning = TRUE}
+if (!all(environment(tabRef)$created)) {
+    missingTab <- which(!environment(tabRef)$created)
+    warning("Table(s) ", paste(missingTab, sep = ", "), " with label(s) '",
+        paste(names(environment(tabRef)$created)[missingTab],
+            collapse = "', '"), "' are referenced in the text but have never been created.")
+}
+if (!all(environment(tabRef)$used)) {
+    missingRef <- which(!environment(tabRef)$used)
+    warning("Table(s) ", paste(missingRef, sep = ", "), " with label(s) '",
+        paste(names(environment(tabRef)$used)[missingRef], collapse = "', '"),
+        "' are present in the document but are never referred to in the text.")
+}
+```
+
+```{r, cache = FALSE, echo = FALSE, comment = '', results = "markup", include = TRUE}
+sessionInfo()
+```
+
+
+
+<!--
+Local Variables:
+ coding: utf-8
+End:
+-->

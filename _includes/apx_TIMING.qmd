@@ -48,8 +48,6 @@ add_gg_theme <- function(plt) {
 # global theme for gtsummary
 gtsummary::theme_gtsummary_journal(journal = "lancet")
 
-#df <- readRDS(here::here("_data/finalData/randomizedMaster2.Rds"))
-#dat_clean <- readRDS("dat_clean.RDS")
 df <- dat_clean
 
 bm_unpaired_test <- function(data, variable, by, ...) {

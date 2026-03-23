@@ -70,7 +70,6 @@ bm_unpaired_test <- function(data, variable, by, ...) {
   return(df)
 }
 
-
 # Function to create summary table for difference from baseline
 # using Brunner-Munzel test for two independent groups
 # for given dependent variables (dvs) and their corresponding
@@ -95,7 +94,8 @@ create_prim_diff_tbl <- function(data, dvs, label_list, grouping_var, abbreviati
     add_stat(fns = everything() ~ bm_unpaired_test) %>%
     add_q(method = "holm") %>%
     modify_header(
-      p.value = "**p**"
+      p.value = "**p**",
+      q.value = "**p~adj~**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
@@ -146,6 +146,7 @@ create_diffscore_dataframe <- function(variable) {
                                 "Module 2 (post)" ~ "post") %>%
             factor()) %>%
     dplyr::rename(`IoD pre/post Module 2` = variable)
+
   dat_complete_module3_iod <- df %>% dplyr::filter(timepoint %in% c("Module 2 (post)", "Module 3 (post)"))  %>%
     group_by(client_id) %>%
     filter(n()==2) %>%
@@ -154,6 +155,7 @@ create_diffscore_dataframe <- function(variable) {
                                 "Module 3 (post)" ~ "post") %>%
             factor()) %>%
     dplyr::rename(`IoD pre/post Module 3` = variable)
+
   dat_complete_module4_iod <- df %>% dplyr::filter(timepoint %in% c("Module 3 (post)", "Module 4 (post)"))  %>%
     group_by(client_id) %>%
     filter(n()==2) %>%
@@ -162,6 +164,7 @@ create_diffscore_dataframe <- function(variable) {
                                 "Module 4 (post)" ~ "post") %>%
             factor()) %>%
     dplyr::rename(`IoD pre/post Module 4` = variable)
+
   dat_complete_module5_iod <- df %>% dplyr::filter(timepoint %in% c("Module 4 (post)", "Module 5 (post)"))  %>%
     group_by(client_id) %>%
     filter(n()==2) %>%
@@ -170,6 +173,7 @@ create_diffscore_dataframe <- function(variable) {
                                 "Module 5 (post)" ~ "post") %>%
             factor()) %>%
     dplyr::rename(`IoD pre/post Module 5` = variable)
+
   dat_complete_module6_iod <- df %>% dplyr::filter(timepoint %in% c("Module 5 (post)", "Module 6 (post)"))  %>%
     group_by(client_id) %>%
     filter(n()==2) %>%
@@ -264,12 +268,12 @@ create_prim_diffscore_tbl <- function(
   )
 
   labels <- c(
-    "Module 1 (post)",
-    "Module 2 (post)",
-    "Module 3 (post)",
-    "Module 4 (post)",
-    "Module 5 (post)",
-    "Module 6 (post)"
+    "Module 1",
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5",
+    "Module 6"
   )
 
   types = rep("continuous2", 6)

@@ -52,28 +52,28 @@ transcode2utf8 <- function(x)
 if (verbose) dir(exportDirSecuTrial)
 
 ## centers
-center <- read.csv(file.path(exportDirSecuTrial, "centres_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+center <- read.csv(file.path(exportDirSecuTrial, "centres_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) center
 ## not very informative
 
 ## casenodes
-cn <- read.csv(file.path(exportDirSecuTrial, "casenodes_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+cn <- read.csv(file.path(exportDirSecuTrial, "casenodes_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) cn
 ## not very informative either
 
 ## visitplan
-visitplan <- read.csv(file.path(exportDirSecuTrial, "visitplan_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+visitplan <- read.csv(file.path(exportDirSecuTrial, "visitplan_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 visitplan <- visitplan[visitplan$mnpvslbl==visitplan$mnpvslbl[1],]   # current version
 if (verbose) visitplan
 ## notvery informative either
 
 ## forms list
-forms <- read.csv(file.path(exportDirSecuTrial, "forms_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+forms <- read.csv(file.path(exportDirSecuTrial, "forms_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 forms <- forms[forms$mnpvslbl==forms$mnpvslbl[1],]   # current version
 if (verbose) forms %>% print(n = Inf)
 
 ## items
-items <- read.csv(file.path(exportDirSecuTrial, "items_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+items <- read.csv(file.path(exportDirSecuTrial, "items_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) items %>% print(n = 100)
 
 ## function to rename (and optionally subset) columns in each form
@@ -109,7 +109,7 @@ renameCols <- function(form, fname, frms = forms, itms = items, subset = FALSE) 
 
 ## forms
 ## 1 mnpszum3strata1     "Strata"
-strata_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3strata1_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+strata_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3strata1_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) strata_full
 if (verbose) strata_full %>% head %>% as.data.frame
 if (verbose) strata_full %>% nrow
@@ -132,7 +132,7 @@ strata <-
   dplyr::select(-`8.4 Rückfallrisiko nach Static-99: --- Modified Static (Score zur Randomisierung):`)
 ##  2 mnpszum3rando       "Randomisierung"
 set.seed(838)
-rando_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3rando_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+rando_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3rando_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 ## HERE WE SIMULATE THE STUDY ARM
 if (simulate_only) rando_full <- rando_full %>% mutate(randtreat = sample(c("Placebo", "Intervention"), n(), replace = TRUE))
 if (verbose) rando_full
@@ -156,7 +156,7 @@ rando <-
 if (verbose) rando %>% colnames
 if (verbose) rando %>% head %>% as.data.frame
 ##  3 mnpszum3krit        "1. Ein- und Ausschlusskriterien"
-krit_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3krit_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+krit_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3krit_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) krit_full
 if (verbose) krit_full %>% head %>% as.data.frame
 if (verbose) krit_full %>% nrow
@@ -165,7 +165,7 @@ if (verbose) krit
 if (verbose) krit %>% colnames
 if (verbose) krit %>% head %>% as.data.frame
 ##  4 mnpszum3teilnehmer  "2. Teilnehmender oder Nichtteilnehmender"
-teilnehmer_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3teilnehmer_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+teilnehmer_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3teilnehmer_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) teilnehmer_full
 if (verbose) teilnehmer_full %>% head %>% as.data.frame
 if (verbose) teilnehmer_full$teilmod %>% table(exclude = NULL)
@@ -175,7 +175,7 @@ if (verbose) teilnehmer
 if (verbose) teilnehmer %>% colnames
 if (verbose) teilnehmer %>% head %>% as.data.frame
 ##  5 mnpszum3einver      "3. Einverständniserklärung"
-einver_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3einver_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+einver_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3einver_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) einver_full
 if (verbose) einver_full %>% head %>% as.data.frame
 if (verbose) einver_full$einvererklaerung %>% table(exclude = NULL)
@@ -187,7 +187,7 @@ if (verbose) einver
 if (verbose) einver %>% colnames
 if (verbose) einver %>% head %>% as.data.frame
 ##  6 mnpszum3demodat     "4. Demographische Daten"
-demodat_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3demodat_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+demodat_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3demodat_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) demodat_full
 if (verbose) demodat_full %>% head %>% as.data.frame
 if (verbose) demodat_full$demobund %>% table(exclude = NULL)
@@ -213,7 +213,7 @@ if (verbose) demodat %>% head %>% as.data.frame
 if (verbose) demodat %>% tail %>% as.data.frame
 
 ##  7 mnpszum3indexdelikt "5. Indexdelikt"
-indexdelikt_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3indexdelikt_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+indexdelikt_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3indexdelikt_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) indexdelikt_full
 if (verbose) indexdelikt_full %>% head %>% as.data.frame
 if (verbose) indexdelikt_full$index1 %>% table(exclude = NULL)
@@ -240,14 +240,14 @@ indexdelikt <- indexdelikt %>% dplyr::rename(`Indexdelikt Gesamtscore Formular` 
 ##  9 emnpszum3indexdat2  "Indexdatumsangaben3"
 ## 10 emnpszum3indexdat1  "Indexdatumsangaben2"
 ## 11 emnpszum3indexdat   "Indexdatumsangaben"
-indexdat <- read.csv(file.path(exportDirSecuTrial, "emnpszum3indexdat_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+indexdat <- read.csv(file.path(exportDirSecuTrial, "emnpszum3indexdat_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) indexdat
 if (verbose) indexdat %>% head %>% as.data.frame
 if (verbose) indexdat %>% nrow
 ##indexdat <- indexdat %>% renameCols("Indexdatumsangaben", subset = TRUE)
 ##if (verbose) indexdat
 ## 12 mnpszum3vorstrafen  "6. Vorstrafen"
-vorstrafen_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3vorstrafen_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+vorstrafen_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3vorstrafen_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) vorstrafen_full
 if (verbose) vorstrafen_full %>% head %>% as.data.frame
 if (verbose) vorstrafen_full$vsanzahl %>% table(exclude = NULL)
@@ -286,7 +286,7 @@ if (verbose) vorstrafen %>% colnames
 if (verbose) vorstrafen %>% head %>% as.data.frame
 vorstrafen <- vorstrafen %>% dplyr::rename(`Vorstrafen Gesamtscore Formular` = `Gesamtscore Formular:`)
 ## 13 mnpszum3interview   "7. Interview mit Klienten"
-interview_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3interview_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+interview_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3interview_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) interview_full
 if (verbose) interview_full %>% head %>% as.data.frame
 if (verbose) interview_full$interalt %>% table(exclude = NULL)
@@ -308,7 +308,7 @@ if (verbose) interview %>% colnames
 if (verbose) interview %>% head %>% as.data.frame
 interview <- interview %>% dplyr::rename(`Interview Gesamtscore Formular` = `Gesamtscore Formular:`)
 ## 14 mnpszum3nichtteil   "11. Fragebogen zu Gründen für eine Nicht-Teilnahme bei der Online-Intervention"
-nichtteil_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3nichtteil_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+nichtteil_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3nichtteil_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) nichtteil_full
 if (verbose) nichtteil_full %>% head %>% as.data.frame
 if (verbose) nichtteil_full$nichtteil1 %>% table(exclude = NULL)
@@ -421,7 +421,7 @@ static$static99_modified_calc_factor <- cut(static$static99_modified_calc, break
 static %<>% rename(ID = mnpaid)
 
 ## 15 mnpszum3atq1        "10. ATQ"
-atq1_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3atq1_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+atq1_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3atq1_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) atq1_full
 if (verbose) atq1_full %>% head %>% as.data.frame
 if (verbose) atq1_full$atq1 %>% table(exclude = NULL)
@@ -456,7 +456,7 @@ if (verbose) atq1
 if (verbose) atq1 %>% colnames
 if (verbose) atq1 %>% head %>% as.data.frame
 ## 16 mnpszum3cvtrq1      "9. CVTRQ"
-cvtrq1_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3cvtrq1_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+cvtrq1_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3cvtrq1_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) cvtrq1_full
 if (verbose) cvtrq1_full %>% head %>% as.data.frame
 if (verbose) cvtrq1_full$cvtrq1 %>% table(exclude = NULL)
@@ -485,7 +485,7 @@ if (verbose) cvtrq1
 if (verbose) cvtrq1 %>% colnames
 if (verbose) cvtrq1 %>% head %>% as.data.frame
 ## 17 mnpszum3bewaehr     "12. Fragebogen für Bewährungshelfende Eingangsbefragung"
-bewaehr_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3bewaehr_SZUM3_20240424-130854.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
+bewaehr_full <- read.csv(file.path(exportDirSecuTrial, "mnpszum3bewaehr_SZUM3_20241025-120518.csv"), fileEncoding = "Latin1") #%>% transcode2utf8
 if (verbose) bewaehr_full
 if (verbose) bewaehr_full %>% head %>% as.data.frame
 if (verbose) bewaehr_full$bewaehrbefrag1 %>% table(exclude = NULL)
@@ -2196,10 +2196,10 @@ dat_exclusion <-
   left_join((randdat %>% dplyr::select(ID, treatment, `4.2 Bundesland:`))) %>%
   filter(!is.na(treatment)) %>%
   mutate(Category = `Welche Gründe (Bitte Auflistung mittels KOMMA trennen)?` %>% sapply(categorize_reason) %>% factor(),
-         `recidivism` = if_else(`Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen`=="Ja" | `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Ja" |
-                                                     (`Verstoß gegen Weisungen`=="Ja" & `Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?` %in% c("erneute Straftaten", "Kontakt zu Kindern unter 16 Jahren", "Kontaktaufnahme zum Kind am Sportplatz ( darf sich nicht an Plätzen wie Sportstätten etc. aufhalten)", "Sich nicht an Plätzen aufzuhalten, die üblicherweise von Kindern und Jugendlichen frequentiert werden, keinerlei Tätigkeiten auszuüben, die im Zusammenhang mit der Betreuung von Kindern und Jugendlichen stehen.") & `Kam es zu einer Verurteilung?`=="Ja"), "Ja", "Nein"),
-         `evidence_for_recidivism` = if_else(`Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen`=="Ja" | `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Ja" |
-                                  (`Verstoß gegen Weisungen`=="Ja" & `Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?` %in% c("erneute Straftaten", "Kontakt zu Kindern unter 16 Jahren", "Kontaktaufnahme zum Kind am Sportplatz ( darf sich nicht an Plätzen wie Sportstätten etc. aufhalten)", "Sich nicht an Plätzen aufzuhalten, die üblicherweise von Kindern und Jugendlichen frequentiert werden, keinerlei Tätigkeiten auszuüben, die im Zusammenhang mit der Betreuung von Kindern und Jugendlichen stehen.") & `Kam es zu einer Verurteilung?`=="Ja") | `Welche Gründe (Bitte Auflistung mittels KOMMA trennen)?` %in% c("Handy seit mehreren Monaten bei der Polizei, weitere Straftaten unklar, arbeitet nicht mit", "Aufgrund neuer Strafanzeigen in U-Haft, Gerichtsverhandlung noch ausstehend", "Anordnung Untersuchungshaft"#, "Schwebendes Verfahren (bereits vor Aufnahme) ist abgeurteilt (Straftat nach 184b)"
+         `recidivism` = if_else(`Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen`=="Yes" | `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Yes" |
+                                                     (`Verstoß gegen Weisungen`=="Yes" & `Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?` %in% c("erneute Straftaten", "Kontakt zu Kindern unter 16 Jahren", "Kontaktaufnahme zum Kind am Sportplatz ( darf sich nicht an Plätzen wie Sportstätten etc. aufhalten)", "Sich nicht an Plätzen aufzuhalten, die üblicherweise von Kindern und Jugendlichen frequentiert werden, keinerlei Tätigkeiten auszuüben, die im Zusammenhang mit der Betreuung von Kindern und Jugendlichen stehen.") & `Kam es zu einer Verurteilung?`=="Ja"), "Ja", "Nein"),
+         `evidence_for_recidivism` = if_else(`Klient hat eine Straftat gemäß §§ 176, 176a oder 176b StGB begangen`=="JYes" | `Klient hat eine Straftat gemäß § 184b StGB begangen` == "Yes" |
+                                  (`Verstoß gegen Weisungen`=="Yes" & `Gegen welche Weisungen wurde verstoßen (Bitte Auflistung mittels KOMMA trennen)?` %in% c("erneute Straftaten", "Kontakt zu Kindern unter 16 Jahren", "Kontaktaufnahme zum Kind am Sportplatz ( darf sich nicht an Plätzen wie Sportstätten etc. aufhalten)", "Sich nicht an Plätzen aufzuhalten, die üblicherweise von Kindern und Jugendlichen frequentiert werden, keinerlei Tätigkeiten auszuüben, die im Zusammenhang mit der Betreuung von Kindern und Jugendlichen stehen.") & `Kam es zu einer Verurteilung?`=="Ja") | `Welche Gründe (Bitte Auflistung mittels KOMMA trennen)?` %in% c("Handy seit mehreren Monaten bei der Polizei, weitere Straftaten unklar, arbeitet nicht mit", "Aufgrund neuer Strafanzeigen in U-Haft, Gerichtsverhandlung noch ausstehend", "Anordnung Untersuchungshaft"#, "Schwebendes Verfahren (bereits vor Aufnahme) ist abgeurteilt (Straftat nach 184b)"
 ), "Ja", "Nein"))
 # # calculate recidivism
 # dat_exclusion_new <-
@@ -2244,6 +2244,7 @@ all_modules <- c("Baseline", "Module 1 (post)", "Module 2 (post)",
 client_ids <- unique(dat_complete$client_id)
 new_df <- expand.grid(client_id = client_ids, timepoint = all_modules) %>%
   dplyr::arrange(client_id)
+
 dat_complete <- merge(new_df, dat_complete, by = c("client_id", "timepoint"), all = TRUE) %>%
   group_by(client_id) %>%
   mutate(`recidivism` = zoo::na.locf(`recidivism`),

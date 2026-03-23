@@ -3,8 +3,8 @@ library(tidyr)
 library(gtsummary)
 library(nparcomp)
 library(purrr)
-
-
+library(gt)
+library(glue)
 
 # fn returns brunner-munzel test statistic and pvalue for
 bm_paired_test <- function(data, variable, by, ...) {
@@ -95,7 +95,8 @@ create_prim_pairwise_tbl <- function(data, dvs, label_list, type_list, abbreviat
     add_q(method = "holm") %>%
     modify_header(
       label = "**Module**",
-      p.value = "**p**"
+      p.value = "**p**",
+      q.value = "**p~adj~**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
@@ -148,6 +149,7 @@ create_pairwise_dataframe <- function(variable = "IoD") {
                                 "Module 2 (post)" ~ "post") %>%
             factor()) %>%
     dplyr::rename(`IoD pre/post Module 2` = variable)
+
   dat_complete_module3_iod <- df %>% dplyr::filter(timepoint %in% c("Module 2 (post)", "Module 3 (post)"))  %>%
     group_by(client_id) %>%
     filter(n()==2) %>%
@@ -156,6 +158,7 @@ create_pairwise_dataframe <- function(variable = "IoD") {
                                 "Module 3 (post)" ~ "post") %>%
             factor()) %>%
     dplyr::rename(`IoD pre/post Module 3` = variable)
+
   dat_complete_module4_iod <- df %>% dplyr::filter(timepoint %in% c("Module 3 (post)", "Module 4 (post)"))  %>%
     group_by(client_id) %>%
     filter(n()==2) %>%
@@ -164,6 +167,7 @@ create_pairwise_dataframe <- function(variable = "IoD") {
                                 "Module 4 (post)" ~ "post") %>%
             factor()) %>%
     dplyr::rename(`IoD pre/post Module 4` = variable)
+
   dat_complete_module5_iod <- df %>% dplyr::filter(timepoint %in% c("Module 4 (post)", "Module 5 (post)"))  %>%
     group_by(client_id) %>%
     filter(n()==2) %>%
@@ -172,6 +176,7 @@ create_pairwise_dataframe <- function(variable = "IoD") {
                                 "Module 5 (post)" ~ "post") %>%
             factor()) %>%
     dplyr::rename(`IoD pre/post Module 5` = variable)
+
   dat_complete_module6_iod <- df %>% dplyr::filter(timepoint %in% c("Module 5 (post)", "Module 6 (post)"))  %>%
     group_by(client_id) %>%
     filter(n()==2) %>%
@@ -246,12 +251,12 @@ create_prim_pairwise_tbls <- function(
   )
 
   labels <- c(
-    "Module 1 (post)",
-    "Module 2 (post)",
-    "Module 3 (post)",
-    "Module 4 (post)",
-    "Module 5 (post)",
-    "Module 6 (post)"
+    "Module 1",
+    "Module 2",
+    "Module 3",
+    "Module 4",
+    "Module 5",
+    "Module 6"
   )
 
   types = rep("continuous2", 6)

@@ -149,7 +149,19 @@ ggsave(
 
 # RAIN plot (descriptive)
 plt <- ggplot(
-    data = dat_clean %>% filter(!client_id %in% c(253, 396) & !is.na(treatment)),
+    data = dat_clean %>% 
+      filter(!client_id %in% c(253, 396) & !is.na(treatment)) %>%
+      mutate(
+        timepoint = case_when(
+          str_detect(timepoint, "Module 1") ~ "Module 1",
+          str_detect(timepoint, "Module 2") ~ "Module 2",
+          str_detect(timepoint, "Module 3") ~ "Module 3",
+          str_detect(timepoint, "Module 4") ~ "Module 4",
+          str_detect(timepoint, "Module 5") ~ "Module 5",
+          str_detect(timepoint, "Module 6") ~ "Module 6",
+          TRUE ~ timepoint
+        )
+      ),
     aes(fill = treatment, x = timepoint, y = IoD_reduced, color = treatment)
   ) +
   geom_rain(
@@ -225,12 +237,12 @@ plt <- ggplot(
       ) %>%
       mutate(
         timepoint = case_when(
-          str_detect(timepoint, "Module 1") ~ "Module 1 (post)",
-          str_detect(timepoint, "Module 2") ~ "Module 2 (post)",
-          str_detect(timepoint, "Module 3") ~ "Module 3 (post)",
-          str_detect(timepoint, "Module 4") ~ "Module 4 (post)",
-          str_detect(timepoint, "Module 5") ~ "Module 5 (post)",
-          str_detect(timepoint, "Module 6") ~ "Module 6 (post)"
+          str_detect(timepoint, "Module 1") ~ "Module 1",
+          str_detect(timepoint, "Module 2") ~ "Module 2",
+          str_detect(timepoint, "Module 3") ~ "Module 3",
+          str_detect(timepoint, "Module 4") ~ "Module 4",
+          str_detect(timepoint, "Module 5") ~ "Module 5",
+          str_detect(timepoint, "Module 6") ~ "Module 6"
         )
       ),
     aes(fill = treatment, x = timepoint, y = value, color = treatment)
@@ -392,7 +404,19 @@ ggsave(
 
 # RAIN plot (descriptive)
 plt <- ggplot(
-    data = dat_clean %>% filter(!client_id %in% c(253, 396) & !is.na(treatment)),
+    data = dat_clean %>% 
+      filter(!client_id %in% c(253, 396) & !is.na(treatment)) %>%
+      mutate(
+        timepoint = case_when(
+          str_detect(timepoint, "Module 1") ~ "Module 1",
+          str_detect(timepoint, "Module 2") ~ "Module 2",
+          str_detect(timepoint, "Module 3") ~ "Module 3",
+          str_detect(timepoint, "Module 4") ~ "Module 4",
+          str_detect(timepoint, "Module 5") ~ "Module 5",
+          str_detect(timepoint, "Module 6") ~ "Module 6",
+          TRUE ~ timepoint
+        )
+      ),
     aes(fill = treatment, x = timepoint, y = IoD, color = treatment)
   ) +
   geom_rain(
@@ -468,12 +492,12 @@ plt <- ggplot(
       ) %>%
       mutate(
         timepoint = case_when(
-          str_detect(timepoint, "Module 1") ~ "Module 1 (post)",
-          str_detect(timepoint, "Module 2") ~ "Module 2 (post)",
-          str_detect(timepoint, "Module 3") ~ "Module 3 (post)",
-          str_detect(timepoint, "Module 4") ~ "Module 4 (post)",
-          str_detect(timepoint, "Module 5") ~ "Module 5 (post)",
-          str_detect(timepoint, "Module 6") ~ "Module 6 (post)"
+          str_detect(timepoint, "Module 1") ~ "Module 1",
+          str_detect(timepoint, "Module 2") ~ "Module 2",
+          str_detect(timepoint, "Module 3") ~ "Module 3",
+          str_detect(timepoint, "Module 4") ~ "Module 4",
+          str_detect(timepoint, "Module 5") ~ "Module 5",
+          str_detect(timepoint, "Module 6") ~ "Module 6"
         )
       ),
     aes(fill = treatment, x = timepoint, y = value, color = treatment)
