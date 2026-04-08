@@ -87,12 +87,28 @@ poolObj <- pool(
 poolObj
 
 rbmi_tab <- poolObj %>% tibble::as_tibble() %>%
-  mutate(parameter = parameter %>%
-         gsub("trt_", "Group differences ", .) %>% gsub("lsm_ref_", "Least square mean [intervention] ", .) %>% gsub("lsm_alt_", "Least square mean [placebo] ", .),
-         pval = pretty_Pvalues(pval, orgbold=TRUE),
-         ci = paste0("(", round(lci, 2), ", ", round(uci, 2), ")"),
-         est = round(est, 2)) %>%
-  dplyr::select(parameter, est, ci, pval)
+  mutate(
+    # Erst Gruppe extrahieren, bevor wir die Labels bereinigen
+    group = stringr::str_extract(parameter, "Module [0-9]+"),
+    parameter = parameter %>%
+      gsub("trt_", "Group differences ", .) %>% 
+      gsub("lsm_ref_", "Least square mean [intervention] ", .) %>% 
+      gsub("lsm_alt_", "Least square mean [placebo] ", .) %>%
+      gsub(" Module [0-9]+ [(]post[)]", "", .),
+    # Lancet p-Wert Formatierung
+    pval = case_when(
+      pval < 0.001 ~ "<0\u00b7001",
+      pval < 0.01  ~ as.character(round(pval, 3)) %>% gsub("\\.", "\u00b7", .),
+      TRUE         ~ as.character(round(pval, 2))  %>% gsub("\\.", "\u00b7", .)
+    ),
+    ci = paste0("(", 
+                gsub("\\.", "\u00b7", sprintf("%.2f", lci)), 
+                ", ", 
+                gsub("\\.", "\u00b7", sprintf("%.2f", uci)), 
+                ")"),
+    est = gsub("\\.", "\u00b7", sprintf("%.2f", est))
+  ) %>%
+  dplyr::select(parameter, group, est, ci, pval)
 
 
 ### CARES
@@ -181,9 +197,25 @@ poolObj <- pool(
 poolObj
 
 rbmi_cares_tab <- poolObj %>% tibble::as_tibble() %>%
-  mutate(parameter = parameter %>%
-        gsub("trt_", "Group differences ", .) %>% gsub("lsm_ref_", "Least square mean [intervention] ", .) %>% gsub("lsm_alt_", "Least square mean [placebo] ", .),
-         pval = pretty_Pvalues(pval, orgbold=TRUE),
-         ci = paste0("(", round(lci, 2), ", ", round(uci, 2), ")"),
-         est = round(est, 2)) %>%
-  dplyr::select(parameter, est, ci, pval)
+  mutate(
+    # Erst Gruppe extrahieren, bevor wir die Labels bereinigen
+    group = stringr::str_extract(parameter, "Module [0-9]+"),
+    parameter = parameter %>%
+      gsub("trt_", "Group differences ", .) %>% 
+      gsub("lsm_ref_", "Least square mean [intervention] ", .) %>% 
+      gsub("lsm_alt_", "Least square mean [placebo] ", .) %>%
+      gsub(" Module [0-9]+ [(]post[)]", "", .),
+    # Lancet p-Wert Formatierung
+    pval = case_when(
+      pval < 0.001 ~ "<0\u00b7001",
+      pval < 0.01  ~ as.character(round(pval, 3)) %>% gsub("\\.", "\u00b7", .),
+      TRUE         ~ as.character(round(pval, 2))  %>% gsub("\\.", "\u00b7", .)
+    ),
+    ci = paste0("(", 
+                gsub("\\.", "\u00b7", sprintf("%.2f", lci)), 
+                ", ", 
+                gsub("\\.", "\u00b7", sprintf("%.2f", uci)), 
+                ")"),
+    est = gsub("\\.", "\u00b7", sprintf("%.2f", est))
+  ) %>%
+  dplyr::select(parameter, group, est, ci, pval)

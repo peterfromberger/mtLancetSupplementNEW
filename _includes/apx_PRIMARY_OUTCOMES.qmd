@@ -1,7 +1,7 @@
 ### CARES
 
 <!-- RAIN PLOT -->
-![Distribution of CARES total scores across study timepoints for the intervention and placebo groups. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Higher CARES scores indicate high risk to re-offense.](_figures/fig-cares-rainplot.png){#fig-cares-rainplot}
+![Distribution of CARES total scores across study timepoints for the intervention and placebo groups. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Higher CARES scores indicate higher risk to re-offense.](_figures/fig-cares-rainplot.png){#fig-cares-rainplot}
 
 <!-- ESTIMATED MARGINAL MEANS -->
 ![Estimated marginal means of the MMRM for the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score).](_figures/fig-cares-estimated-marginal-means.png){#fig-cares-estimated-marginal-means}
@@ -36,7 +36,7 @@ tbl <- fit2_c %>%
         `Timepoint * treatment` = "Timepoint * treatment"
       )
     ) %>%
-    modify_header(label ~ "**Variable**") %>%
+    modify_header(label ~ "**Variable**", p.value ~ "**p**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("StGB = German penalty law") %>%
@@ -47,6 +47,13 @@ tbl <- fit2_c %>%
         missing_symbol = "Ref."
     ) %>%
     bold_labels() %>%
+    modify_table_body(
+      ~ .x %>%
+        mutate(label = case_when(
+          variable %in% c("timepoint", "timepoint:treatment") ~ str_remove(label, fixed(" (post)")),
+          TRUE ~ label
+        ))
+    ) %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -79,34 +86,75 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-cares-sensitivity-analysis
-#| tbl-cap: "Sensitivity analysis for primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score). The table summarizes the results of a reference-based multiple imputation followed by ANCOVA models for the difference in the CARES compared to baseline."
+#| tbl-cap: "Sensitivity analysis for primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score). The table summarizes the results of a reference-based multiple imputation followed by ANCOVA models for the difference in the CARES compared to baseline. Group differences represent the estimated difference in score change between the intervention and placebo group after completing each module (negative values favour the intervention). Least square means represent the estimated average score for each group at the end of each module, adjusted for baseline scores."
+
 library(gt)
 
-# global theme for gtsummary
-gtsummary::theme_gtsummary_journal(journal = "lancet")
-
 tbl <- rbmi_cares_tab %>%
-      gt() %>%
-      gt::cols_label(
-        "est" = "Estimate",
-        "ci" = "95% CI",
-        "pval" = "p",
-        "parameter" = "Parameter"
-      ) %>%
-      gt::tab_options(
-          table.font.names = "Times New Roman",
-          table.font.size = 10,
-          quarto.use_bootstrap = FALSE,
-          quarto.disable_processing = TRUE,
-          data_row.padding = px(1),
-          summary_row.padding = gt::px(1),
-          grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
-          row_group.padding = gt::px(1)
-      ) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+  gt() %>%
+  gt::cols_label(
+    "est" = "Estimate",
+    "ci" = "95% CI",
+    "pval" = "p",
+    "parameter" = "Parameter"
+  ) %>%
+  # Gruppenspalte verstecken
+  cols_hide(columns = group) %>%
+  # Row groups über die group Spalte
+  tab_row_group(label = "Module 6", rows = group == "Module 6") %>%
+  tab_row_group(label = "Module 5", rows = group == "Module 5") %>%
+  tab_row_group(label = "Module 4", rows = group == "Module 4") %>%
+  tab_row_group(label = "Module 3", rows = group == "Module 3") %>%
+  tab_row_group(label = "Module 2", rows = group == "Module 2") %>%
+  tab_row_group(label = "Module 1", rows = group == "Module 1") %>%
+  gt::tab_options(
+    table.font.names = "Times New Roman",
+    table.font.size = 10,
+    quarto.use_bootstrap = FALSE,
+    quarto.disable_processing = TRUE,
+    data_row.padding = px(1),
+    summary_row.padding = px(1),
+    grand_summary_row.padding = px(1),
+    row_group.padding = px(1),
+    row_group.border.top.style = "none",
+    row_group.border.bottom.style = "none",
+    stub.border.style = "none",
+    row_group.background.color = "white",
+    column_labels.background.color = "white",
+    table.background.color = "white"
+  ) %>%
+  cols_align(align = "left",   columns = parameter) %>%
+  cols_align(align = "center", columns = c(est, ci, pval)) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_row_groups()
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+  tab_style(
+    style = cell_text(indent = px(15)),
+    locations = cells_body(
+      columns = parameter,
+      rows = grepl("Least square mean|Group differences", parameter)
+    )
+  ) %>%
+  tab_style(
+    style = cell_text(align = "left"),
+    locations = cells_source_notes()
+  ) %>%
+  tab_style(
+    style = cell_text(align = "left"),
+    locations = cells_footnotes()
+  ) %>%
+  tab_style(
+    style = cell_borders(sides = "all", style = "hidden"),
+    locations = cells_body()
+  ) %>%
+  tab_source_note(
+    source_note = "Abbreviations: CI = Confidence Interval."
+  )
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-sensitivity-analysis.pdf")))
@@ -217,14 +265,14 @@ tbl <- fit1 %>%
         Aktuelle_Betreuung = "Type of supervision",
         Aktuelle_zusatzliche_Behandlung = "Additional treatment",
         Indexdelikt = "Offense type",
-        IoD_reduced_baseline = "Baseline value",
+        IoD_baseline = "Baseline value",
         Zeit_seit_Beginn_Modul_1_in_Jahren = "Time since baseline (years)",
         treatment = "Treatment",
         timepoint = "Timepoint",
         `Timepoint * treatment` = "Timepoint * Treatment"
       )
     ) %>%
-    modify_header(label ~ "**Variable**") %>%
+    modify_header(label ~ "**Variable**", p.value ~ "**p**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval, StGB = German penalty law.") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
@@ -234,6 +282,13 @@ tbl <- fit1 %>%
         missing_symbol = "Ref."
     ) %>%
     bold_labels() %>%
+    modify_table_body(
+      ~ .x %>%
+        mutate(label = case_when(
+          variable %in% c("timepoint", "timepoint:treatment") ~ str_remove(label, fixed(" (post)")),
+          TRUE ~ label
+        ))
+    ) %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -267,7 +322,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-mmrm-time-since-baseline
-#| tbl-cap: "Explorative MMRM for Index of Desistance (IoD total score) with the additional factor time since beginning of the first module. StGB = German penalty law."
+#| tbl-cap: "Explorative MMRM for Index of Desistance (IoD total score) with the additional factor time since baseline. Time since baseline is defined as the time between the baseline measurement and the respective consecutive measurement time-point."
 
 library(gtsummary)
 library(gt)
@@ -284,14 +339,14 @@ tbl <- fit1_c %>%
         Aktuelle_Betreuung = "Type of supervision",
         Aktuelle_zusatzliche_Behandlung = "Additional treatment",
         Indexdelikt = "Offense type",
-        IoD_reduced_baseline = "Baseline value",
+        IoD_baseline = "Baseline value",
         Zeit_seit_Beginn_Modul_1_in_Jahren = "Time since baseline (years)",
         treatment = "Treatment",
         timepoint = "Timepoint",
         `Timepoint * treatment` = "Timepoint * Treatment"
       )
     ) %>%
-    modify_header(label ~ "**Variable**") %>%
+    modify_header(label ~ "**Variable**", p.value ~ "**p**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval, StGB = German penalty law.") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
@@ -301,6 +356,13 @@ tbl <- fit1_c %>%
         missing_symbol = "Ref."
     ) %>%
     bold_labels() %>%
+    modify_table_body(
+      ~ .x %>%
+        mutate(label = case_when(
+          variable %in% c("timepoint", "timepoint:treatment") ~ str_remove(label, fixed(" (post)")),
+          TRUE ~ label
+        ))
+    ) %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -347,20 +409,63 @@ tbl <- rbmi_tab %>%
     "pval" = "p",
     "parameter" = "Parameter"
   ) %>%
+  # Gruppenspalte verstecken
+  cols_hide(columns = group) %>%
+  # Row groups über die group Spalte
+  tab_row_group(label = "Module 6", rows = group == "Module 6") %>%
+  tab_row_group(label = "Module 5", rows = group == "Module 5") %>%
+  tab_row_group(label = "Module 4", rows = group == "Module 4") %>%
+  tab_row_group(label = "Module 3", rows = group == "Module 3") %>%
+  tab_row_group(label = "Module 2", rows = group == "Module 2") %>%
+  tab_row_group(label = "Module 1", rows = group == "Module 1") %>%
   gt::tab_options(
     table.font.names = "Times New Roman",
-          table.font.size = 10,
-          quarto.use_bootstrap = FALSE,
-          quarto.disable_processing = TRUE,
-          data_row.padding = px(1),
-          summary_row.padding = gt::px(1),
-          grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
-          row_group.padding = gt::px(1)
+    table.font.size = 10,
+    quarto.use_bootstrap = FALSE,
+    quarto.disable_processing = TRUE,
+    data_row.padding = px(1),
+    summary_row.padding = px(1),
+    grand_summary_row.padding = px(1),
+    row_group.padding = px(1),
+    row_group.border.top.style = "none",
+    row_group.border.bottom.style = "none",
+    stub.border.style = "none",
+    row_group.background.color = "white",
+    column_labels.background.color = "white",
+    table.background.color = "white"
   ) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+  cols_align(align = "left",   columns = parameter) %>%
+  cols_align(align = "center", columns = c(est, ci, pval)) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_row_groups()
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+  tab_style(
+    style = cell_text(indent = px(15)),
+    locations = cells_body(
+      columns = parameter,
+      rows = grepl("Least square mean|Group differences", parameter)
+    )
+  ) %>%
+  tab_style(
+    style = cell_text(align = "left"),
+    locations = cells_source_notes()
+  ) %>%
+  tab_style(
+    style = cell_text(align = "left"),
+    locations = cells_footnotes()
+  ) %>%
+  tab_style(
+    style = cell_borders(sides = "all", style = "hidden"),
+    locations = cells_body()
+  ) %>%
+  tab_source_note(
+    source_note = "Abbreviations: CI = Confidence Interval."
+  )
 
 # save tbl as image
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-sensitivity-analysis.pdf")))

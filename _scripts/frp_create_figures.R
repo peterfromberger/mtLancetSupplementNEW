@@ -13,7 +13,18 @@ scale_colour_group <- function(...) {
     values = c(
       "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
       "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
-    )
+    ),
+    breaks = c("Intervention", "Placebo")
+  )
+}
+
+scale_color_group <- function(...) {
+  scale_color_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    ),
+    breaks = c("Intervention", "Placebo")
   )
 }
 
@@ -22,21 +33,44 @@ scale_fill_group <- function(...) {
     values = c(
       "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
       "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
-    )
+    ),
+    breaks = c("Intervention", "Placebo")
   )
 }
 
 add_gg_theme <- function(plt) {
+  
+  # Gemeinsame override.aes Definition
+  legend_override <- list(
+    shape = 22,
+    size = 5,
+    linetype = 0,
+    linewidth = 0,
+    alpha = 0.8,
+    colour = "black"
+  )
+  
   plt <- plt +
     scale_fill_group() +
     scale_colour_group() +
+    scale_color_group() +
     ggplot2::theme_classic() + 
     ggplot2::theme(
-          axis.title = element_text(size = 16),
-          axis.text = element_text(size = 14),
-          legend.title = element_text(size = 16),
-          legend.text = element_text(size = 14),
-      )
+      axis.title = element_text(size = 16),
+      axis.text = element_text(size = 14),
+      legend.title = element_text(size = 16),
+      legend.text = element_text(size = 14),
+    ) +
+    guides(
+      color     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      colour    = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      fill      = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      shape     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      linetype  = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      size      = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      alpha     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      linewidth = guide_legend(title = "Treatment", order = 1, override.aes = legend_override)
+    )
 
   return(plt)
 }
@@ -53,35 +87,32 @@ add_gg_theme <- function(plt) {
 emm <- emmeans(fit2, ~ treatment | timepoint)
 emm_df <- as.data.frame(emm)
 
-plt <- ggplot(
-    emm_df, 
+plt <- emm_df %>%
+  mutate(timepoint = gsub(" [(]post[)]", "", timepoint)) %>%
+  ggplot(
     aes(
       x = timepoint,
       y = emmean, 
-      color = treatment, 
+      color = treatment,
+      fill = treatment,
       group = treatment
     )
   ) +
-  geom_line() +
-  geom_point(size = 3) +
+  geom_line(show.legend = FALSE) +
+  geom_point(size = 3, show.legend = FALSE) +
   geom_ribbon(
     aes(
       ymin = lower.CL, 
       ymax = upper.CL
     ),
-    alpha = 0.2
+    alpha = 0.2,
+    show.legend = TRUE
   ) +
   labs(
     y = "Estimated marginal means ± 95% CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
-  ) %>%
-  scale_colour_manual(
-    values = c(
-      "Intervention" = ggsci::pal_lancet()(1),
-      "Placebo" = ggsci::pal_lancet()(2)
-    )
   )
   
 plt <- add_gg_theme(plt)
@@ -111,15 +142,20 @@ plt <- ggplot(
     aes(
       x = timepoint,
       y = emmean, 
-      color = treatment, 
+      color = treatment,
+      fill = treatment, 
       group = treatment
     )
   ) +
-  geom_line() +
-  geom_point(size = 3) +
+  geom_line(show.legend = FALSE) +
+  geom_point(size = 3, show.legend = FALSE) +
   geom_ribbon(
-    aes(ymin = lower.CL, ymax = upper.CL),
-    alpha = 0.2
+    aes(
+      ymin = lower.CL, 
+      ymax = upper.CL
+    ),
+    alpha = 0.2,
+    show.legend = TRUE
   ) +
   labs(
     y = "Estimated marginal mean ± 95% CI",
@@ -181,7 +217,8 @@ plt <- ggplot(
     boxplot.args = list(
       outlier.shape = NA,
       color = "black",
-      alpha = .7
+      alpha = .7,
+      show.legend = FALSE
     ),
     boxplot.args.pos = list(
       position = ggpp::position_dodgenudge(
@@ -191,7 +228,8 @@ plt <- ggplot(
       width = 0.15
     ),
     violin.args = list(
-      alpha = .2
+      alpha = .2,
+      show.legend = FALSE
     ),
     violin.args.pos = list(
       position = ggpp::position_dodgenudge(
@@ -264,7 +302,8 @@ plt <- ggplot(
     boxplot.args = list(
       outlier.shape = NA,
       color = "black",
-      alpha = .7
+      alpha = .7,
+      show.legend = FALSE
     ),
     boxplot.args.pos = list(
       position = ggpp::position_dodgenudge(
@@ -274,7 +313,8 @@ plt <- ggplot(
       width = 0.15
     ),
     violin.args = list(
-      alpha = .2
+      alpha = .2,
+      show.legend = FALSE
     ),
     violin.args.pos = list(
       position = ggpp::position_dodgenudge(
@@ -317,23 +357,29 @@ ggsave(
 emm <- emmeans(fit1, ~ treatment | timepoint)
 emm_df <- as.data.frame(emm)
 
-plt <- ggplot(
-    emm_df, 
+plt <- emm_df %>%
+  mutate(timepoint = gsub(" [(]post[)]", "", timepoint)) %>%
+  ggplot(
     aes(
       x = timepoint,
       y = emmean, 
-      color = treatment, 
+      color = treatment,
+      fill = treatment,
       group = treatment
     )
   ) +
-  geom_line() +
-  geom_point(size = 3) +
+  geom_line(show.legend = FALSE) +
+  geom_point(size = 3, show.legend = FALSE) +
   geom_ribbon(
-    aes(ymin = lower.CL, ymax = upper.CL),
-    alpha = 0.2
+    aes(
+      ymin = lower.CL, 
+      ymax = upper.CL
+    ),
+    alpha = 0.2,
+    show.legend = TRUE
   ) +
   labs(
-    y = "Estimated marginal mean ± 95%-CI",
+    y = "Estimated marginal means ± 95% CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -361,23 +407,29 @@ ggsave(
 emm <- emmeans(fit1_c, ~ treatment | timepoint)
 emm_df <- as.data.frame(emm)
 
-plt <- ggplot(
-    emm_df, 
+plt <- emm_df %>%
+  mutate(timepoint = gsub(" [(]post[)]", "", timepoint)) %>%
+  ggplot(
     aes(
       x = timepoint,
       y = emmean, 
-      color = treatment, 
+      color = treatment,
+      fill = treatment,
       group = treatment
     )
   ) +
-  geom_line() +
-  geom_point(size = 3) +
+  geom_line(show.legend = FALSE) +
+  geom_point(size = 3, show.legend = FALSE) +
   geom_ribbon(
-    aes(ymin = lower.CL, ymax = upper.CL),
-    alpha = 0.2
+    aes(
+      ymin = lower.CL, 
+      ymax = upper.CL
+    ),
+    alpha = 0.2,
+    show.legend = TRUE
   ) +
   labs(
-    y = "Estimated marginal mean ± 95%-CI",
+    y = "Estimated marginal means ± 95% CI",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -436,7 +488,8 @@ plt <- ggplot(
     boxplot.args = list(
       outlier.shape = NA,
       color = "black",
-      alpha = .7
+      alpha = .7,
+      show.legend = FALSE
     ),
     boxplot.args.pos = list(
       position = ggpp::position_dodgenudge(
@@ -446,7 +499,8 @@ plt <- ggplot(
       width = 0.15
     ),
     violin.args = list(
-      alpha = .2
+      alpha = .2,
+      show.legend = FALSE
     ),
     violin.args.pos = list(
       position = ggpp::position_dodgenudge(
@@ -519,7 +573,8 @@ plt <- ggplot(
     boxplot.args = list(
       outlier.shape = NA,
       color = "black",
-      alpha = .7
+      alpha = .7,
+      show.legend = FALSE
     ),
     boxplot.args.pos = list(
       position = ggpp::position_dodgenudge(
@@ -529,7 +584,8 @@ plt <- ggplot(
       width = 0.15
     ),
     violin.args = list(
-      alpha = .2
+      alpha = .2,
+      show.legend = FALSE
     ),
     violin.args.pos = list(
       position = ggpp::position_dodgenudge(
@@ -631,13 +687,25 @@ plot_and_save_dv <- function(var, label, var_nice, data) {
       seed = 42,
       alpha = .5,
       rain.side = "f2x2",
-      point.args = list(alpha = 0.3, shape = 21),
+      line.args = list(
+        size = 1,
+        alpha = 1,
+        show.legend = FALSE
+      ),
+      point.args = list(
+        alpha = 0.3, 
+        shape = 21
+      ),
       boxplot.args = list(
         outlier.shape = NA,
         color = "black",
-        alpha = .7
+        alpha = .7,
+        show.legend = FALSE
       ),
-      violin.args = list(alpha = .2)
+      violin.args = list(
+        alpha = .2, 
+        show.legend = FALSE
+      )
     ) +
     labs(
       y = label,
