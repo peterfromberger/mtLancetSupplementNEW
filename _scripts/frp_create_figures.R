@@ -727,16 +727,16 @@ plot_and_save_dv <- function(var, label, var_nice, data) {
     here::here(name_png),
     plot = plt,
     dpi = 300,
-    width = 10.1,
-    height = 10.1
+    width = 8,
+    height = 8
   )
 
   ggsave(
     here::here(name_pdf),
     plot = plt,
     dpi = 300,
-    width = 10.1,
-    height = 10.1
+    width = 8,
+    height = 8
   )
 
   invisible(plt)

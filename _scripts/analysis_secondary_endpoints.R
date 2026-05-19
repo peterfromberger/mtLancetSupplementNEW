@@ -1,3 +1,6 @@
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
 # load each dataset for each secondary endpoint and filter for non-missing values
 dat_complete_sec_cvtrq <- dat_complete %>% dplyr::filter(!is.na(cvtrq_calc_total))
 dat_complete_sec_cvtrq %<>% mutate(timepoint=case_match(timepoint,
@@ -199,8 +202,8 @@ dat_complete_sec <- dat_complete_sec %>%
     ),
     `Indexdelikt` = fct_recode(
       `Indexdelikt`,
-      "Hands-off (only §184b StGB)" = "Nur § 184b",
-      "Hands-on (at least one conviction §176 ff StGB)" = "Auch §§ 176, 176a, 176b StGB"
+      "Non-contact (only §184b StGB)" = "Nur § 184b",
+      "Contact (at least one conviction §176 ff StGB)" = "Auch §§ 176, 176a, 176b StGB"
       # weitere Kategorien nach Bedarf
     )
   )
@@ -235,68 +238,6 @@ tests <- c(`cvtrq_calc_total` = "w.nparcomp.paired",
            ssik_calc_total = "w.nparcomp.paired", 
            soi_total_score = "w.nparcomp.paired")
 
-# dtab_sec <- dat_complete_sec_intervention %>%
-#   dplyr::select(cvtrq_calc_total, rcq_calc_total, fsozu_calc_total, ors_calc_total, ucla_calc_total, bis_calc_total, cusi_calc_total, ders_calc_imp, narq_calc_ris, spsi_calc_total, kvm_score, ekk_calc_total, esiq_calc_total_child, hbi_calc_total, ssik_calc_total, soi_total_score, timepoint) %>%
-#   descsuppR::buildDescrTbl(
-#     groupby = "timepoint",
-#     useutf8 = "utf8",
-#     show.IQR = TRUE,
-#     includeNAs = TRUE,
-#     factorlevellimit = 45,
-#     dopvals = TRUE,
-#     tests = tests,
-#     descr_digits = 3,
-#     pvals_digits = 3,
-#     orderedAsUnordered = TRUE,
-#     report_tests = TRUE,
-#     report_testmessages = FALSE)
-
-# dtab_sec_placebo <- dat_complete_sec_placebo %>%
-#   dplyr::select(cvtrq_calc_total, rcq_calc_total, fsozu_calc_total, ors_calc_total, ucla_calc_total, bis_calc_total, cusi_calc_total, ders_calc_imp, narq_calc_ris, spsi_calc_total, kvm_score, ekk_calc_total, esiq_calc_total_child, hbi_calc_total, ssik_calc_total, soi_total_score, timepoint) %>%
-#   descsuppR::buildDescrTbl(
-#     groupby = "timepoint",
-#     useutf8 = "utf8",
-#     show.IQR = TRUE,
-#     includeNAs = TRUE,
-#     factorlevellimit = 45,
-#     dopvals = TRUE,
-#     tests = tests,
-#     descr_digits = 3,
-#     pvals_digits = 3,
-#     orderedAsUnordered = TRUE,
-#     report_tests = TRUE,
-#     report_testmessages = FALSE)
-
-# dtab_sec_expl <- dat_complete_sec_intervention %>%
-#   dplyr::select("esiq_calc_fan_child", "esiq_calc_ver_child", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics", timepoint) %>%
-#   descsuppR::buildDescrTbl(
-#     groupby = "timepoint",
-#     useutf8 = "utf8",
-#     show.IQR = TRUE,
-#     includeNAs = TRUE,
-#     factorlevellimit = 45,
-#     dopvals = TRUE,
-#     tests = tests,
-#     descr_digits = 3,
-#     pvals_digits = 3,
-#     orderedAsUnordered = TRUE,
-#     report_tests = TRUE,
-#     report_testmessages = FALSE)
-
-# dtab_sec_placebo_expl <- dat_complete_sec_placebo %>%
-#   dplyr::select("esiq_calc_fan_child", "esiq_calc_ver_child", "spsi_calc_as", "spsi_calc_ppo", "spsi_calc_rps", "spsi_calc_npo", "spsi_calc_ics", timepoint) %>% descsuppR::buildDescrTbl(
-#     groupby = "timepoint",
-#     useutf8 = "utf8",
-#     show.IQR = TRUE,
-#     includeNAs = TRUE,
-#     factorlevellimit = 45,
-#     dopvals = TRUE,
-#     tests = tests,
-#     descr_digits = 3,
-#     pvals_digits = 3,
-#     orderedAsUnordered = TRUE,
-#     report_tests = TRUE,
-#     report_testmessages = FALSE)
 
 score_columns <- c("cvtrq_calc_total", "rcq_calc_total", "fsozu_calc_total", "ors_calc_total",
                    "ucla_calc_total", "bis_calc_total", "cusi_calc_total", "ders_calc_imp",
@@ -311,7 +252,6 @@ df_wide <- dat_complete_sec %>%
   dplyr::select(all_of(score_columns), timepoint, client_id, treatment, `Indexdelikt`, `Aktuelle Betreuung`, `Aktuelle zusätzliche Behandlung`, `Baseline Static-99-Score`, static99_modified_calc) %>%
   tidyr::pivot_wider(names_from = timepoint, values_from = -c(client_id, timepoint, treatment, `Indexdelikt`, `Aktuelle Betreuung`, `Aktuelle zusätzliche Behandlung`, `Baseline Static-99-Score`, static99_modified_calc)) %>%
   dplyr::mutate(`treatment` = `treatment` %>% relevel(ref = "Placebo"),
-#                Indexdelikt = Indexdelikt %>% factor() %>% relevel(ref = "Nur § 184b"),
                 `Aktuelle zusätzliche Behandlung` = `Aktuelle zusätzliche Behandlung` %>% relevel(ref = "No"))
 
 
@@ -333,52 +273,13 @@ df_diff_expl <- df_wide_expl %>%
   mutate(across(ends_with("post"), ~ . - get(sub("post", "pre", cur_column())), .names = "diff_{.col}")) %>%
   rename_with(~ sub("_post$", "", .), starts_with("diff_")) %>%
   dplyr::select(client_id, starts_with("diff_"), treatment) %>%
-  mutate(diff_rcq_calc_current_stage = case_when(df_wide_expl$rcq_calc_current_stage_pre>df_wide_expl$rcq_calc_current_stage_post ~ "Verbesserung",
-                                                 df_wide_expl$rcq_calc_current_stage_pre==df_wide_expl$rcq_calc_current_stage_post ~ "keine Veränderung",
-                                                 df_wide_expl$rcq_calc_current_stage_pre<df_wide_expl$rcq_calc_current_stage_post ~ "Verschlechterung") %>%
-           factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE))
+  mutate(diff_rcq_calc_current_stage = case_when(df_wide_expl$rcq_calc_current_stage_pre>df_wide_expl$rcq_calc_current_stage_post ~ "Improvement",
+                                                 df_wide_expl$rcq_calc_current_stage_pre==df_wide_expl$rcq_calc_current_stage_post ~ "No change",
+                                                 df_wide_expl$rcq_calc_current_stage_pre<df_wide_expl$rcq_calc_current_stage_post ~ "Worsening") %>%
+           factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE))
 
 variable_names <- paste0("diff_", score_columns)
 tests <- generate_named_vector(variable_names, "w.npar.t.test")
-
-# dtab_sec2 <- df_diff %>% dplyr::select(-client_id) %>%
-#                          filter(!is.na(treatment)) %>%
-#                          descsuppR::buildDescrTbl(groupby = "treatment",
-#                                                   useutf8 = "utf8",
-#                                                   show.IQR = TRUE,
-#                                                   includeNAs = TRUE,
-#                                                   factorlevellimit = 45,
-#                                                   dopvals = TRUE,
-#                                                   tests = tests,
-#                                                   descr_digits = 3,
-#                                                   pvals_digits = 3,
-#                                                   orderedAsUnordered = TRUE,
-#                                                   report_tests = TRUE,
-#                                                   report_testmessages = FALSE)
-
-# dplot_sec2 <- dtab_sec2 %>%
-#   descsuppRplots::plotDescTbl(centrality.plotting = FALSE)
-
-# variable_names_expl <- paste0("diff_", score_columns_exploratory)
-# tests <- generate_named_vector(variable_names_expl, "w.npar.t.test")
-# dtab_sec2_expl <- df_diff_expl %>% dplyr::select(-client_id) %>%
-#   filter(!is.na(treatment)) %>%
-#   descsuppR::buildDescrTbl(groupby = "treatment",
-#                            useutf8 = "utf8",
-#                            show.IQR = TRUE,
-#                            includeNAs = TRUE,
-#                            factorlevellimit = 45,
-#                            dopvals = TRUE,
-#                            tests = tests,
-#                            descr_digits = 3,
-#                            pvals_digits = 3,
-#                            orderedAsUnordered = TRUE,
-#                            report_tests = TRUE,
-#                            report_testmessages = FALSE,
-#                            p.adjust.method = NULL)
-
-# dplot_sec2_expl <- dtab_sec2_expl %>%
-#   descsuppRplots::plotDescTbl(centrality.plotting = FALSE)
 
 # Regression models
 pretty_Pvalues <- function(p_vals,
@@ -453,98 +354,105 @@ tab_lm <- function(fit, exponentiate=FALSE)
 {
   if (!exponentiate)
     fit %>%
-    tbl_regression(
-      add_estimate_to_reference_rows = TRUE,
-      intercept = TRUE,
-      #pvalue_fun = pretty_Pvalues,
-      label = list(
-        static99_modified_calc = "Static recidivism risk (baseline)",
-        `Aktuelle Betreuung` = "Type of supervision",
-        `Aktuelle zusätzliche Behandlung` = "Additional treatment",
-        Indexdelikt = "Offense type",
-        treatment = "Treatment",
-        cvtrq_calc_total_pre = "Baseline value (pre)",
-        rcq_calc_total_pre = "Baseline value (pre)",
-        ors_calc_total_pre = "Baseline value (pre)",
-        fsozu_calc_total_pre = "Baseline value (pre)",
-        ucla_calc_total_pre = "Baseline value (pre)",
-        bis_calc_total_pre = "Baseline value (pre)",
-        cusi_calc_total_pre = "Baseline value (pre)",
-        ders_calc_imp_pre = "Baseline value (pre)",
-        narq_calc_ris_pre = "Baseline value (pre)",
-        spsi_calc_total_pre = "Baseline value (pre)",
-        kvm_calc_total_pre = "Baseline value (pre)",
-        esiq_calc_total_child_pre = "Baseline value (pre)",
-        hbi_calc_total_pre = "Baseline value (pre)",
-        ssik_calc_total_pre = "Baseline value (pre)",
-        ekk_calc_total_pre = "Baseline value (pre)",
-        soi_total_score_pre = "Baseline value (pre)"
-    )) %>%
-    add_n(location = "level") %>% #add_nevent(location = "level") %>%
-    modify_header(label ~ "**Variable**") %>%
-    #    add_global_p(keep=TRUE) %>%
-    modify_table_styling(
-      columns = c(estimate, conf.low, conf.high),
-      rows = reference_row %in% TRUE,
-      missing_symbol = "Ref.") %>%
-    #modify_footnote(abbreviation = TRUE) %>%
-    bold_labels() %>%
-    #italic_p(t = 0.05) %>%
-    # CI in round brackets:
-    #modify_column_merge(pattern = "({conf.low}, {conf.high})",
-    #                    rows =  conf.low!="") %>%
-    modify_table_body(
-      ~ .x %>%
-      dplyr::mutate(adjusted_p_value = "")
+      tbl_regression(
+        add_estimate_to_reference_rows = TRUE,
+        intercept = TRUE,
+        label = list(
+          static99_modified_calc = "Static recidivism risk (baseline)",
+          `Aktuelle Betreuung` = "Type of supervision",
+          `Aktuelle zusätzliche Behandlung` = "Additional treatment",
+          Indexdelikt = "Offense type",
+          treatment = "Treatment",
+          cvtrq_calc_total_pre = "Baseline value (pre)",
+          rcq_calc_total_pre = "Baseline value (pre)",
+          ors_calc_total_pre = "Baseline value (pre)",
+          fsozu_calc_total_pre = "Baseline value (pre)",
+          ucla_calc_total_pre = "Baseline value (pre)",
+          bis_calc_total_pre = "Baseline value (pre)",
+          cusi_calc_total_pre = "Baseline value (pre)",
+          ders_calc_imp_pre = "Baseline value (pre)",
+          narq_calc_ris_pre = "Baseline value (pre)",
+          spsi_calc_total_pre = "Baseline value (pre)",
+          kvm_calc_total_pre = "Baseline value (pre)",
+          esiq_calc_total_child_pre = "Baseline value (pre)",
+          hbi_calc_total_pre = "Baseline value (pre)",
+          ssik_calc_total_pre = "Baseline value (pre)",
+          ekk_calc_total_pre = "Baseline value (pre)",
+          soi_total_score_pre = "Baseline value (pre)"
+        )
     ) %>%
-    modify_header(estimate ~ "**β**", adjusted_p_value = "**adjusted p value**") else
-    fit %>%
-    tbl_regression(
-      add_estimate_to_reference_rows = TRUE,
-      intercept = TRUE,
-      #tidy_fun = my_log_lm_tidy,
-      #estimate_fun = purrr::partial(style_ratio, digits = 2),
-      #pvalue_fun = pretty_Pvalues,
-      label = list(
-        static99_modified_calc = "Static recidivism risk (baseline)",
-        `Aktuelle Betreuung` = "Type of supervision",
-        `Aktuelle zusätzliche Behandlung` = "Additional treatment",
-        Indexdelikt = "Offense type",
-        Treatment = "Treatment",
-        cvtrq_calc_total_pre = "Baseline value (pre)",
-        rcq_calc_total_pre = "Baseline value (pre)",
-        ors_calc_total_pre = "Baseline value (pre)",
-        fsozu_calc_total_pre = "Baseline value (pre)",
-        ucla_calc_total_pre = "Baseline value (pre)",
-        bis_calc_total_pre = "Baseline value (pre)",
-        cusi_calc_total_pre = "Baseline value (pre)",
-        ders_calc_imp_pre = "Baseline value (pre)",
-        narq_calc_ris_pre = "Baseline value (pre)",
-        spsi_calc_total_pre = "Baseline value (pre)",
-        kvm_calc_total_pre = "Baseline value (pre)",
-        esiq_calc_total_child_pre = "Baseline value (pre)",
-        hbi_calc_total_pre = "Baseline value (pre)",
-        ssik_calc_total_pre = "Baseline value (pre)",
-        ekk_calc_total_pre = "Baseline value (pre)",
-        soi_total_score_pre = "Baseline value (pre)"
-    )) %>%
-    add_n(location = "level") %>% #add_nevent(location = "level") %>%
-    modify_header(label ~ "**Variable**") %>%
-    #    add_global_p(keep=TRUE) %>%
-    #modify_table_styling(
-    #  columns = c(estimate, conf.low, conf.high),
-    #  rows = reference_row %in% TRUE,
-    #  missing_symbol = "Ref.") %>%
-    modify_footnote(abbreviation = TRUE) %>%
+    add_q(method = "holm") %>%
+    add_n(location = "level") %>%
+    modify_table_styling(
+        columns = c(estimate, conf.low, conf.high),
+        rows = reference_row %in% TRUE,
+        missing_symbol = "Ref."
+    ) %>%
     bold_labels() %>%
-    #italic_p(t = 0.05) %>%
-    # CI in round brackets:
-    #modify_column_merge(pattern = "({conf.low}, {conf.high})",
-    #                    rows =  conf.low!="") %>%
     modify_table_body(
-      ~ .x %>%
-        dplyr::mutate(adjusted_p_value = rep("", 15))) %>%
-    modify_header(estimate ~ "**exp(β)**", adjusted_p_value = "**adjusted p value**")
+        ~ .x %>%
+        dplyr::mutate(adjusted_p_value = "")
+    ) %>%
+    modify_header(
+        label ~ "**Variable**",
+        p.value = "**p**",
+        q.value = "**q**"
+    ) %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
+    # abbreviations
+    modify_abbreviation("CI = Confidence Interval, q = Holm-Bonferroni adjusted p.") 
+      
+    else
+      fit %>%
+        tbl_regression(
+        add_estimate_to_reference_rows = TRUE,
+        intercept = TRUE,
+        label = list(
+          static99_modified_calc = "Static recidivism risk (baseline)",
+          `Aktuelle Betreuung` = "Type of supervision",
+          `Aktuelle zusätzliche Behandlung` = "Additional treatment",
+          Indexdelikt = "Offense type",
+          treatment = "Treatment",
+          cvtrq_calc_total_pre = "Baseline value (pre)",
+          rcq_calc_total_pre = "Baseline value (pre)",
+          ors_calc_total_pre = "Baseline value (pre)",
+          fsozu_calc_total_pre = "Baseline value (pre)",
+          ucla_calc_total_pre = "Baseline value (pre)",
+          bis_calc_total_pre = "Baseline value (pre)",
+          cusi_calc_total_pre = "Baseline value (pre)",
+          ders_calc_imp_pre = "Baseline value (pre)",
+          narq_calc_ris_pre = "Baseline value (pre)",
+          spsi_calc_total_pre = "Baseline value (pre)",
+          kvm_calc_total_pre = "Baseline value (pre)",
+          esiq_calc_total_child_pre = "Baseline value (pre)",
+          hbi_calc_total_pre = "Baseline value (pre)",
+          ssik_calc_total_pre = "Baseline value (pre)",
+          ekk_calc_total_pre = "Baseline value (pre)",
+          soi_total_score_pre = "Baseline value (pre)"
+        )
+    ) %>%
+    add_q(method = "holm") %>%
+    add_n(location = "level") %>%
+    modify_table_styling(
+        columns = c(estimate, conf.low, conf.high),
+        rows = reference_row %in% TRUE,
+        missing_symbol = "Ref."
+    ) %>%
+    bold_labels() %>%
+    modify_table_body(
+        ~ .x %>%
+        dplyr::mutate(adjusted_p_value = "")
+    ) %>%
+    modify_header(
+        label ~ "**Variable**",
+        p.value = "**p**",
+        q.value = "**q**"
+    ) %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
+    # abbreviations
+    modify_abbreviation("CI = Confidence Interval, q = Holm-Bonferroni adjusted p.")
 }
 
 # ------
@@ -557,7 +465,7 @@ tab_glm <- function(fit)
   fit %>%
     tbl_regression(exponentiate = TRUE,
                    add_estimate_to_reference_rows = TRUE,
-                   estimate_fun = purrr::partial(style_ratio, digits = 2), pvalue_fun = pretty_Pvalues,
+                   estimate_fun = purrr::partial(style_ratio, digits = 2),
                    label = list(
                       static99_modified_calc = "Static recidivsm risk (baseline)",
                       `Aktuelle Betreuung` = "Type of supervision",
@@ -583,35 +491,33 @@ tab_glm <- function(fit)
                       soi_total_score_pre = "Baseline value (pre)")) %>%
     add_n(location = "level") %>%
     add_nevent(location = "level") %>%
-    modify_header(label ~ "**Variable**")  %>%
-    #  add_global_p(keep=TRUE, include = dat %>% select(indep_var_string) %>% select_if(~ is.factor(.) & nlevels(as.factor(.))>2) %>% names) %>%
     modify_table_styling(
       columns = c(estimate, conf.low, conf.high),
       rows = reference_row %in% TRUE,
       missing_symbol = "Ref."
     ) %>%
-    #modify_footnote(abbreviation = TRUE) %>%
+    modify_footnote(abbreviation = TRUE) %>%
     bold_labels() %>%
-    #italic_p(t = 0.05) %>%
-    # CI in round brackets:
-    #modify_column_merge(pattern = "({conf.low}, {conf.high})",
-    #                    rows =  conf.low!="") %>%
     modify_table_body(
       ~ .x %>%
       dplyr::mutate(adjusted_p_value = "")
     ) %>%
-    modify_header(adjusted_p_value = "**adjusted p value**") 
+    modify_header(
+      label ~ "**Variable**",
+      p.value = "**p**",
+      adjusted_p_value = "**q**"
+    ) 
 else
   fit %>%
     tbl_regression(exponentiate = TRUE,
                    add_estimate_to_reference_rows = TRUE,
-                   estimate_fun = purrr::partial(style_ratio, digits = 2), pvalue_fun = pretty_Pvalues,
+                   estimate_fun = purrr::partial(style_ratio, digits = 2),
                    label = list(
                       static99_modified_calc = "Static recidivsm risk (baseline)",
                       `Aktuelle Betreuung` = "Type of supervision",
                       `Aktuelle zusätzliche Behandlung` = "Additional treatment",
                       `Indexdelikt` = "Offense type",
-                      Treatment = "Treatment",
+                      treatment = "Treatment",
                       cvtrq_calc_total_pre = "Baseline value (pre)",
                       ekk_calc_total_pre = "Baseline value (pre)",
                       rcq_calc_total_pre = "Baseline value (pre)",
@@ -629,25 +535,131 @@ else
                       `ssik_calc_total_pre>=30` = "Baseline value (pre)",
                       ssik_calc_total_pre = "Baseline value (pre)",
                       soi_total_score_pre = "Baseline value (pre)")) %>%
-    add_n(location = "level") %>% #add_nevent(location = "level") %>%
-    modify_header(label ~ "**Variable**")  %>%
-    #  add_global_p(keep=TRUE, include = dat %>% select(indep_var_string) %>% select_if(~ is.factor(.) & nlevels(as.factor(.))>2) %>% names) %>%
+    add_n(location = "level") %>%
     modify_table_styling(
       columns = c(estimate, conf.low, conf.high),
       rows = reference_row %in% TRUE,
       missing_symbol = "Ref."
     ) %>%
-    #modify_footnote(abbreviation = TRUE) %>%
+    modify_footnote(abbreviation = TRUE) %>%
     bold_labels() %>%
-    #italic_p(t = 0.05) %>%
-    # CI in round brackets:
-    #modify_column_merge(pattern = "({conf.low}, {conf.high})",
-    #                    rows =  conf.low!="") %>%
     modify_table_body(
       ~ .x %>%
         dplyr::mutate(adjusted_p_value = "")) %>%
-    modify_header(adjusted_p_value = "**adjusted p value**")
+    modify_header(
+          label ~ "**Variable**",
+          p.value = "**p**",
+          adjusted_p_value = "**q**"
+      )
 }
+
+
+# tab_glm <- function(fit)
+# {
+#   if(class(fit)[1]=="glm")
+#   fit %>%
+#     tbl_regression(
+#         add_estimate_to_reference_rows = TRUE,
+#         intercept = TRUE,
+#         label = list(
+#           static99_modified_calc = "Static recidivism risk (baseline)",
+#           `Aktuelle Betreuung` = "Type of supervision",
+#           `Aktuelle zusätzliche Behandlung` = "Additional treatment",
+#           Indexdelikt = "Offense type",
+#           treatment = "Treatment",
+#           cvtrq_calc_total_pre = "Baseline value (pre)",
+#           rcq_calc_total_pre = "Baseline value (pre)",
+#           ors_calc_total_pre = "Baseline value (pre)",
+#           fsozu_calc_total_pre = "Baseline value (pre)",
+#           ucla_calc_total_pre = "Baseline value (pre)",
+#           bis_calc_total_pre = "Baseline value (pre)",
+#           cusi_calc_total_pre = "Baseline value (pre)",
+#           ders_calc_imp_pre = "Baseline value (pre)",
+#           narq_calc_ris_pre = "Baseline value (pre)",
+#           spsi_calc_total_pre = "Baseline value (pre)",
+#           kvm_calc_total_pre = "Baseline value (pre)",
+#           esiq_calc_total_child_pre = "Baseline value (pre)",
+#           hbi_calc_total_pre = "Baseline value (pre)",
+#           ssik_calc_total_pre = "Baseline value (pre)",
+#           ekk_calc_total_pre = "Baseline value (pre)",
+#           soi_total_score_pre = "Baseline value (pre)"
+#         )
+#     ) %>%
+#     add_q(method = "holm") %>%
+#     add_n(location = "level") %>%
+#     modify_table_styling(
+#         columns = c(estimate, conf.low, conf.high),
+#         rows = reference_row %in% TRUE,
+#         missing_symbol = "Ref."
+#     ) %>%
+#     bold_labels() %>%
+#     modify_table_body(
+#         ~ .x %>%
+#         dplyr::mutate(adjusted_p_value = "")
+#     ) %>%
+#     modify_header(
+#         label ~ "**Variable**",
+#         p.value = "**p**",
+#         q.value = "**q**"
+#     ) %>%
+#     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+#     remove_footnote_header(columns = "q.value") %>%
+#     # abbreviations
+#     modify_abbreviation("CI = Confidence Interval, q = Holm-Bonferroni adjusted p.")
+# else
+#   fit %>%
+#     tbl_regression(
+#         add_estimate_to_reference_rows = TRUE,
+#         intercept = TRUE,
+#         label = list(
+#           static99_modified_calc = "Static recidivism risk (baseline)",
+#           `Aktuelle Betreuung` = "Type of supervision",
+#           `Aktuelle zusätzliche Behandlung` = "Additional treatment",
+#           Indexdelikt = "Offense type",
+#           treatment = "Treatment",
+#           cvtrq_calc_total_pre = "Baseline value (pre)",
+#           rcq_calc_total_pre = "Baseline value (pre)",
+#           ors_calc_total_pre = "Baseline value (pre)",
+#           fsozu_calc_total_pre = "Baseline value (pre)",
+#           ucla_calc_total_pre = "Baseline value (pre)",
+#           bis_calc_total_pre = "Baseline value (pre)",
+#           cusi_calc_total_pre = "Baseline value (pre)",
+#           ders_calc_imp_pre = "Baseline value (pre)",
+#           narq_calc_ris_pre = "Baseline value (pre)",
+#           spsi_calc_total_pre = "Baseline value (pre)",
+#           kvm_calc_total_pre = "Baseline value (pre)",
+#           esiq_calc_total_child_pre = "Baseline value (pre)",
+#           hbi_calc_total_pre = "Baseline value (pre)",
+#           ssik_calc_total_pre = "Baseline value (pre)",
+#           ekk_calc_total_pre = "Baseline value (pre)",
+#           soi_total_score_pre = "Baseline value (pre)"
+#         )
+#     ) %>%
+#     add_q(method = "holm") %>%
+#     add_n(location = "level") %>%
+#     modify_table_styling(
+#         columns = c(estimate, conf.low, conf.high),
+#         rows = reference_row %in% TRUE,
+#         missing_symbol = "Ref."
+#     ) %>%
+#     bold_labels() %>%
+#     modify_table_body(
+#         ~ .x %>%
+#         dplyr::mutate(adjusted_p_value = "")
+#     ) %>%
+#     modify_header(
+#         label ~ "**Variable**",
+#         p.value = "**p**",
+#         q.value = "**q**"
+#     ) %>%
+#     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+#     remove_footnote_header(columns = "q.value") %>%
+#     remove_footnote_header(columns = "estimate") %>%
+#     # abbreviations
+#     modify_abbreviation("CI = Confidence Interval, OR = Odds Ratio, q = Holm-Bonferroni adjusted p.") 
+# }
+
+gtsummary::theme_gtsummary_journal(journal = "lancet")
 
 fit_cvtrq_calc_total <- lm(cvtrq_calc_total_post ~ cvtrq_calc_total_pre + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
 lm_Table_cvtrq_calc_total <- fit_cvtrq_calc_total %>% tab_lm
@@ -767,36 +779,36 @@ factor(ordered = TRUE, levels = c("5", "6", "7", "8", "9", ">9")),
     esiq_calc_total_child_pre>80 ~ ">80") %>%
   factor(ordered = TRUE, levels = c("<80", "8",  ">80")))
 
-df_diff %<>% dplyr::mutate(diff_esiq_calc_total_child_ordinal = case_when(diff_esiq_calc_total_child<0 ~ "Verbesserung",
-                                                                     diff_esiq_calc_total_child==0 ~ "keine Veränderung",
-                                                                     diff_esiq_calc_total_child>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                           diff_ders_calc_imp_ordinal = case_when(diff_ders_calc_imp<0 ~ "Verbesserung",
-                                                                    diff_ders_calc_imp==0 ~ "keine Veränderung",
-                                                                    diff_ders_calc_imp>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                           diff_kvm_score_ordinal = case_when(diff_kvm_score<0 ~ "Verbesserung",
-                                                                  diff_kvm_score==0 ~ "keine Veränderung",
-                                                                  diff_kvm_score>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                           diff_hbi_calc_total_ordinal = case_when(diff_hbi_calc_total<0 ~ "Verbesserung",
-                                                              diff_hbi_calc_total==0 ~ "keine Veränderung",
-                                                              diff_hbi_calc_total>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                           diff_narq_calc_ris_ordinal = case_when(diff_narq_calc_ris<0 ~ "Verbesserung",
-                                                                       diff_narq_calc_ris==0 ~ "keine Veränderung",
-                                                                       diff_narq_calc_ris>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                           diff_soi_total_score_ordinal = case_when(diff_soi_total_score<0 ~ "Verbesserung",
-                                                                    diff_soi_total_score==0 ~ "keine Veränderung",
-                                                                    diff_soi_total_score>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE)) %>%
+df_diff %<>% dplyr::mutate(diff_esiq_calc_total_child_ordinal = case_when(diff_esiq_calc_total_child<0 ~ "Improvement",
+                                                                     diff_esiq_calc_total_child==0 ~ "No change",
+                                                                     diff_esiq_calc_total_child>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE),
+                           diff_ders_calc_imp_ordinal = case_when(diff_ders_calc_imp<0 ~ "Improvement",
+                                                                    diff_ders_calc_imp==0 ~ "No change",
+                                                                    diff_ders_calc_imp>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE),
+                           diff_kvm_score_ordinal = case_when(diff_kvm_score<0 ~ "Improvement",
+                                                                  diff_kvm_score==0 ~ "No change",
+                                                                  diff_kvm_score>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE),
+                           diff_hbi_calc_total_ordinal = case_when(diff_hbi_calc_total<0 ~ "Improvement",
+                                                              diff_hbi_calc_total==0 ~ "No change",
+                                                              diff_hbi_calc_total>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE),
+                           diff_narq_calc_ris_ordinal = case_when(diff_narq_calc_ris<0 ~ "Improvement",
+                                                                       diff_narq_calc_ris==0 ~ "No change",
+                                                                       diff_narq_calc_ris>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE),
+                           diff_soi_total_score_ordinal = case_when(diff_soi_total_score<0 ~ "Improvement",
+                                                                    diff_soi_total_score==0 ~ "No change",
+                                                                    diff_soi_total_score>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE)) %>%
   merge(., df_wide %>%
   dplyr::select(client_id, `Indexdelikt`, `Aktuelle Betreuung`, `Aktuelle zusätzliche Behandlung`, `Baseline Static-99-Score`, static99_modified_calc))
 
-df_diff_expl %<>% dplyr::mutate(diff_esiq_calc_fan_child_ordinal = case_when(diff_esiq_calc_fan_child<0 ~ "Verbesserung",
-                                                                       diff_esiq_calc_fan_child==0 ~ "keine Veränderung",
-                                                                       diff_esiq_calc_fan_child>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                                diff_esiq_calc_ver_child_ordinal = case_when(diff_esiq_calc_ver_child<0 ~ "Verbesserung",
-                                                                       diff_esiq_calc_ver_child==0 ~ "keine Veränderung",
-                                                                       diff_esiq_calc_ver_child>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE),
-                                diff_esiq_calc_ver_child_ordinal = case_when(diff_esiq_calc_ver_child<0 ~ "Verbesserung",
-                                                                       diff_esiq_calc_ver_child==0 ~ "keine Veränderung",
-                                                                       diff_esiq_calc_ver_child>0 ~ "Verschlechterung") %>% factor(levels = c("Verschlechterung", "keine Veränderung", "Verbesserung"), ordered = TRUE)) %>%
+df_diff_expl %<>% dplyr::mutate(diff_esiq_calc_fan_child_ordinal = case_when(diff_esiq_calc_fan_child<0 ~ "Improvement",
+                                                                       diff_esiq_calc_fan_child==0 ~ "No change",
+                                                                       diff_esiq_calc_fan_child>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE),
+                                diff_esiq_calc_ver_child_ordinal = case_when(diff_esiq_calc_ver_child<0 ~ "Improvement",
+                                                                       diff_esiq_calc_ver_child==0 ~ "No change",
+                                                                       diff_esiq_calc_ver_child>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE),
+                                diff_esiq_calc_ver_child_ordinal = case_when(diff_esiq_calc_ver_child<0 ~ "Improvement",
+                                                                       diff_esiq_calc_ver_child==0 ~ "No change",
+                                                                       diff_esiq_calc_ver_child>0 ~ "Worsening") %>% factor(levels = c("Worsening", "No change", "Improvement"), ordered = TRUE)) %>%
   merge(., df_wide %>%
           dplyr::select(client_id, `Indexdelikt`, `Aktuelle Betreuung`, `Aktuelle zusätzliche Behandlung`, `Baseline Static-99-Score`, static99_modified_calc))
 
@@ -818,11 +830,9 @@ fit_narq_calc_ris_ordinal <- clm(narq_calc_ris_post_ordinal ~ narq_calc_ris_pre 
 glm_Table_narq_calc_ris <- fit_narq_calc_ris_ordinal %>% tab_glm
 
 fit_narq_calc_ris_ordinal2 <- polr(narq_calc_ris_post_ordinal ~ narq_calc_ris_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, Hess=TRUE)
+
 ## coefficient test
 library("AER")
-# coeftest(fit_narq_calc_ris_ordinal2)
-# poTest(fit_narq_calc_ris_ordinal2)
-
 
 # kvm #
 fit_kvm_score_ordinal <- clm(kvm_score_post_ordinal ~ kvm_score_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
@@ -854,17 +864,9 @@ glm_Table_esiq_calc_fan_child_ordinal_diff <- fit_esiq_calc_fan_child_ordinal_di
 
 glm(factor(diff_esiq_calc_total_child>0) ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff, family = "binomial") %>% summary()
 
-#fit_esiq_calc_total_child_ordinal <- clm(esiq_calc_total_child_post_ordinal ~ esiq_calc_total_child_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
-
+# soi
 fit_soi_calc_total_ordinal_diff <- clm(diff_soi_total_score_ordinal ~ treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_diff)
 glm_Table_soi_calc_total_ordinal_diff <- fit_soi_calc_total_ordinal_diff %>% tab_glm
-
-
-#fit_esiq_calc_total_child_ordinal <- clm(esiq_calc_total_child_post_ordinal ~ esiq_calc_total_child_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide)
-# scale_test(fit_esiq_calc_total_child_ordinal)
-# fit_esiq_calc_total_child_ordinal2 <- polr(esiq_calc_total_child_post_ordinal ~ kvm_score_pre_ordinal + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, Hess=TRUE)
-# poTest(fit_esiq_calc_total_child_ordinal2)
-# glm(factor(esiq_calc_total_child_post>0) ~ factor(esiq_calc_total_child_pre>90) + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, family = "binomial") %>% summary()
 
 # hbi #
 glm(factor(hbi_calc_total_post>=24) ~ factor(hbi_calc_total_pre>=24) + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide, family = "binomial") %>% summary()
@@ -877,55 +879,6 @@ glm(factor(ssik_calc_total_post>29) ~ factor(ssik_calc_total_pre>29) + treatment
 fit_ssik_calc_total_logistic <- glm(`ssik_calc_total_post>=30` ~ `ssik_calc_total_pre>=30` + treatment + `Indexdelikt` + `Aktuelle Betreuung` + `Aktuelle zusätzliche Behandlung` + `static99_modified_calc`, data = df_wide %>% dplyr::mutate(`ssik_calc_total_post>=30` = factor(ssik_calc_total_post>29), `ssik_calc_total_pre>=30` = factor(ssik_calc_total_pre>29))
 , family = "binomial")
 glm_Table_ssik_calc_total <- fit_ssik_calc_total_logistic %>% tab_glm
-
-
-p.val.df <- lm_Table_cvtrq_calc_total$table_body$p.value[-(1:4)]
-p.val.df <- bind_rows(as.data.frame(t(p.val.df)), as.data.frame(t(lm_Table_rcq_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_fsozu_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_ors_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_ucla_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_bis_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_ors_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_cusi_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_ders_calc_imp$table_body$p.value[-(1:3)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_narq_calc_ris$table_body$p.value[-(1:3)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_kvm_score$table_body$p.value[-(1:5)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_ekk_calc_total$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_esiq_calc_total_child$table_body$p.value[-(1:4)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_hbi_calc_total$table_body$p.value[-(1:5)])))
-p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_ssik_calc_total$table_body$p.value[-(1:5)])))
-# p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_rcq_calc_contemplation$table_body$p.value[-(1:4)])))
-# p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_rcq_calc_action$table_body$p.value[-(1:4)])))
-# p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_ppo$table_body$p.value[-(1:4)])))
-# p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_rps$table_body$p.value[-(1:4)])))
-# p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_npo$table_body$p.value[-(1:4)])))
-# p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_ics$table_body$p.value[-(1:4)])))
-
-p.val.df %<>% mutate_all(~p.adjust(., method = "holm") %>% pretty_Pvalues())
-
-lm_Table_cvtrq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[1,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_rcq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[2,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_fsozu_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[3,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_ors_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[4,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_ucla_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[5,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_bis_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[6,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_ors_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[7,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_cusi_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[8,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_ders_calc_imp$table_body$adjusted_p_value[-(1:3)] <- p.val.df[9,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_narq_calc_ris$table_body$adjusted_p_value[-(1:3)] <- p.val.df[10,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_spsi_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[11,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_kvm_score$table_body$adjusted_p_value[-(1:5)] <- p.val.df[12,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_ekk_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[13,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_esiq_calc_total_child$table_body$adjusted_p_value[-(1:4)] <- p.val.df[14,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_hbi_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[15,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_ssik_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[16,] %>% as.numeric() %>% pretty_Pvalues()
-# lm_Table_rcq_calc_contemplation$table_body$adjusted_p_value[-(1:4)] <- p.val.df[17,] %>% as.numeric() %>% pretty_Pvalues()
-# lm_Table_rcq_calc_action$table_body$adjusted_p_value[-(1:4)] <- p.val.df[18,] %>% as.numeric() %>% pretty_Pvalues()
-# lm_Table_spsi_calc_ppo$table_body$adjusted_p_value[-(1:4)] <- p.val.df[20,] %>% as.numeric() %>% pretty_Pvalues()
-# lm_Table_spsi_calc_rps$table_body$adjusted_p_value[-(1:4)] <- p.val.df[21,] %>% as.numeric() %>% pretty_Pvalues()
-# lm_Table_spsi_calc_npo$table_body$adjusted_p_value[-(1:4)] <- p.val.df[22,] %>% as.numeric() %>% pretty_Pvalues()
-# lm_Table_spsi_calc_ics$table_body$adjusted_p_value[-(1:4)] <- p.val.df[19,] %>% as.numeric() %>% pretty_Pvalues()
 
 # Adjust p values for the ordinal regression model with change in esiq as dependent variable:
 p.val.df <- lm_Table_cvtrq_calc_total$table_body$p.value[-(1:4)]
@@ -952,24 +905,24 @@ p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(glm_Table_soi_cal
 # p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_npo$table_body$p.value[-(1:4)])))
 # p.val.df <- bind_rows(as.data.frame(p.val.df), as.data.frame(t(lm_Table_spsi_calc_ics$table_body$p.value[-(1:4)])))
 
-p.val.df %<>% mutate_all(~p.adjust(., method = "holm") %>% pretty_Pvalues())
-glm_Table_esiq_calc_total_child_ordinal_diff$table_body$adjusted_p_value[-(1:2)] <- p.val.df[14,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_cvtrq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[1,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_rcq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[2,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_fsozu_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[3,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_ors_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[4,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_ucla_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[5,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_bis_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[6,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_ors_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[7,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_cusi_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[8,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_ders_calc_imp$table_body$adjusted_p_value[-(1:3)] <- p.val.df[9,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_narq_calc_ris$table_body$adjusted_p_value[-(1:3)] <- p.val.df[10,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_spsi_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[11,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_kvm_score$table_body$adjusted_p_value[-(1:5)] <- p.val.df[12,] %>% as.numeric() %>% pretty_Pvalues()
-lm_Table_ekk_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[13,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_hbi_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[15,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_ssik_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[16,] %>% as.numeric() %>% pretty_Pvalues()
-glm_Table_soi_calc_total_ordinal_diff$table_body$adjusted_p_value[-(1:2)] <- p.val.df[17,] %>% as.numeric() %>% pretty_Pvalues()
+p.val.df %<>% mutate_all(~p.adjust(., method = "holm") %>% pretty_Pvalues() %>% as.numeric())
+glm_Table_esiq_calc_total_child_ordinal_diff$table_body$adjusted_p_value[-(1:2)] <- p.val.df[14,] %>% as.numeric()
+lm_Table_cvtrq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[1,] %>% as.numeric()
+lm_Table_rcq_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[2,] %>% as.numeric()
+lm_Table_fsozu_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[3,] %>% as.numeric()
+lm_Table_ors_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[4,] %>% as.numeric()
+lm_Table_ucla_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[5,] %>% as.numeric()
+lm_Table_bis_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[6,] %>% as.numeric()
+lm_Table_ors_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[7,] %>% as.numeric()
+lm_Table_cusi_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[8,] %>% as.numeric()
+glm_Table_ders_calc_imp$table_body$adjusted_p_value[-(1:3)] <- p.val.df[9,] %>% as.numeric()
+glm_Table_narq_calc_ris$table_body$adjusted_p_value[-(1:3)] <- p.val.df[10,] %>% as.numeric()
+lm_Table_spsi_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[11,] %>% as.numeric()
+glm_Table_kvm_score$table_body$adjusted_p_value[-(1:5)] <- p.val.df[12,] %>% as.numeric()
+lm_Table_ekk_calc_total$table_body$adjusted_p_value[-(1:4)] <- p.val.df[13,] %>% as.numeric()
+glm_Table_hbi_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[15,] %>% as.numeric()
+glm_Table_ssik_calc_total$table_body$adjusted_p_value[-(1:5)] <- p.val.df[16,] %>% as.numeric()
+glm_Table_soi_calc_total_ordinal_diff$table_body$adjusted_p_value[-(1:2)] <- p.val.df[17,] %>% as.numeric()
 # lm_Table_rcq_calc_contemplation$table_body$adjusted_p_value[-(1:4)] <- p.val.df[17,] %>% as.numeric() %>% pretty_Pvalues()
 # lm_Table_rcq_calc_action$table_body$adjusted_p_value[-(1:4)] <- p.val.df[18,] %>% as.numeric() %>% pretty_Pvalues()
 # lm_Table_spsi_calc_ppo$table_body$adjusted_p_value[-(1:4)] <- p.val.df[20,] %>% as.numeric() %>% pretty_Pvalues()

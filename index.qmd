@@ -22,10 +22,36 @@ format:
     number-sections: true
     fontsize: 10pt
     fig-dpi: 300
+    fig-cap-location: bottom
+    fig-pos: H
+    tbl-cap-location: top
+    documentclass: article
+    classoption: a4paper
+    pagestyle: plain
+    keep-tex: true
+    geometry:
+      - left=2cm
+      - right=2cm
+      - top=2.5cm
+      - bottom=2.5cm
+    include-in-header:
+      - text: |
+          \usepackage{pdfpages}
+          \usepackage{longtable}
+          \usepackage{booktabs}
+
+  elsevier-pdf:
+    journal:
+      formatting: preprint
+      model: 1p
+      layout: onecolumn
+      cite-style: number
     keep-tex: true
     include-in-header:
       - text: |
           \usepackage{pdfpages}
+          \usepackage{longtable}
+          \usepackage{booktabs}
 ---
 
 ```{r}
@@ -52,94 +78,6 @@ source(here::here("_scripts/remove_outlier.R"))
 
 <!-- 
 ##################
-# TRIAL registration
-##################
--->
-## Trial registry
-
-::: {.content-visible when-format="pdf"}
-
-\includepdf[pages=-, fitpaper=true]{resources/GermanClinicalTrialsRegister.pdf}
-
-:::
-
-::: {.content-visible when-format="html"}
-```{=html}
-<p>
-    Please <a href="resources/GermanClinicalTrialsRegister.pdf">click here</a> to
-    download the PDF file.
-</p>
-```
-:::
-
-{{< pagebreak >}}
-
-<!-- 
-##################
-# WBI description
-##################
--->
-## The \@myTabu framework
-
-{{< include _includes/apx_WBI_DESCRIPTION.qmd >}}
-
-{{< pagebreak >}}
-
-<!-- 
-##################
-# OUTCOME measures
-##################
--->
-
-## Outcomes and measurement timepoints
-
-{{< include _tables/tbl_description_outcomes.qmd >}}
-
-{{< include _tables/tbl_measurement_timepoints.qmd >}}
-
-<!-- 
-##################
-# RESULTS Section
-##################
--->
-{{< pagebreak >}}
-
-## Baseline characteristics
-
-{{< include _includes/apx_BASELINE_CHARACTERISTICS.qmd >}}
-
-{{< pagebreak >}}
-
-## Timing (protocol deviations)
-
-{{< include _includes/apx_TIMING.qmd >}}
-
-{{< pagebreak >}}
-
-## Primary Outcomes
-
-{{< include _includes/apx_PRIMARY_OUTCOMES.qmd >}}
-
-{{< pagebreak >}}
-
-## Secondary Outcomes
-
-{{< include _includes/apx_SECONDARY_OUTCOMES.qmd >}}
-
-{{< pagebreak >}}
-
-## Adverse events
-
-{{< include _includes/apx_HARMS.qmd >}}
-
-{{< pagebreak >}}
-
-## Ancillary Outcomes
-
-{{< include _includes/apx_ANCILLARY_OUTCOMES.qmd >}}
-
-<!-- 
-##################
 # CONSORT checklist
 ##################
 -->
@@ -157,6 +95,7 @@ source(here::here("_scripts/remove_outlier.R"))
 library(gt)
 library(tibble)
 library(dplyr)
+library(kableExtra)
 
 consort_data <- tibble::tribble(
   ~Section, ~Subsection, ~Number, ~Description, ~Page,
@@ -242,16 +181,9 @@ tbl <- consort_data %>%
     columns = everything(), # NA überall durch "" ersetzen
     missing_text = ""
   ) %>%
-  cols_width(
-    Section ~ px(80),
-    Description ~ px(150),
-    Subsection ~ px(80),
-    Number  ~ px(80),
-    Page ~ px(80),
-  ) %>%
   gt::tab_options(
     table.font.names = "Times New Roman",
-    table.font.size = 10,
+    table.font.size = 7,
     quarto.use_bootstrap = FALSE,
     quarto.disable_processing = TRUE,
     data_row.padding = px(1),
@@ -268,16 +200,134 @@ gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-consort-checklist.pdf")
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-consort-checklist.docx")))
 gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-consort-checklist.png")))
 
+# 1. NA-Werte durch leere Strings ersetzen (für saubere Darstellung)
+consort_data <- consort_data %>%
+  mutate(across(everything(), ~coalesce(., "")))
+
+# 2. Zeilen identifizieren, die fettgedruckt werden sollen (Überschriften)
+header_rows <- which(consort_data$Section != "")
+
+# 3. Tabelle mit kableExtra erstellen
+tbl <- consort_data %>%
+  kbl(
+    booktabs = TRUE,
+    longtable = TRUE, # Wichtig für PDF über mehrere Seiten
+    linesep = ""     # Keine zusätzlichen Linien zwischen Zeilen
+  ) %>%
+  kable_styling(
+    latex_options = c("repeat_header"),
+    font_size = 8
+  ) %>%
+  # Spaltenbreiten manuell setzen (Alternative zu align in kbl)
+  column_spec(1, width = "3cm", bold = TRUE) %>% # Section
+  column_spec(2, width = "3cm") %>%              # Subsection
+  column_spec(3, width = "1cm") %>%               # Number
+  column_spec(4, width = "5cm") %>%               # Description
+  column_spec(5, width = "3cm") %>%               # Page
+  # Zeilen für Überschriften fett markieren
+  row_spec(header_rows, bold = TRUE)
+
 tbl
 ```
+
+{{< pagebreak >}}
+
+<!-- 
+##################
+# WBI description
+##################
+-->
+## The \@myTabu framework
+
+{{< include _includes/apx_WBI_DESCRIPTION.qmd >}}
+
+{{< pagebreak >}}
+
+<!-- 
+##################
+# OUTCOME measures
+##################
+-->
+
+## Outcomes and measurement timepoints
+
+{{< include _tables/tbl_description_outcomes.qmd >}}
+
+{{< include _tables/tbl_measurement_timepoints.qmd >}}
+
+<!-- 
+##################
+# RESULTS Section
+##################
+-->
+{{< pagebreak >}}
+
+## Baseline characteristics
+
+{{< include _includes/apx_BASELINE_CHARACTERISTICS.qmd >}}
+
+{{< pagebreak >}}
+
+## Primary Outcomes
+
+{{< include _includes/apx_PRIMARY_OUTCOMES.qmd >}}
+
+{{< pagebreak >}}
+
+## Secondary Outcomes
+
+{{< include _includes/apx_SECONDARY_OUTCOMES.qmd >}}
+
+{{< pagebreak >}}
+
+## Adverse events
+
+{{< include _includes/apx_HARMS.qmd >}}
+
+{{< pagebreak >}}
+
+## Ancillary Outcomes
+
+{{< include _includes/apx_ANCILLARY_OUTCOMES.qmd >}}
+
+{{< pagebreak >}}
+
+## Timing
+
+{{< include _includes/apx_TIMING.qmd >}}
+
+{{< pagebreak >}}
+
+
+<!-- 
+##################
+# TRIAL registration
+##################
+-->
+## Trial registry
+
+::: {.content-visible when-format="pdf"}
+
+\includepdf[pages=-, fitpaper=true]{resources/GermanClinicalTrialsRegister.pdf}
+
+:::
+
+::: {.content-visible when-format="html"}
+```{=html}
+<p>
+    Please <a href="resources/GermanClinicalTrialsRegister.pdf">click here</a> to
+    download the PDF file.
+</p>
+```
+:::
+
+{{< pagebreak >}}
 
 <!-- 
 ##################
 # SAP
 ##################
 -->
-
-{{< pagebreak >}}
 
 ## Statistical analysis plan
 
@@ -301,8 +351,6 @@ tbl
 # SUPP References
 ##################
 -->
-
-{{< pagebreak >}}
 
 ## References
 

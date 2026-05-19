@@ -4,7 +4,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-exclusion-reasons-itt
-#| tbl-cap: "Reasons for exclusion from clinical trial for the ITT sample sorted by frequency. Before exclusion, supervision officer had to fill in a questionnaire with pre-defined reasons for exclusion. Please note, that multiple reasons for one participant are possible, e.g. one participant may be excluded because of violation against probation conditions and a re-offense."
+#| tbl-cap: "Reasons for exclusion from clinical trial for the ITT sample sorted by frequency. Before exclusion, probation officer had to fill in a questionnaire with pre-defined reasons for exclusion. Please note, that multiple reasons for one participant are possible, e.g. one participant may be excluded because of violation against probation conditions and a re-offense."
 
 library(tidyr)
 library(dplyr)

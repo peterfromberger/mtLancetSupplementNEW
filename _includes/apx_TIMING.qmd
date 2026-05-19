@@ -17,7 +17,18 @@ scale_colour_group <- function(...) {
     values = c(
       "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
       "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
-    )
+    ),
+    breaks = c("Intervention", "Placebo")
+  )
+}
+
+scale_color_group <- function(...) {
+  scale_color_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    ),
+    breaks = c("Intervention", "Placebo")
   )
 }
 
@@ -26,21 +37,44 @@ scale_fill_group <- function(...) {
     values = c(
       "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
       "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
-    )
+    ),
+    breaks = c("Intervention", "Placebo")
   )
 }
 
 add_gg_theme <- function(plt) {
+  
+  # Gemeinsame override.aes Definition
+  legend_override <- list(
+    shape = 22,
+    size = 5,
+    linetype = 0,
+    linewidth = 0,
+    alpha = 0.8,
+    colour = "black"
+  )
+  
   plt <- plt +
     scale_fill_group() +
     scale_colour_group() +
+    scale_color_group() +
     ggplot2::theme_classic() + 
     ggplot2::theme(
-          axis.title = element_text(size = 16),
-          axis.text = element_text(size = 14),
-          legend.title = element_text(size = 16),
-          legend.text = element_text(size = 14),
-      )
+      axis.title = element_text(size = 16),
+      axis.text = element_text(size = 14),
+      legend.title = element_text(size = 16),
+      legend.text = element_text(size = 14),
+    ) +
+    guides(
+      color     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      colour    = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      fill      = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      shape     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      linetype  = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      size      = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      alpha     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      linewidth = guide_legend(title = "Treatment", order = 1, override.aes = legend_override)
+    )
 
   return(plt)
 }
@@ -88,7 +122,7 @@ bm_unpaired_test <- function(data, variable, by, ...) {
 }
 ```
 
-### Cumulative time from baseline to finish module
+### Time to finish module
 
 ```{r}
 #| echo: false
@@ -96,9 +130,16 @@ bm_unpaired_test <- function(data, variable, by, ...) {
 #| warning: false
 #| label: r-prepare-rainplot-time-to-post-module
 
+library(stringr)
+
 # RAIN plot (descriptive)
-tmp_tmp = dat_clean %>%
-      select(client_id, treatment, timepoint, Zeit_seit_Beginn_Modul_1_in_Jahren) %>% filter(timepoint != "Baseline" & !client_id %in% c(253, 396))
+tmp_tmp <- dat_clean %>%
+  mutate(
+    timepoint = stringr::str_remove(as.character(timepoint), " [(]post[)]"),
+    timepoint = factor(timepoint)
+  ) %>%
+  select(client_id, treatment, timepoint, Zeit_seit_Beginn_Modul_1_in_Jahren) %>%
+  filter(timepoint != "Baseline", !client_id %in% c(253, 396))
 
 # convert to days
 tmp_tmp <- tmp_tmp %>%
@@ -155,7 +196,7 @@ plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = Zeit_seit_Ende_d
   ) +
   scale_y_log10() +
   labs(
-    y = "Time since end of previous module (days)",
+    y = "Time to finish module (days)",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -164,7 +205,7 @@ plt <- ggplot(tmp_tmp, aes(fill = treatment, x = timepoint, y = Zeit_seit_Ende_d
 plt <- add_gg_theme(plt)
 
 ggsave(
-  here::here("_figures/fig-time-to-post-module-rainplot.png"),
+  here::here("_figures/fig-time-to-finish-module-rainplot.png"),
   plot = plt,
   dpi = 300,
   width = 16,
@@ -172,7 +213,7 @@ ggsave(
 )
 
 ggsave(
-  here::here("_figures/fig-time-to-post-module-rainplot.pdf"),
+  here::here("_figures/fig-time-to-finish-module-rainplot.pdf"),
   plot = plt,
   dpi = 300,
   width = 16,
@@ -180,51 +221,15 @@ ggsave(
 )
 ```
 
-![Rainplot for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI). The y-axis is shown on a logarithmic scale.](_figures/fig-time-to-post-module-rainplot.png){#fig-time-to-post-module-rainplot width=100%}
+![Distribution of time to finish module for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are log-transformed scores for each module. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-finish-module-rainplot.png){#fig-time-to-finish-module-rainplot width=100%}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: r-time-to-post-module-mmrm
+#| label: r-time-to-finish-module-diagnostic-plots
 
 library(mmrm)
-
-formular <- as.formula(
-  paste(
-      "Zeit_seit_Beginn_Modul_1_in_Jahren ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
-  )
-)
-
-fit_time_post_module <- mmrm(
-    formula = formular,
-    data = tmp_tmp %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
-        dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
-)
-
-r_norm <- resid(fit_time_post_module, type = "normalized")
-
-# QQ-plot & histogram
-qqnorm(r_norm); qqline(r_norm)
-hist(r_norm, breaks = "FD")
-
-formular <- as.formula(
-  paste(
-      "log(Zeit_seit_Beginn_Modul_1_in_Jahren) ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
-  )
-)
-
-fit_time_post_module_log <- mmrm(
-    formula = formular,
-    data = tmp_tmp %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
-        dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
-)
-
-r_norm <- resid(fit_time_post_module_log, type = "normalized")
-
-# QQ-plot & histogram
-qqnorm(r_norm); qqline(r_norm)
-hist(r_norm, breaks = "FD")
 
 tmp_tmp <- tmp_tmp %>%
   group_by(client_id) %>%
@@ -234,6 +239,18 @@ tmp_tmp <- tmp_tmp %>%
       lag(Zeit_seit_Beginn_Modul_1_in_Jahren, default = 0)
   ) %>%
   ungroup()
+
+formular <- as.formula(
+  paste(
+      "Zeit_seit_Ende_des_vorigen_Moduls ~ timepoint + treatment:timepoint + us(timepoint | client_id)"
+  )
+)
+
+fit_time_post_module <- mmrm(
+    formula = formular,
+    data = tmp_tmp %>% filter(timepoint!="Baseline" & !client_id %in% c(253, 396) ) %>% #  & client_id 533 hat kein Modul abgeschlossen
+        dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
+)
 
 formular <- as.formula(
   paste(
@@ -247,20 +264,65 @@ fit_time_post_module_non_cum <- mmrm(
         dplyr::mutate(treatment = relevel(treatment, ref="Placebo"))
 )
 
-r_norm <- resid(fit_time_post_module_non_cum, type = "normalized")
+library(ggplot2)
+library(patchwork)
 
-# QQ-plot & histogram
-qqnorm(r_norm); qqline(r_norm)
-hist(r_norm, breaks = "FD")
+df1 <- data.frame(resid = resid(fit_time_post_module, type = "normalized"))
+df2 <- data.frame(resid = resid(fit_time_post_module_non_cum, type = "normalized"))
 
+p1 <- ggplot(df1, aes(sample = resid)) +
+  stat_qq() +
+  stat_qq_line()
+
+p1 <- add_gg_theme(p1)
+
+p2 <- ggplot(df1, aes(x = resid)) +
+  geom_histogram(bins = 30)
+
+p2 <- add_gg_theme(p2)
+
+p3 <- ggplot(df2, aes(sample = resid)) +
+  stat_qq() +
+  stat_qq_line()
+
+p3 <- add_gg_theme(p3)
+
+p4 <- ggplot(df2, aes(x = resid)) +
+  geom_histogram(bins = 30)
+
+p4 <- add_gg_theme(p4)
+
+plt <- (p1 / p2) | (p3 / p4)
+
+name_png <- glue("_figures/fig-time-to-finish-module-diagnostic-plots.png")
+name_pdf <- glue("_figures/fig-time-to-finish-module-diagnostic-plots.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = plt,
+    dpi = 300,
+    width = 16,
+    height = 16,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = plt,
+    dpi = 300,
+    width = 16,
+    height = 16
+)
 ```
+  
+
+![Diagnostic plots for time to finish module. The plots on the left correspond to the model fitted with raw scores, the plots on the right correspond to the model fitted with log-transformed scores. The plots indicate violations of the normality assumption; therefore, the model was fitted with log-transformed scores.](_figures/fig-time-to-finish-module-diagnostic-plots.png){#fig-time-to-finish-module-diagnostic-plots}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: tbl-time-to-post-module-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
+#| label: tbl-time-to-finish-module-mmrm
+#| tbl-cap: "Mixed model for repeated measures (MMRM) for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI). Note, that the model is fitted on log-transformed data."
 
 my_log_lm_tidy <- function(x, ...) {
   df_tidy <- broom::tidy(x, ...)
@@ -288,7 +350,8 @@ tbl <- fit_time_post_module_non_cum %>%
       estimate_fun = purrr::partial(style_ratio, digits = 2)
     ) %>%
     modify_header(label ~ "**Variable**",
-                  estimate ~ "**exp(β)**") %>%
+                  p.value ~ "**p**",
+                  estimate ~ "**Beta**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("StGB = German penalty law") %>%
@@ -298,7 +361,9 @@ tbl <- fit_time_post_module_non_cum %>%
         rows = reference_row %in% TRUE,
         missing_symbol = "Ref."
     ) %>%
-    bold_labels() %>%
+    bold_labels()
+
+tbl_a <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -308,17 +373,26 @@ tbl <- fit_time_post_module_non_cum %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-mmrm.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-mmrm.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-mmrm.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-to-finish-module-mmrm.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-to-finish-module-mmrm.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-to-finish-module-mmrm.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -327,7 +401,7 @@ tbl
 #| echo: false
 #| message: false
 #| warning: false
-#| label: r-init-marginal-means-time-to-post-module
+#| label: r-init-marginal-means-time-to-finish-module
 
 library(emmeans)
 
@@ -341,7 +415,8 @@ plt <- ggplot(
     aes(
       x = timepoint,
       y = response, 
-      color = treatment, 
+      color = treatment,
+      fill = treatment,
       group = treatment
     )
   ) +
@@ -364,7 +439,7 @@ plt <- ggplot(
 plt <- add_gg_theme(plt)
 
 ggsave(
-  here::here("_figures/fig-time-to-post-module-estimated-marginal-means.png"),
+  here::here("_figures/fig-time-to-finish-module-estimated-marginal-means.png"),
   plot = plt,
   dpi = 300,
   width = 16,
@@ -372,7 +447,7 @@ ggsave(
 )
 
 ggsave(
-  here::here("_figures/fig-time-to-post-module-estimated-marginal-means.pdf"),
+  here::here("_figures/fig-time-to-finish-module-estimated-marginal-means.pdf"),
   plot = plt,
   dpi = 300,
   width = 16,
@@ -380,14 +455,14 @@ ggsave(
 )
 ```
 
-![Estimated marginal means of the MMRM for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-post-module-estimated-marginal-means.png){#fig-time-to-post-module-estimated-marginal-means width=100%}
+![Estimated marginal means of the MMRM for time to finish a module. The time to finish a module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-finish-module-estimated-marginal-means.png){#fig-time-to-finish-module-estimated-marginal-means width=100%}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: tbl-time-to-post-module-pairwise-comparisons
-#| tbl-cap: "Pairwise comparisons for time to finish the module defined as time from end of the previous module to the end of the respective module. Note, that this time consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
+#| label: tbl-time-to-finish-module-pairwise-comparisons
+#| tbl-cap: "Results of the Brunner-Munzel tests for unpaired data for time to finish a module. Note, that this time consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
 
 df_m1toEndModule <- tmp_tmp %>%
   mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
@@ -429,13 +504,16 @@ tbl <- df_m1toEndModule %>%
     add_stat(fns = everything() ~ bm_unpaired_test) %>%
     add_q(method = "holm") %>%
     modify_header(
-      p.value = "**p**"
+      p.value = "**p**",
+      q.value = "**q**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, p~adj~ = Holm-Bonferroni adjusted p.") %>%
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviation, q = Holm-Bonferroni adjusted p.")
+
+tbl_a <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -445,20 +523,31 @@ tbl <- df_m1toEndModule %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-pairwise-comparisons.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-pairwise-comparisons.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-to-post-module-pairwise-comparisons.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-to-finish-module-pairwise-comparisons.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-to-finish-module-pairwise-comparisons.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-to-finish-module-pairwise-comparisons.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
+
+### Time working on module
 
 ```{r}
 #| echo: false
@@ -517,14 +606,7 @@ log2_summary <- log2_complete %>%
   )
 
 log2_summary <- log2_summary %>% 
-  mutate(
-    # total_module_duration = ifelse(
-    #   total_module_duration == 0,
-    #   NA_real_,
-    #   total_module_duration
-    # ),
-    client_id = factor(client_id)
-  ) %>%
+  mutate(client_id = factor(client_id)) %>%
   mutate(
     timepoint = case_when(
       current_module_nr == 0 ~ "Baseline",
@@ -554,17 +636,15 @@ log2_joined <- dat_clean %>%
   mutate(
     timepoint = case_when(
       current_module_nr == 0 ~ "Baseline",
-      current_module_nr == 1 ~ "Module 1 (post)",
-      current_module_nr == 2 ~ "Module 2 (post)",
-      current_module_nr == 3 ~ "Module 3 (post)",
-      current_module_nr == 4 ~ "Module 4 (post)",
-      current_module_nr == 5 ~ "Module 5 (post)",
-      current_module_nr == 6 ~ "Module 6 (post)"
+      current_module_nr == 1 ~ "Module 1",
+      current_module_nr == 2 ~ "Module 2",
+      current_module_nr == 3 ~ "Module 3",
+      current_module_nr == 4 ~ "Module 4",
+      current_module_nr == 5 ~ "Module 5",
+      current_module_nr == 6 ~ "Module 6"
     )
   )
 ```
-
-### Time working on module
 
 ```{r}
 #| echo: false
@@ -640,13 +720,13 @@ ggsave(
 )
 ```
 
-![Rainplot for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection. The y-axis is shown on a logarithmic scale.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot width=100%}
+![Distribution of time working on content for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are log-transformed scores for each module. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot width=100%}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: r-time-working-on-module-mmrm
+#| label: r-time-working-on-module-diagnostic-plots
 
 library(mmrm)
 
@@ -662,9 +742,6 @@ fit_time_post_module <- mmrm(
     dplyr::mutate(treatment = relevel(treatment, ref="Placebo")) %>% mutate(timepoint = factor(timepoint))
 )
 r_norm <- resid(fit_time_post_module, type = "normalized")
-# QQ-plot & histogram
-# qqnorm(r_norm); qqline(r_norm)
-# hist(r_norm, breaks = "FD")
 
 # log transformed:
 formular <- as.formula(
@@ -679,10 +756,59 @@ fit_time_post_module_log <- mmrm(
     dplyr::mutate(treatment = relevel(treatment, ref="Placebo")) %>% mutate(timepoint = factor(timepoint))
 )
 r_norm <- resid(fit_time_post_module_log, type = "normalized")
-# QQ-plot & histogram
-# qqnorm(r_norm); qqline(r_norm) # looks good
-# hist(r_norm, breaks = "FD")
+
+library(ggplot2)
+library(patchwork)
+
+df1 <- data.frame(resid = resid(fit_time_post_module, type = "normalized"))
+df2 <- data.frame(resid = resid(fit_time_post_module_non_cum, type = "normalized"))
+
+p1 <- ggplot(df1, aes(sample = resid)) +
+  stat_qq() +
+  stat_qq_line()
+
+p1 <- add_gg_theme(p1)
+
+p2 <- ggplot(df1, aes(x = resid)) +
+  geom_histogram(bins = 30)
+
+p2 <- add_gg_theme(p2)
+
+p3 <- ggplot(df2, aes(sample = resid)) +
+  stat_qq() +
+  stat_qq_line()
+
+p3 <- add_gg_theme(p3)
+
+p4 <- ggplot(df2, aes(x = resid)) +
+  geom_histogram(bins = 30)
+
+p4 <- add_gg_theme(p4)
+
+plt <- (p1 / p2) | (p3 / p4)
+
+name_png <- glue("_figures/fig-time-working-on-module-diagnostic-plots.png")
+name_pdf <- glue("_figures/fig-time-working-on-module-diagnostic-plots.pdf")
+
+ggsave(
+    here::here(name_png),
+    plot = plt,
+    dpi = 300,
+    width = 16,
+    height = 16,
+)
+
+ggsave(
+    here::here(name_pdf),
+    plot = plt,
+    dpi = 300,
+    width = 16,
+    height = 16
+)
 ```
+  
+
+![Diagnostic plots for time working on content module. The plots on the left correspond to the model fitted with raw scores, the plots on the right correspond to the model fitted with log-transformed scores. The plots indicate violations of the normality assumption; therefore, the model was fitted with log-transformed scores.](_figures/fig-time-working-on-module-diagnostic-plots.png){#fig-time-working-on-module-diagnostic-plots}
 
 ```{r}
 #| echo: false
@@ -704,7 +830,8 @@ tbl <- fit_time_post_module_log %>%
       )
     ) %>%
     modify_header(label ~ "**Variable**",
-                  estimate ~ "**exp(β)**") %>%
+                  p.value ~ "**p**",
+                  estimate ~ "**Beta**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval, StGB = German penalty law.") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
@@ -713,7 +840,9 @@ tbl <- fit_time_post_module_log %>%
         rows = reference_row %in% TRUE,
         missing_symbol = "Ref."
     ) %>%
-    bold_labels() %>%
+    bold_labels()
+
+tbl_a <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -723,17 +852,26 @@ tbl <- fit_time_post_module_log %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-working-on-module-mmrm.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -757,6 +895,7 @@ plt <- ggplot(
       x = timepoint,
       y = response, 
       color = treatment, 
+      fill = treatment,
       group = treatment
     )
   ) +
@@ -802,7 +941,7 @@ ggsave(
 #| message: false
 #| warning: false
 #| label: tbl-time-working-on-module
-#| tbl-cap: "Pairwise comparisons for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of a lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
+#| tbl-cap: "Results of the Brunner-Munzel tests for unpaired data for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of a lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
 
 df_working_time <- log2_joined %>%
   mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
@@ -856,13 +995,16 @@ tbl <- df_wide %>%
     add_stat(fns = everything() ~ bm_unpaired_test) %>%
     add_q(method = "holm") %>%
     modify_header(
-      p.value = "**p**"
+      p.value = "**p**",
+      q.value = "**q**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, p~adj~ = Holm-Bonferroni adjusted p.") %>%
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviance, q = Holm-Bonferroni adjusted p.")
+
+tbl_a <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -872,17 +1014,26 @@ tbl <- df_wide %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-working-on-module-pairwise-comparisons.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```

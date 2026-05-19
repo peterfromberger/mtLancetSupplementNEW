@@ -2292,7 +2292,7 @@ dat_clean <- dat_clean %>%
     Indexdelikt = factor(
       Indexdelikt,
       levels = c("Nur § 184b", "Auch §§ 176, 176a, 176b StGB"),
-      labels = c("Hands-off (only §184b StGB)", "Hands-on (at least one conviction §176 ff StGB)")
+      labels = c("Non-contact (only §184b StGB)", "Contact (at least one conviction §176 ff StGB)")
     ),
     Aktuelle_zusatzliche_Behandlung = factor(
       Aktuelle_zusatzliche_Behandlung,
@@ -2756,8 +2756,8 @@ dat_clean %<>% merge(., df_times %>%
 #     ),
 #     Indexdelikt = fct_recode(
 #       Indexdelikt,
-#       "Hands-off (only §184b StGB)" = "Nur § 184b",
-#       "Hands-on (at least one conviction §176 ff StGB)" = "Auch §§ 176, 176a, 176b StGB"
+#       "Non-contact (only §184b StGB)" = "Nur § 184b",
+#       "Contact (at least one conviction §176 ff StGB)" = "Auch §§ 176, 176a, 176b StGB"
 #       # weitere Kategorien nach Bedarf
 #     )
 #   )

@@ -1,7 +1,7 @@
 ### CARES
 
 <!-- RAIN PLOT -->
-![Distribution of CARES total scores across study timepoints for the intervention and placebo groups. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Higher CARES scores indicate higher risk to re-offense.](_figures/fig-cares-rainplot.png){#fig-cares-rainplot}
+![Distribution of CARES total scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Higher CARES scores indicate higher risk to re-offense.](_figures/fig-cares-rainplot.png){#fig-cares-rainplot}
 
 <!-- ESTIMATED MARGINAL MEANS -->
 ![Estimated marginal means of the MMRM for the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score).](_figures/fig-cares-estimated-marginal-means.png){#fig-cares-estimated-marginal-means}
@@ -16,6 +16,7 @@
 
 library(gtsummary)
 library(gt)
+library(stringr)
 
 # global theme for gtsummary
 gtsummary::theme_gtsummary_journal(journal = "lancet")
@@ -50,11 +51,12 @@ tbl <- fit2_c %>%
     modify_table_body(
       ~ .x %>%
         mutate(label = case_when(
-          variable %in% c("timepoint", "timepoint:treatment") ~ str_remove(label, fixed(" (post)")),
+          variable %in% c("timepoint", "timepoint:treatment") ~ stringr::str_remove(label, fixed(" (post)")),
           TRUE ~ label
         ))
-    ) %>%
-    as_gt() %>%
+    )
+
+tbl_a <- tbl %>% as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
           table.font.size = 10,
@@ -63,17 +65,26 @@ tbl <- fit2_c %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -181,10 +192,36 @@ gtsummary::theme_gtsummary_journal(journal = "lancet")
 variable <- "IoD_reduced"
 tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Intervention")
 
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -199,10 +236,36 @@ tbl
 variable <- "IoD_reduced"
 tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Placebo")
 
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -223,23 +286,47 @@ gtsummary::theme_gtsummary_journal(journal = "lancet")
 variable <- "IoD_reduced"
 tbl <- create_prim_diffscore_tbl(variable)
 
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
 
 <!-- RAIN PLOT -->
-![Distribution of the difference from baseline for the CARES total scores across study timepoints for the intervention and placebo groups. Shown are scores after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease.](_figures/fig-cares-rainplot-difference-from-baseline.png){#fig-cares-rainplot-difference-from-baseline}
-
-{{< pagebreak >}}
+![Distribution of the difference from baseline for the CARES total scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease.](_figures/fig-cares-rainplot-difference-from-baseline.png){#fig-cares-rainplot-difference-from-baseline}
 
 ### Index of Desistance (IoD)
 
 <!-- RAIN PLOT -->
-![Distribution of the Index of Desistance (IoD) total scores across study timepoints for the intervention and placebo groups. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Higher CARES scores indicate high risk to re-offense. Note, that the IoD is the preliminary version of the CARES and mentioned in the Statistical analysis protocol as primary outcome.](_figures/fig-iod-rainplot.png){#fig-iod-rainplot}
+![Distribution of the Index of Desistance (IoD) total scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Higher CARES scores indicate high risk to re-offense. Note, that the IoD is the preliminary version of the CARES and mentioned in the Statistical analysis protocol as primary outcome.](_figures/fig-iod-rainplot.png){#fig-iod-rainplot}
 
 
 <!-- MMRM -->
@@ -285,10 +372,12 @@ tbl <- fit1 %>%
     modify_table_body(
       ~ .x %>%
         mutate(label = case_when(
-          variable %in% c("timepoint", "timepoint:treatment") ~ str_remove(label, fixed(" (post)")),
+          variable %in% c("timepoint", "timepoint:treatment") ~ stringr::str_remove(label, fixed(" (post)")),
           TRUE ~ label
         ))
-    ) %>%
+    )
+
+tbl_a <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -306,9 +395,20 @@ tbl <- fit1 %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.png")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.docx")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -359,10 +459,12 @@ tbl <- fit1_c %>%
     modify_table_body(
       ~ .x %>%
         mutate(label = case_when(
-          variable %in% c("timepoint", "timepoint:treatment") ~ str_remove(label, fixed(" (post)")),
+          variable %in% c("timepoint", "timepoint:treatment") ~ stringr::str_remove(label, fixed(" (post)")),
           TRUE ~ label
         ))
-    ) %>%
+    )
+
+tbl_a <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -380,9 +482,20 @@ tbl <- fit1_c %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-mmrm-time-since-baseline.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-mmrm-time-since-baseline.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-mmrm-time-since-baseline.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm-time-since-baseline.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm-time-since-baseline.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm-time-since-baseline.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -493,10 +606,36 @@ gtsummary::theme_gtsummary_journal(journal = "lancet")
 variable <- "IoD"
 tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Intervention")
 
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -511,10 +650,36 @@ tbl
 variable <- "IoD"
 tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Placebo")
 
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-intervention.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
@@ -537,14 +702,40 @@ gtsummary::theme_gtsummary_journal(journal = "lancet")
 variable <- "IoD"
 tbl <- create_prim_diffscore_tbl(variable)
 
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
 
 <!-- RAIN PLOT -->
-![Distribution of the difference from baseline for the Index of Desistance (IoD) total scores across study timepoints for the intervention and placebo groups. Shown are scores after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Red denotes the intervention group and blue denotes the placebo group. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease](_figures/fig-iod-rainplot-difference-from-baseline.png){#fig-iod-rainplot-difference-from-baseline}
+![Distribution of the difference from baseline for the Index of Desistance (IoD) total scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease](_figures/fig-iod-rainplot-difference-from-baseline.png){#fig-iod-rainplot-difference-from-baseline}
 

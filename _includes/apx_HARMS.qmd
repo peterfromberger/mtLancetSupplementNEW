@@ -1,6 +1,5 @@
 ### Mood and Risk Questionnaire (MRQ)
 
-::: {.landscape}
 <!-- MRQ Post-->
 ```{r}
 #| echo: false
@@ -25,28 +24,27 @@ cramers_v <- function(tab) {
   n <- sum(tab)
   min_dim <- min(dim(tab)) - 1
   v <- sqrt(chi2 / (n * min_dim))
-  return(as.numeric(v))
+  return(v)
 }
 
 fishers_test <- function(data, variable, by, ...) {
 
-  # Kreuztabelle erzeugen
   tab <- table(data[[by]], data[[variable]])
 
-  # Fisher's Exact Test
+  # Prüfen ob mindestens 2x2
+  if (nrow(tab) < 2 || ncol(tab) < 2) {
+    return(data.frame(
+      estimate = NA_real_,
+      p.value = NA_real_
+    ))
+  }
+
   fl <- stats::fisher.test(tab)
 
-  # 2×2: Odds Ratio + CI, sonst Cramér's V
-
-  estimate <- cramers_v(tab)
-
-  # Ergebnis als data.frame zurück für gtsummary
-  df <- data.frame(
-    estimate = estimate,
+  data.frame(
+    estimate = cramers_v(tab),
     p.value = fl$p.value
   )
-
-  return(df)
 }
 
 get_mrq_data <- function() {
@@ -185,20 +183,22 @@ tbl <- mrq_at_least_one_highest_score_group %>%
         ),
         missing = "no"
     ) %>%
-    add_stat(fns = everything() ~ fishers_test) %>%
+    add_p(test = everything() ~ fishers_test) %>%
     add_q(method = "holm") %>%
+    modify_fmt_fun(
+      estimate ~ function(x) style_number(x, digits = 2, decimal.mark = "·")
+    ) %>%
     modify_header(
         label = "**MRQ subscale**",
         estimate = "**Cramer's V**",
-        p.value = "**p**"
+        p.value = "**p**",
+        q.value = "**q**"
     ) %>%
     add_overall() %>%
-    bold_labels() %>%
-    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
-    remove_footnote_header(columns = "q.value") %>%
-    # abbreviations
-    modify_abbreviation("p~adj~ = Holm-Bonferroni adjusted p.") %>%
-    as_gt() %>%
+    bold_labels()
+
+
+tbl_a <- tbl %>% as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
           table.font.size = 10,
@@ -216,17 +216,25 @@ tbl <- mrq_at_least_one_highest_score_group %>%
 
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-post.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
 
-:::
-
-::: {.landscape}
-<!-- MRQ Post-->
+<!-- MRQ Pre-->
 ```{r}
 #| echo: false
 #| message: false
@@ -254,21 +262,21 @@ tbl <- mrq_at_least_one_highest_score_group %>%
         ),
         missing = "no"
     ) %>%
-    add_stat(fns = everything() ~ fishers_test) %>%
+    add_p(test = everything() ~ fishers_test) %>%
     add_q(method = "holm") %>%
+    modify_fmt_fun(
+      estimate ~ function(x) style_number(x, digits = 2, decimal.mark = "·")
+    ) %>%
     modify_header(
         label = "**MRQ subscale**",
         estimate = "**Cramer's V**",
-        p.value = "**p**"
+        p.value = "**p**",
+        q.value = "**q**"
     ) %>%
-    add_q(method = "holm") %>%
     add_overall() %>%
-    bold_labels() %>%
-    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
-    remove_footnote_header(columns = "q.value") %>%
-    # abbreviations
-    modify_abbreviation("p~adj~ = Holm-Bonferroni adjusted p.") %>%
-    as_gt() %>%
+    bold_labels()
+
+tbl_a <- tbl %>% as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
           table.font.size = 10,
@@ -286,18 +294,24 @@ tbl <- mrq_at_least_one_highest_score_group %>%
 
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-mrq-frequency-highest-value-pre.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
 
-::::
-
-{{< pagebreak >}}
-
-::: {.landscape}
 
 ### Exclusion reasons
 
@@ -306,42 +320,13 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-exclusion-questionnaire
-#| tbl-cap: "Frequencies of exclusion reasons reported by the supervision officers. Exclusion reasons have been assessed in a structured manner by the Exclusion Questionnaire (EQ)."
+#| tbl-cap: "Frequencies of exclusion reasons reported by the supervision officers. Exclusion reasons have been assessed by the Exclusion Questionnaire (EQ)."
 
 library(dplyr)
 library(tidyr)
 library(gt)
 library(gtsummary)
 library(purrr)
-
-cramers_v <- function(tab) {
-  chi2 <- suppressWarnings(chisq.test(tab, correct = FALSE)$statistic)
-  n <- sum(tab)
-  min_dim <- min(dim(tab)) - 1
-  v <- sqrt(chi2 / (n * min_dim))
-  return(as.numeric(v))
-}
-
-fishers_test <- function(data, variable, by, ...) {
-
-  # Kreuztabelle erzeugen
-  tab <- table(data[[by]], data[[variable]])
-
-  # Fisher's Exact Test
-  fl <- stats::fisher.test(tab)
-
-  # 2×2: Odds Ratio + CI, sonst Cramér's V
-
-  estimate <- round(cramers_v(tab), 2)
-
-  # Ergebnis als data.frame zurück für gtsummary
-  df <- data.frame(
-    estimate = estimate,
-    p.value = fl$p.value
-  )
-
-  return(df)
-}
 
 # exclusion reasons by timepoint and treatment
 get_exclusion_reason_timepointxtreatment <- function() {
@@ -525,16 +510,13 @@ tbl <- tmp_wide %>%
     modify_header(
         label = "**Exclusion reason**",
         estimate = "**Cramer's V**",
-        p.value = "**p**"
+        p.value = "**p**",
+        q.value = "**q**"
     ) %>%
-    add_q(method = "holm") %>%
     add_overall() %>%
-    bold_labels() %>%
-    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
-    remove_footnote_header(columns = "q.value") %>%
-    # abbreviations
-    modify_abbreviation("p~adj~ = Holm-Bonferroni adjusted p.") %>%
-    as_gt() %>%
+    bold_labels()
+
+tbl_a <- tbl %>% as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
           table.font.size = 10,
@@ -550,7 +532,16 @@ tbl <- tmp_wide %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
+
 tbl
 ```
-
-:::

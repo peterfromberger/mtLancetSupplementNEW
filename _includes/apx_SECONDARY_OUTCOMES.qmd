@@ -13,6 +13,9 @@ library(rlang)
 library(gtsummary)
 library(gt)
 library(glue)
+library(patchwork)
+library(knitr)
+library(kableExtra)
 
 source(here::here("_scripts/sec_diffscore_functions.R"))
 source(here::here("_scripts/sec_pairwise_functions.R"))
@@ -72,7 +75,7 @@ labels <- c(
   "NARQ (subscale externalizing strategies)",
   "SPSI-R (total score)",
   "BMS (total score)",
-  "ESIQ (subscore child)",
+  "ESIQ (subscale child)",
   "SOI (Item 2a)",
   "SSIC (total score)",
   "EKK-R (total score)",
@@ -116,27 +119,213 @@ abbreviations <- c(
   "*HBI-19* = Hypersexual Behavior Inventory-19 [@kleinValidierungsstudieDeutschenVersion2013]",
   "*SSIC* = Specific self-efficacy for modifying Sexual Interest in Children [@tozdanSpezifischeSelbstwirksamkeitZur2015]"
 )
+
+scale_colour_group <- function(...) {
+  scale_colour_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    ),
+    breaks = c("Intervention", "Placebo")
+  )
+}
+
+scale_color_group <- function(...) {
+  scale_color_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    ),
+    breaks = c("Intervention", "Placebo")
+  )
+}
+
+scale_fill_group <- function(...) {
+  scale_fill_manual(
+    values = c(
+      "Intervention" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[2],
+      "Placebo" = ggsci::pal_lancet(palette = "lanonc", alpha = 1)(2)[1]
+    ),
+    breaks = c("Intervention", "Placebo")
+  )
+}
+
+add_gg_theme <- function(plt) {
+  
+  # Gemeinsame override.aes Definition
+  legend_override <- list(
+    shape = 22,
+    size = 5,
+    linetype = 0,
+    linewidth = 0,
+    alpha = 0.8,
+    colour = "black"
+  )
+  
+  plt <- plt +
+    scale_fill_group() +
+    scale_colour_group() +
+    scale_color_group() +
+    ggplot2::theme_classic() + 
+    ggplot2::theme(
+      plot.title = element_text(size = 18, face = "bold"),
+      axis.title = element_text(size = 16),
+      axis.text = element_text(size = 14),
+      legend.title = element_text(size = 16),
+      legend.text = element_text(size = 14),
+    ) +
+    guides(
+      color     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      colour    = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      fill      = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      shape     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      linetype  = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      size      = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      alpha     = guide_legend(title = "Treatment", order = 1, override.aes = legend_override),
+      linewidth = guide_legend(title = "Treatment", order = 1, override.aes = legend_override)
+    )
+
+  return(plt)
+}
+
+
+create_diagnostic_plots_one <- function(fit) {
+
+    res <- resid(fit)
+    fitted_vals <- fitted(fit)
+
+    p_qq <- ggplot(data = data.frame(res = res), mapping = aes(sample = res)) +
+    stat_qq() +
+    stat_qq_line(color = "#04488c") +
+    labs(
+        x = "Theoretical Quantiles", 
+        y = "Sample Quantiles",
+        title = "Q-Q Plot"
+    )   
+
+    p_qq <- add_gg_theme(p_qq)
+
+    p_resid <- ggplot(
+        data.frame(fitted = fitted_vals, res = res),
+        aes(x = fitted, y = res)
+        ) +
+        geom_point() +
+        geom_hline(yintercept = 0, linetype = "dashed", color = "#04488c") +
+        labs(x = "Predicted Values", y = "Residuals", title = "Residual Plot")
+
+    p_resid <- add_gg_theme(p_resid)
+
+    plt <- p_qq + p_resid
+
+    return(plt)
+}
+
+create_diagnostic_plots_two <- function(fit1, fit2) {
+
+    res1 <- resid(fit1)
+    fitted_vals1 <- fitted(fit1)
+
+    p_qq1 <- ggplot(data = data.frame(res = res1), mapping = aes(sample = res1)) +
+    stat_qq() +
+    stat_qq_line(color = "#04488c") +
+    labs(
+        x = "Theoretical Quantiles", 
+        y = "Sample Quantiles",
+        title = "Q-Q Plot"
+    )   
+
+    p_qq1 <- add_gg_theme(p_qq1)
+
+    p_resid1 <- ggplot(
+        data.frame(fitted = fitted_vals1, res = res1),
+        aes(x = fitted, y = res)
+        ) +
+        geom_point() +
+        geom_hline(yintercept = 0, linetype = "dashed", color = "#04488c") +
+        labs(x = "Predicted Values", y = "Residuals", title = "Residual Plot")
+
+    p_resid1 <- add_gg_theme(p_resid1)
+
+    res2 <- resid(fit2)
+    fitted_vals2 <- fitted(fit2)
+
+    p_qq2 <- ggplot(data = data.frame(res = res2), mapping = aes(sample = res2)) +
+    stat_qq() +
+    stat_qq_line(color = "#04488c") +
+    labs(
+        x = "Theoretical Quantiles", 
+        y = "Sample Quantiles",
+        title = "Q-Q Plot"
+    )   
+
+    p_qq2 <- add_gg_theme(p_qq2)
+
+    p_resid2 <- ggplot(
+        data.frame(fitted = fitted_vals2, res = res2),
+        aes(x = fitted, y = res2)
+        ) +
+        geom_point() +
+        geom_hline(yintercept = 0, linetype = "dashed", color = "#04488c") +
+        labs(
+            x = "Predicted Values", 
+            y = "Residuals",
+            title = "Residual Plot"
+        )
+
+    p_resid2 <- add_gg_theme(p_resid2)
+
+
+    plt <- (p_qq1 / p_resid1) | (p_qq2 / p_resid2)
+
+    return(plt)
+}
+
+get_kable_table <- function(tbl, abbreviations) {
+  tbl <- tbl %>%
+    as_kable_extra(
+      booktabs = TRUE,
+      longtable = TRUE,
+    ) %>%
+    kableExtra::kable_styling(
+      font_size = 8,
+      latex_options = c("repeat_header", "scale_down", "hold_position"),
+    ) %>%
+    footnote(
+        general = abbreviations,
+        threeparttable = T,
+        general_title = "Abbreviations: "
+    )
+  
+  return(tbl)
+}
 ```
+
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-sec-diffscore
-#| tbl-cap: "Difference between before (pre) and after (post) for each secondary endpoint. Differences (from pre to post) of secondary endpoints have been compared between the treatment groups using the Brunner-Munzel test for unpaired data."
+#| tbl-cap: "Difference from pre to post of the scores for each secondary endpoint. Differences (from pre to post) of secondary endpoints have been compared between the treatment groups using the Brunner-Munzel test for unpaired data."
 
 mbsb <- TRUE
 sample_str <- "itt"
 
 tbl <- create_tbl_diffscore_bm_unpaired(mbsb, sample_str, dvs, dvs_mbsb, labels, types, abbreviations)
 
-# save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.png")))
+# # save tbl as image
+# gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.pdf")))
+# gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.docx")))
+# gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-diffscore.png")))
+
+# tbl <- tbl %>%
+#     tab_options(latex.use_longtable = TRUE)
+
+tbl <- get_kable_table(tbl, "BIS-15 = Barratt Impulsiveness Scale-15, BMS = Bumby Molest Scale, CUSI = Coping Using Sex Inventory, CVTRQ = Corrections Victoria Treatment Readiness Questionnaire, DERS = Difficulties in Emotion Regulation Scale, EKK-R = Questionnaire on Emotional Congruence with Children-Revised, ESIQ = Explicit Sexual Interest Questionnaire, F-Soz-U = Seven-item short version of the Social Support Questionnaire, HBI-19 = Hypersexual Behavior Inventory-19, NARQ = Negative Affect Repair Questionnaire, OQMPR = Questionnaire for the Measurement of Psychological Reactance, Q1 = 25th percentile, Q3 = 75th percentile, RCQ = Readiness to Change Questionnaire - German version, SOI-R = Sexual Outlet Inventory revised, subscale desire for sexual activity with children, SPSI-R = Social Problem-Solving Inventory Revised, SSIC = Specific self-efficacy for modifying Sexual Interest in Children, UCLA = UCLA Loneliness Scale - German short version, q = Holm-Bonferroni adjusted p.")
 
 tbl
 ```
+  
 
 <!-- CVTRQ -->
 
@@ -144,24 +333,26 @@ tbl
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-cvtrq-total-score
+#| label: sec-init-cvtrq-calc-total
 var <- "cvtrq_calc_total"
 var_nice <- "cvtrq-calc-total"
-q_name <- "CVTRQ (total score)"
+q_name <- "CVTRQ, total score"
 fit <- fit_cvtrq_calc_total
 lm_table <- lm_Table_cvtrq_calc_total
 module <- "module one (motivation)"
-tbl_cap <- paste0("Linear regression model for the Corrections Victoria Treatment Readiness Questionnaire ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+tbl_cap <- paste0("Linear regression model for the Corrections Victoria Treatment Readiness Questionnaire (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### CVTRQ
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Corrections Victoria Treatment Readiness Questionnaire (CVTRQ, total score).](_figures/fig-sec-rainplot-cvtrq-calc-total.png){#fig-sec-rainplot-cvtrq}
+![Distribution of the Corrections Victoria Treatment Readiness Questionnaire (CVTRQ, total score) scores by trial arms. Shown are scores before (pre) and after (post) module one (motivation). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-cvtrq-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-cvtrq-calc-total
@@ -169,11 +360,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-library(knitr)
-
-plt <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
-plt <- add_gg_theme(plt)
+plt <- create_diagnostic_plots_one(fit)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -194,9 +381,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Corrections Victoria Treatment Readiness Questionnaire (CVTRQ, total score).](_figures/fig-sec-diagnostic-plots-cvtrq-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total}
-
+![Diagnostic plots for the Corrections Victoria Treatment Readiness Questionnaire (CVTRQ, total score). The plots provide no indication of violations of the normality assumption.](_figures/fig-sec-diagnostic-plots-cvtrq-calc-total.png){#fig-sec-diag-cvtrq-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-cvtrq-calc-total
@@ -205,7 +392,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -215,46 +402,59 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-cvtrq-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- RCQ -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-rcq-total-score
+#| label: sec-init-rcq-calc-total
 var <- "rcq_calc_total"
 var_nice <- "rcq-calc-total"
-q_name <- "RCQ (total score)"
+q_name <- "RCQ, total score"
 fit1 <- fit_rcq_calc_total
 fit2 <- fit_rcq_calc_total3
 lm_table <- lm_Table_rcq_calc_total
 module <- "module one (motivation)"
-tbl_cap <- paste0("Linear regression model for the Readiness to Change Questionnaire ", q_name, "; Number of observations: ", as.character(nobs(fit1)), ").")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
+tbl_cap <- paste0("Linear regression model for the Readiness to Change Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, "). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### RCQ
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Readiness to Change Questionnaire (RCQ, total score).](_figures/fig-sec-rainplot-rcq-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total}
+![Distribution of the Readiness to Change Questionnaire (RCQ, total score) scores by trial arms. Shown are scores before (pre) and after (post) module one (motivation). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-rcq-calc-total.png){#fig-sec-rainplot-rcq-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-rcq-calc-total
@@ -262,9 +462,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_compare(list(fit1, fit2), plots = c("qq", "resid"))
-plt <- add_gg_theme(plt)
+plt <- create_diagnostic_plots_two(fit1, fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -284,11 +482,10 @@ ggsave(
     width = 16,
     height = 16
 )
-
 ```
+  
 
-![Diagnostic plots for the Readiness to Change Questionnaire (RCQ, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models models showed similar results. ](_figures/fig-sec-diagnostic-plots-rcq-calc-total.png){#fig-sec-rainplot-rcq-calc-total}
-
+![Diagnostic plots for the Readiness to Change Questionnaire (RCQ, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.](_figures/fig-sec-diagnostic-plots-rcq-calc-total.png){#fig-sec-diag-rcq-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-rcq-calc-total
@@ -297,7 +494,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -307,55 +504,68 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-rcq-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
-<!-- Fsoz-U -->
+  
+  
+<!-- F-Soz-U -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-fsozu-total-score
+#| label: sec-init-fsozu-calc-total
 var <- "fsozu_calc_total"
 var_nice <- "fsozu-calc-total"
-q_name <- "F-Soz-U (total score)"
+q_name <- "F-Soz-U, total score"
 fit <- fit_fsozu_calc_total
 lm_table <- lm_Table_fsozu_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for the Social Support Questionnaire ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+tbl_cap <- paste0("Linear regression model for the Social Support Questionnaire (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### F-Soz-U
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Social Support Questionnaire (F-Soz-U, total score).](_figures/fig-sec-rainplot-fsozu-calc-total.png){#fig-sec-rainplot-cvtrq-calc-total}
+![Distribution of the Social Support Questionnaire (F-Soz-U, total score) scores by trial arms. Shown are scores before (pre) and after (post) module two (supervision and social relationship). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-fsozu-calc-total.png){#fig-sec-rainplot-fsozu-calc-total}
+
 
 ```{r}
+#| label: fig-sec-lm-fsozu-calc-total
 #| echo: false
 #| message: false
 #| warning: false
-#| label: fig-sec-lm-fsozu-calc-total
-
 library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
-plt <- add_gg_theme(plt)
+library(knitr)
+
+plt <- create_diagnostic_plots_one(fit)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -376,18 +586,18 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Social Support Questionnaire (F-Soz-U, total score).](_figures/fig-sec-diagnostic-plots-fsozu-calc-total.png){#fig-sec-rainplot-fsozu-calc-total}
-
+![Diagnostic plots for the Social Support Questionnaire (F-Soz-U, total score). The plots provide no indication of violations of the normality assumption.](_figures/fig-sec-diagnostic-plots-fsozu-calc-total.png){#fig-sec-diag-fsozu-calc-total}
 
 ```{r}
+#| label: tbl-sec-lm-fsozu-calc-total
 #| echo: false
 #| message: false
 #| warning: false
-#| label: tbl-sec-lm-fsozu-calc-total
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -397,55 +607,68 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-fsozu-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- OQMPR -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-ors-total-score
+#| label: sec-init-ors-calc-total
 var <- "ors_calc_total"
 var_nice <- "ors-calc-total"
-q_name <- "OQMPR (total score)"
+q_name <- "OQMPR, total score"
 fit <- fit_ors_calc_total
 lm_table <- lm_Table_ors_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for the Questionnaire for the Measurement of Psychological Reactance ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+tbl_cap <- paste0("Linear regression model for the Questionnaire for the Measurement of Psychological Reactance (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### OQMPR
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Questionnaire for the Measurement of Psychological Reactance (OQMPR, total score).](_figures/fig-sec-rainplot-ors-calc-total.png){#fig-sec-rainplot-ors-total-score}
+![Distribution of the Questionnaire for the Measurement of Psychological Reactance (OQMPR, total score) scores by trial arms. Shown are scores before (pre) and after (post) module two (supervision and social relationship). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-ors-calc-total.png){#fig-sec-rainplot-ors-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-ors-calc-total
 #| echo: false
 #| message: false
 #| warning: false
-
 library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
-plt <- add_gg_theme(plt)
+library(knitr)
+
+plt <- create_diagnostic_plots_one(fit)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -466,9 +689,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Questionnaire for the Measurement of Psychological Reactance (OQMPR, total score).](_figures/fig-sec-diagnostic-plots-ors-calc-total.png){#fig-sec-rainplot-ors-calc-total}
-
+![Diagnostic plots for the Questionnaire for the Measurement of Psychological Reactance (OQMPR, total score). The plots provide no indication of violations of the normality assumption.](_figures/fig-sec-diagnostic-plots-ors-calc-total.png){#fig-sec-diag-ors-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-ors-calc-total
@@ -477,7 +700,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -487,22 +710,33 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ors-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
-<!-- SOI -->
+  
+  
+<!-- SOI-R -->
 
 ```{r}
 #| echo: false
@@ -511,21 +745,24 @@ tbl
 #| label: sec-init-soi-total-score
 var <- "soi_total_score"
 var_nice <- "soi-total-score"
-q_name <- "SOI (subscale desire for sexual activity with children)"
-fit <- fit_soi_calc_total
-#lm_table <- lm_Table_soi_calc_total
+q_name <- "SOI-R, subscale desire for sexual activity with children"
+fit1 <- fit_soi_calc_total_ordinal_diff
+fit2 <- fit_soi_calc_total
+lm_table <- glm_Table_soi_calc_total_ordinal_diff
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Linear regression model for the Sexual Outlet Inventory revised ", q_name, "; Number of observations: ", as.character(nobs(fit)), ").")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+tbl_cap <- paste0("Ordinal regression model for the Sexual Outlet Inventory Revised (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
+fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### SOI-R
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Sexual Outlet Inventory revised (SOI-R, Item 2a).](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
+![Distribution of the Sexual Outlet Inventory Revised (SOI-R, subscale desire for sexual activity with children) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
+
 
 ```{r}
 #| label: fig-sec-lm-soi-total-score
@@ -533,9 +770,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
-plt <- add_gg_theme(plt)
+plt <- create_diagnostic_plots_one(fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -556,9 +791,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Sexual Outlet Inventory revised (SOI-R, Item 2a).](_figures/fig-sec-diagnostic-plots-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
-
+![Diagnostic plots for the Sexual Outlet Inventory Revised (SOI-R, subscale desire for sexual activity with children). The plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.](_figures/fig-sec-diagnostic-plots-soi-total-score.png){#fig-sec-diag-soi-total-score}
 
 ```{r}
 #| label: tbl-sec-lm-soi-total-score
@@ -567,34 +802,69 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-#lm_table
-```
+tbl_a <- lm_table %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
+# save tbl as image
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-soi-total-score.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-soi-total-score.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-soi-total-score.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
+
+tbl
+```
+  
+  
 <!-- UCLA -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-ucla-total-score
+#| label: sec-init-ucla-calc-total
 var <- "ucla_calc_total"
 var_nice <- "ucla-calc-total"
-q_name <- "UCLA (total score)"
+q_name <- "UCLA, total score"
 fit1 <- fit_ucla_calc_total
 fit2 <- fit_ucla_calc_total3
 lm_table <- lm_Table_ucla_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for the UCLA Loneliness Scale ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
+tbl_cap <- paste0("Linear regression model for the UCLA Loneliness Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, "). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### UCLA
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the UCLA Loneliness Scale (UCLA, total score).](_figures/fig-sec-rainplot-ucla-calc-total.png){#fig-sec-rainplot-ucla-total-score}
+![Distribution of the UCLA Loneliness Scale (UCLA, total score) scores by trial arms. Shown are scores before (pre) and after (post) module two (supervision and social relationship). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-ucla-calc-total.png){#fig-sec-rainplot-ucla-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-ucla-calc-total
@@ -602,8 +872,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_compare(list(fit1, fit2), plots = c("qq", "resid"))
+plt <- create_diagnostic_plots_two(fit1, fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -624,9 +893,9 @@ ggsave(
     height = 16
 )
 ```
+  
 
-![Diagnostic plots for the UCLA Loneliness Scale (UCLA, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models models showed similar results.](_figures/fig-sec-diagnostic-plots-ucla-calc-total.png){#fig-sec-rainplot-ucla-calc-total}
-
+![Diagnostic plots for the UCLA Loneliness Scale (UCLA, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.](_figures/fig-sec-diagnostic-plots-ucla-calc-total.png){#fig-sec-diag-ucla-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-ucla-calc-total
@@ -635,7 +904,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -645,46 +914,59 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ucla-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
-<!-- BIS -->
+  
+  
+<!-- BIS-15 -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-bis-total-score
+#| label: sec-init-bis-calc-total
 var <- "bis_calc_total"
 var_nice <- "bis-calc-total"
-q_name <- "BIS-15 (total score)"
-fit1 <- fit_bis_calc_total2
-fit2 <- fit_bis_calc_total
+q_name <- "BIS-15, total score"
+fit1 <- fit_bis_calc_total
+fit2 <- fit_bis_calc_total2
 lm_table <- lm_Table_bis_calc_total
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Linear regression model for the Barratt Impulsiveness Scale-15 ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the score was log-transformed.")
+tbl_cap <- paste0("Linear regression model for the Barratt Impulsiveness Scale-15 (", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, "). The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the score was log-transformed. Both models showed similar results.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### BIS-15
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Barratt Impulsiveness Scale-15 (BIS-15, total score).](_figures/fig-sec-rainplot-bis-calc-total.png){#fig-sec-rainplot-bis-total-score}
+![Distribution of the Barratt Impulsiveness Scale-15 (BIS-15, total score) scores by trial arms. Shown are scores before (pre) and after (post) module three (emotion management). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-bis-calc-total.png){#fig-sec-rainplot-bis-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-bis-calc-total
@@ -692,8 +974,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_compare(list(fit1, fit2), plots = c("qq", "resid"))
+plt <- create_diagnostic_plots_two(fit1, fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -714,9 +995,9 @@ ggsave(
     height = 16
 )
 ```
+  
 
-![Diagnostic plots for the Barratt Impulsiveness Scale-15 (BIS-15, total score). The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the bis score was log-transformed.](_figures/fig-sec-diagnostic-plots-bis-calc-total.png){#fig-sec-rainplot-bis-calc-total}
-
+![Diagnostic plots for the Barratt Impulsiveness Scale-15 (BIS-15, total score). The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the score was log-transformed. Both models showed similar results.](_figures/fig-sec-diagnostic-plots-bis-calc-total.png){#fig-sec-diag-bis-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-bis-calc-total
@@ -725,7 +1006,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -735,46 +1016,59 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-bis-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- CUSI -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-cusi-total-score
+#| label: sec-init-cusi-calc-total
 var <- "cusi_calc_total"
 var_nice <- "cusi-calc-total"
-q_name <- "CUSI (total score)"
+q_name <- "CUSI, total score"
 fit1 <- fit_cusi_calc_total
 fit2 <- fit_cusi_calc_total3
 lm_table <- lm_Table_cusi_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ". The plot on the left correspond to the model fitted with all data points, the plot on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
+tbl_cap <- paste0("Linear regression model for the Coping Using Sex Inventory (", q_name, ") with n = ", as.character(nobs(fit1)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, "). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### CUSI
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Coping Using Sex Inventory (CUSI, total score).](_figures/fig-sec-rainplot-cusi-calc-total.png){#fig-sec-rainplot-cusi-total-score}
+![Distribution of the Coping Using Sex Inventory (CUSI, total score) scores by trial arms. Shown are scores before (pre) and after (post) module two (supervision and social relationship). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-cusi-calc-total.png){#fig-sec-rainplot-cusi-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-cusi-calc-total
@@ -782,9 +1076,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_compare(list(fit1, fit2), plots = c("qq", "resid"))
-plt <- add_gg_theme(plt)
+plt <- create_diagnostic_plots_two(fit1, fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -804,11 +1096,10 @@ ggsave(
     width = 16,
     height = 16
 )
-
 ```
+  
 
-![Diagnostic plots for Coping Using Sex Inventory (CUSI, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models models showed similar results.](_figures/fig-sec-diagnostic-plots-cusi-calc-total.png){#fig-sec-rainplot-cusi-calc-total}
-
+![Diagnostic plots for the Coping Using Sex Inventory (CUSI, total score). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.](_figures/fig-sec-diagnostic-plots-cusi-calc-total.png){#fig-sec-diag-cusi-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-cusi-calc-total
@@ -817,7 +1108,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -827,45 +1118,58 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-cusi-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- SPSI-R -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-spsi-total-score
+#| label: sec-init-spsi-calc-total
 var <- "spsi_calc_total"
 var_nice <- "spsi-calc-total"
-q_name <- "SPSI-R (total score)"
+q_name <- "SPSI-R, total score"
 fit <- fit_spsi_calc_total
 lm_table <- lm_Table_spsi_calc_total
 module <- "module four (problem solving)"
-tbl_cap <- paste0("Linear regression model for Social Problem-Solving Inventory Revised ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+tbl_cap <- paste0("Linear regression model for the Social Problem-Solving Inventory Revised (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### SPSI-R
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Social Problem-Solving Inventory Revised (SPSI-R, total score).](_figures/fig-sec-rainplot-spsi-calc-total.png){#fig-sec-rainplot-spsi-total-score}
+![Distribution of the Social Problem-Solving Inventory Revised (SPSI-R, total score) scores by trial arms. Shown are scores before (pre) and after (post) module four (problem solving). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-spsi-calc-total.png){#fig-sec-rainplot-spsi-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-spsi-calc-total
@@ -873,9 +1177,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
-plt <- add_gg_theme(plt)
+plt <- create_diagnostic_plots_one(fit)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -896,9 +1198,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Social Problem-Solving Inventory Revised (SPSI-R, total score).](_figures/fig-sec-diagnostic-plots-spsi-calc-total.png){#fig-sec-rainplot-spsi-calc-total}
-
+![Diagnostic plots for the Social Problem-Solving Inventory Revised (SPSI-R, total score). The plots provide no indication of violations of the normality assumption.](_figures/fig-sec-diagnostic-plots-spsi-calc-total.png){#fig-sec-diag-spsi-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-spsi-calc-total
@@ -907,7 +1209,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -917,21 +1219,32 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-spsi-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- EKK-R -->
 
 ```{r}
@@ -941,21 +1254,23 @@ tbl
 #| label: sec-init-ekk-calc-total
 var <- "ekk_calc_total"
 var_nice <- "ekk-calc-total"
-q_name <- "EKK-R (total score)"
+q_name <- "EKK-R, total score"
 fit <- fit_ekk_calc_total
-module <- "module six (sexuality)"
 lm_table <- lm_Table_ekk_calc_total
-tbl_cap <- paste0("Linear regression model for ", q_name, " with n = ", as.character(nobs(fit)), " observations.")
-fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, ".")
+module <- "module six (sexuality)"
+tbl_cap <- paste0("Linear regression model for the Emotional Congruence with Children-Revised (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### EKK-R
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Emotional Congruence with Children-Revised (EKK-R, total score).](_figures/fig-sec-rainplot-ekk-calc-total.png){#fig-sec-rainplot-ekk-total-score}
+![Distribution of the Emotional Congruence with Children-Revised (EKK-R, total score) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-ekk-calc-total.png){#fig-sec-rainplot-ekk-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-ekk-calc-total
@@ -963,9 +1278,7 @@ fig_cap <- paste("Diagnostic plots for linear regression models with ", q_name, 
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit, plots=c("qq", "resid"))
-plt <- add_gg_theme(plt)
+plt <- create_diagnostic_plots_one(fit)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -986,9 +1299,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for Emotional Congruence with Children-Revised (EKK-R, total score).](_figures/fig-sec-diagnostic-plots-ekk-calc-total.png){#fig-sec-rainplot-ekk-calc-total}
-
+![Diagnostic plots for the Emotional Congruence with Children-Revised (EKK-R, total score). The plots provide no indication of violations of the normality assumption.](_figures/fig-sec-diagnostic-plots-ekk-calc-total.png){#fig-sec-diag-ekk-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-ekk-calc-total
@@ -997,7 +1310,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -1007,46 +1320,59 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ekk-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- DERS -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-ders-imp
+#| label: sec-init-ders-calc-imp
 var <- "ders_calc_imp"
 var_nice <- "ders-calc-imp"
-q_name <- "DERS (subscore impulsivity)"
+q_name <- "DERS, subscore impulsivity"
 fit1 <- fit_ders_calc_imp_ordinal
 fit2 <- fit_ders_calc_imp
 lm_table <- glm_Table_ders_calc_imp
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Ordinal regression model for the Difficulties in Emotion Regulation Scale ", q_name, " with n = ", as.character(nobs(fit1)), " observations. For the dependent variable, values greater than 9 were merged into a single category.")
-fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". As shown, prerequisites of an linear regression model are not met.")
+tbl_cap <- paste0("Ordinal regression model for the Difficulties in Emotion Regulation Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values greater than 9 were merged into a single category.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### DERS
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Difficulties in Emotion Regulation Scale (DERS, subscale impulsivity). Note, that for the dependent variable, values greater than 9 were merged into a single category.](_figures/fig-sec-rainplot-ders-calc-imp.png){#fig-sec-rainplot-ders-imp-score}
+![Distribution of the Difficulties in Emotion Regulation Scale (DERS, subscore impulsivity) scores by trial arms. Shown are scores before (pre) and after (post) module three (emotion management). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-ders-calc-imp.png){#fig-sec-rainplot-ders-calc-imp}
+
 
 ```{r}
 #| label: fig-sec-lm-ders-calc-imp
@@ -1054,8 +1380,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+plt <- create_diagnostic_plots_one(fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -1076,9 +1401,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for Difficulties in Emotion Regulation Scale (DERS, subscale impulsivity). Note, that for the dependent variable, values greater than 9 were merged into a single category.](_figures/fig-sec-diagnostic-plots-ders-calc-imp.png){#fig-sec-rainplot-ders-calc-imp}
-
+![Diagnostic plots for the Difficulties in Emotion Regulation Scale (DERS, subscore impulsivity). The plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.](_figures/fig-sec-diagnostic-plots-ders-calc-imp.png){#fig-sec-diag-ders-calc-imp}
 
 ```{r}
 #| label: tbl-sec-lm-ders-calc-imp
@@ -1087,7 +1412,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -1097,21 +1422,32 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ders-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- NARQ -->
 
 ```{r}
@@ -1121,22 +1457,24 @@ tbl
 #| label: sec-init-narq-calc-ris
 var <- "narq_calc_ris"
 var_nice <- "narq-calc-ris"
-q_name <- "NARQ (subscale externalizing strategies)"
+q_name <- "NARQ, subscale externalizing strategies"
 fit1 <- fit_narq_calc_ris_ordinal
 fit2 <- fit_narq_calc_ris
 lm_table <- glm_Table_narq_calc_ris
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Ordinal regression model for the Negative Affect Repair Questionnaire ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values greater than 4 were merged into a single category.")
-fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+tbl_cap <- paste0("Ordinal regression model for the Negative Affect Repair Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values greater than 4 were merged into a single category.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### NARQ
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Negative Affect Repair Questionnaire (NARQ, subscale externalizing strategies). Note, that for the dependent variable, values greater than 4 were merged into a single category.](_figures/fig-sec-rainplot-narq-calc-ris.png){#fig-sec-rainplot-narq-ris-score}
+![Distribution of the Negative Affect Repair Questionnaire (NARQ, subscale externalizing strategies) scores by trial arms. Shown are scores before (pre) and after (post) module three (emotion management). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-narq-calc-ris.png){#fig-sec-rainplot-narq-calc-ris}
+
 
 ```{r}
 #| label: fig-sec-lm-narq-calc-ris
@@ -1144,8 +1482,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+plt <- create_diagnostic_plots_one(fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -1166,9 +1503,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Negative Affect Repair Questionnaire (NARQ, subscale externalizing strategies). Note, that for the dependent variable, values greater than 4 were merged into a single category](_figures/fig-sec-diagnostic-plots-narq-calc-ris.png){#fig-sec-rainplot-narq-calc-ris}
-
+![Diagnostic plots for the Negative Affect Repair Questionnaire (NARQ, subscale externalizing strategies). The plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.](_figures/fig-sec-diagnostic-plots-narq-calc-ris.png){#fig-sec-diag-narq-calc-ris}
 
 ```{r}
 #| label: tbl-sec-lm-narq-calc-ris
@@ -1177,7 +1514,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -1187,46 +1524,59 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-narq-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- ESIQ -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-esiq-calc-total
+#| label: sec-init-esiq-calc-total-child
 var <- "esiq_calc_total_child"
 var_nice <- "esiq-calc-total-child"
-q_name <- "ESIQ (subscore child)"
+q_name <- "ESIQ, subsale child"
 fit1 <- fit_esiq_calc_total_child_ordinal_diff
 fit2 <- fit_esiq_calc_total_child
 lm_table <- glm_Table_esiq_calc_total_child_ordinal_diff
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Ordinal regression model for the Explicit Sexual Interest Questionnaire (ESIQ, subscale child) ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
-fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+tbl_cap <- paste0("Ordinal regression model for the Explicit Sexual Interest Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
+fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### ESIQ
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Explicit Sexual Interest Questionnaire (ESIQ, total score). Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).](_figures/fig-sec-rainplot-esiq-calc-total-child.png){#fig-sec-rainplot-esiq-calc-total}
+![Distribution of the Explicit Sexual Interest Questionnaire (ESIQ, subsale child) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-esiq-calc-total-child.png){#fig-sec-rainplot-esiq-calc-total-child}
+
 
 ```{r}
 #| label: fig-sec-lm-esiq-calc-total-child
@@ -1234,8 +1584,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+plt <- create_diagnostic_plots_one(fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -1256,9 +1605,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Explicit Sexual Interest Questionnaire (ESIQ, subscore child). Note, that the dependent variable has three ordered categories: worsening (increase), no change, improvement (decrease).](_figures/fig-sec-diagnostic-plots-esiq-calc-total-child.png){#fig-sec-rainplot-esiq-calc-total}
-
+![Diagnostic plots for the Explicit Sexual Interest Questionnaire (ESIQ, subsale child). The plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.](_figures/fig-sec-diagnostic-plots-esiq-calc-total-child.png){#fig-sec-diag-esiq-calc-total-child}
 
 ```{r}
 #| label: tbl-sec-lm-esiq-calc-total-child
@@ -1267,7 +1616,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -1277,21 +1626,32 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-esiq-calc-total-child.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- BMS -->
 
 ```{r}
@@ -1301,22 +1661,22 @@ tbl
 #| label: sec-init-kvm-score
 var <- "kvm_score"
 var_nice <- "kvm-score"
-q_name <- "BMS (total score)"
+q_name <- "BMS, total score"
 fit1 <- fit_kvm_score_logistic
 fit2 <- fit_kvm_score
 lm_table <- glm_Table_kvm_score
 module <- "module five (offense-supportive attitudes)"
-tbl_cap <- paste0("Logistic regression model for the Bumby Molest Scale ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.")
-fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+tbl_cap <- paste0("Logistic regression model for the Bumby Molest Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.")
 ```
-
-{{< pagebreak >}}
+  
 
 ### BMS
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Bumby Molest Scale (BMS, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.](_figures/fig-sec-rainplot-kvm-score.png){#fig-sec-rainplot-kvm-score}
+![Distribution of the Bumby Molest Scale (BMS, total score) scores by trial arms. Shown are scores before (pre) and after (post) module five (offense-supportive attitudes). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-kvm-score.png){#fig-sec-rainplot-kvm-score}
+
 
 ```{r}
 #| label: fig-sec-lm-kvm-score
@@ -1324,8 +1684,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+plt <- create_diagnostic_plots_one(fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -1346,9 +1705,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Bumby Molest Scale (BMS, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.](_figures/fig-sec-diagnostic-plots-kvm-score.png){#fig-sec-rainplot-kvm-score}
-
+![Diagnostic plots for the Bumby Molest Scale (BMS, total score). The plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.](_figures/fig-sec-diagnostic-plots-kvm-score.png){#fig-sec-diag-kvm-score}
 
 ```{r}
 #| label: tbl-sec-lm-kvm-score
@@ -1357,55 +1716,69 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
-        table.font.names = "Times New Roman",
+      table.font.names = "Times New Roman",
           table.font.size = 10,
           quarto.use_bootstrap = FALSE,
           quarto.disable_processing = TRUE,
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-bms-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- HBI-19 -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-hbi-total
+#| label: sec-init-hbi-calc-total
 var <- "hbi_calc_total"
 var_nice <- "hbi-calc-total"
-q_name <- "HBI-19 (total score)"
+q_name <- "HBI-19, total score"
 fit1 <- fit_hbi_calc_total_logistic
 fit2 <- fit_hbi_calc_total
 lm_table <- glm_Table_hbi_calc_total
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Logistic regression model for the Hypersexual Behavior Inventory-19 ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.")
-fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+tbl_cap <- paste0("Logistic regression model for the Hypersexual Behavior Inventory-19 (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### HBI-19
+
 <!-- RAIN PLOT -->
 
-![Rainplot of the Hypersexual Behavior Inventory-19 (HBI-19, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.](_figures/fig-sec-rainplot-hbi-calc-total.png){#fig-sec-rainplot-hbi-total-score}
+![Distribution of the Hypersexual Behavior Inventory-19 (HBI-19, total score) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-hbi-calc-total.png){#fig-sec-rainplot-hbi-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-hbi-calc-total
@@ -1413,8 +1786,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+plt <- create_diagnostic_plots_one(fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -1435,9 +1807,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Hypersexual Behavior Inventory-19 (HBI-19, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.](_figures/fig-sec-diagnostic-plots-hbi-calc-total.png){#fig-sec-rainplot-hbi-calc-total}
-
+![Diagnostic plots for the Hypersexual Behavior Inventory-19 (HBI-19, total score). The plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.](_figures/fig-sec-diagnostic-plots-hbi-calc-total.png){#fig-sec-diag-hbi-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-hbi-calc-total
@@ -1446,7 +1818,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -1456,46 +1828,59 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-hbi-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
-
+  
+  
 <!-- SSIC -->
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-#| label: sec-init-ssik-total-score
+#| label: sec-init-ssik-calc-total
 var <- "ssik_calc_total"
 var_nice <- "ssik-calc-total"
-q_name <- "SSIC (total score)"
+q_name <- "SSIC, total score"
 fit1 <- fit_ssik_calc_total_logistic
 fit2 <- fit_ssik_calc_total
-module <- "module six (sexuality)"
 lm_table <- glm_Table_ssik_calc_total
-tbl_cap <- paste0("Logistic regression model for the Specific self-efficacy for modifying Sexual Interest in Children ", q_name, " with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.")
-fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name, ". The plot shows that the assumptions of a linear model are not met.")
+module <- "module six (sexuality)"
+tbl_cap <- paste0("Logistic regression model for the Specific self-efficacy for modifying Sexual Interest in Children (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.")
+fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.")
 ```
-
+  
+  
 {{< pagebreak >}}
 
 ### SSIC
 
 <!-- RAIN PLOT -->
 
-![Rainplot of the Specific self-efficacy for modifying Sexual Interest in Children (SSIC, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.](_figures/fig-sec-rainplot-ssik-calc-total.png){#fig-sec-rainplot-ssik-calc-total}
+![Distribution of the Specific self-efficacy for modifying Sexual Interest in Children (SSIC, total score) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-ssik-calc-total.png){#fig-sec-rainplot-ssik-calc-total}
+
 
 ```{r}
 #| label: fig-sec-lm-ssik-calc-total
@@ -1503,8 +1888,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with ", q_name,
 #| message: false
 #| warning: false
 
-library(ggResidpanel)
-plt <- ggResidpanel::resid_panel(fit2, plots=c("qq", "resid"))
+plt <- create_diagnostic_plots_one(fit2)
 
 name_png <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.png")
 name_pdf <- glue("_figures/fig-sec-diagnostic-plots-{var_nice}.pdf")
@@ -1525,8 +1909,9 @@ ggsave(
     height = 8
 )
 ```
+  
 
-![Diagnostic plots for the Specific self-efficacy for modifying Sexual Interest in Children (SSIC, total score). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.](_figures/fig-sec-diagnostic-plots-ssik-calc-total.png){#fig-sec-rainplot-ssik-calc-total}
+![Diagnostic plots for the Specific self-efficacy for modifying Sexual Interest in Children (SSIC, total score). The plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.](_figures/fig-sec-diagnostic-plots-ssik-calc-total.png){#fig-sec-diag-ssik-calc-total}
 
 ```{r}
 #| label: tbl-sec-lm-ssik-calc-total
@@ -1535,7 +1920,7 @@ ggsave(
 #| warning: false
 #| tbl-cap: !expr 'tbl_cap'
 
-tbl <- lm_table %>%
+tbl_a <- lm_table %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -1545,17 +1930,29 @@ tbl <- lm_table %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
 
-# save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.png")))
+
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-lm-ssic-calc-total.png")))
+
+tbl <- lm_table
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl
 ```
+  
+  

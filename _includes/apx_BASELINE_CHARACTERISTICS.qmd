@@ -5,7 +5,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-sspi-2
-#| tbl-cap: "Baseline values of the SSPI-2. Note, that the SSPI-2 is only defined for participants who have at least one hands-on offences. [@setoRevisedScreeningScale2017a] Abbreviations: Q1 = 25th percentile, Q3 = 75th percentile."
+#| tbl-cap: "Baseline values of the SSPI-2. Note, that the SSPI-2 is only defined for participants who have at least one contact offense. [@setoRevisedScreeningScale2017a]"
 
 library(here)
 library(tidyr)
@@ -108,17 +108,19 @@ tbl <- sspi %>%
             calc_sspi_score  ~ "continuous2"
         ),
         label = list(
-            sspi_irgendein_besitz_von_kinderpornographie = "Any hands-off offences",
-            sspi_mehrere_opfer_unter_15jahre = "More than one hands-on victims",
-            sspi_irgendein_maennliches_opfer_unter_15jahre  = "Any hands-on victims under 15 years old",
-            sspi_irgendein_opfer_unter_12jahre  = "Any hands-on victims under 12 years old",
-            sspi_irgendein_nicht_zur_familie_gehoerendes_opfer_unter15jahre  = "Any extra-familiar hands-on victims",
+            sspi_irgendein_besitz_von_kinderpornographie = "Any non-contact offences",
+            sspi_mehrere_opfer_unter_15jahre = "More than one contact victims",
+            sspi_irgendein_maennliches_opfer_unter_15jahre  = "Any contact victims under 15 years old",
+            sspi_irgendein_opfer_unter_12jahre  = "Any contact victims under 12 years old",
+            sspi_irgendein_nicht_zur_familie_gehoerendes_opfer_unter15jahre  = "Any extra-familiar contact victims",
             calc_sspi_score = "SSPI-2 score"
         ),
         missing_text = "Missing"
     ) %>%
     add_overall() %>%
-    bold_labels() %>%
+    bold_labels()
+
+tbl_a <- tbl %>%
     as_gt() %>%
     gt::tab_options(
       table.font.names = "Times New Roman",
@@ -134,9 +136,20 @@ tbl <- sspi %>%
     )
 
 # save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sspi-2.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sspi-2.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-sspi-2.png")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sspi-2.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sspi-2.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sspi-2.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
 
 tbl       
 ```

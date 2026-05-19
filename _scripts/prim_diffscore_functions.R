@@ -95,32 +95,12 @@ create_prim_diff_tbl <- function(data, dvs, label_list, grouping_var, abbreviati
     add_q(method = "holm") %>%
     modify_header(
       p.value = "**p**",
-      q.value = "**p~adj~**"
+      q.value = "**q**"
     ) %>%
     bold_labels() %>%
-    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
-    remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, p~adj~ = Holm-Bonferroni adjusted p.")
-
-
-  tbl <- tbl %>%
-    as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-          table.font.size = 10,
-          quarto.use_bootstrap = FALSE,
-          quarto.disable_processing = TRUE,
-          data_row.padding = px(1),
-          summary_row.padding = gt::px(1),
-          grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
-          row_group.padding = gt::px(1)
-    ) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
-
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, q = Holm-Bonferroni adjusted p.")
+    
   return(tbl)
 }
 
