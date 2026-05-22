@@ -2292,7 +2292,7 @@ dat_clean <- dat_clean %>%
     Indexdelikt = factor(
       Indexdelikt,
       levels = c("Nur § 184b", "Auch §§ 176, 176a, 176b StGB"),
-      labels = c("Non-contact (only §184b StGB)", "Contact (at least one conviction §176 ff StGB)")
+      labels = c("Non-contact (only GCC §184b)", "Contact (at least one conviction GCC §176ff)")
     ),
     Aktuelle_zusatzliche_Behandlung = factor(
       Aktuelle_zusatzliche_Behandlung,

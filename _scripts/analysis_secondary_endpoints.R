@@ -202,8 +202,8 @@ dat_complete_sec <- dat_complete_sec %>%
     ),
     `Indexdelikt` = fct_recode(
       `Indexdelikt`,
-      "Non-contact (only §184b StGB)" = "Nur § 184b",
-      "Contact (at least one conviction §176 ff StGB)" = "Auch §§ 176, 176a, 176b StGB"
+      "Non-contact (only GCC §184b)" = "Nur § 184b",
+      "Contact (at least one conviction GCC §176ff)" = "Auch §§ 176, 176a, 176b StGB"
       # weitere Kategorien nach Bedarf
     )
   )
@@ -401,7 +401,7 @@ tab_lm <- function(fit, exponentiate=FALSE)
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("CI = Confidence Interval, q = Holm-Bonferroni adjusted p.") 
+    modify_abbreviation("CI = Confidence Interval.") 
       
     else
       fit %>%
@@ -452,7 +452,7 @@ tab_lm <- function(fit, exponentiate=FALSE)
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("CI = Confidence Interval, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("CI = Confidence Interval.")
 }
 
 # ------
@@ -496,7 +496,6 @@ tab_glm <- function(fit)
       rows = reference_row %in% TRUE,
       missing_symbol = "Ref."
     ) %>%
-    modify_footnote(abbreviation = TRUE) %>%
     bold_labels() %>%
     modify_table_body(
       ~ .x %>%
@@ -541,7 +540,6 @@ else
       rows = reference_row %in% TRUE,
       missing_symbol = "Ref."
     ) %>%
-    modify_footnote(abbreviation = TRUE) %>%
     bold_labels() %>%
     modify_table_body(
       ~ .x %>%
@@ -605,7 +603,7 @@ else
 #     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
 #     remove_footnote_header(columns = "q.value") %>%
 #     # abbreviations
-#     modify_abbreviation("CI = Confidence Interval, q = Holm-Bonferroni adjusted p.")
+#     modify_abbreviation("CI = Confidence Interval.")
 # else
 #   fit %>%
 #     tbl_regression(
@@ -656,7 +654,7 @@ else
 #     remove_footnote_header(columns = "q.value") %>%
 #     remove_footnote_header(columns = "estimate") %>%
 #     # abbreviations
-#     modify_abbreviation("CI = Confidence Interval, OR = Odds Ratio, q = Holm-Bonferroni adjusted p.") 
+#     modify_abbreviation("CI = Confidence Interval, OR = Odds Ratio.") 
 # }
 
 gtsummary::theme_gtsummary_journal(journal = "lancet")

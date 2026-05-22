@@ -221,7 +221,7 @@ ggsave(
 )
 ```
 
-![Distribution of time to finish module for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are log-transformed scores for each module. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-finish-module-rainplot.png){#fig-time-to-finish-module-rainplot width=100%}
+![Distribution of time to finish module for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are log-transformed scores for each module. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided exercises (and an undefined error term for doing things not related to the web-based intervention).](_figures/fig-time-to-finish-module-rainplot.png){#fig-time-to-finish-module-rainplot}
 
 ```{r}
 #| echo: false
@@ -322,7 +322,7 @@ ggsave(
 #| message: false
 #| warning: false
 #| label: tbl-time-to-finish-module-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI). Note, that the model is fitted on log-transformed data."
+#| tbl-cap: "Mixed model for repeated measures (MMRM) for time to finish the module. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided exercises (and an undefined error term for doing things not related to the web-based intervention). Note, that the model is fitted on log-transformed data."
 
 my_log_lm_tidy <- function(x, ...) {
   df_tidy <- broom::tidy(x, ...)
@@ -354,7 +354,7 @@ tbl <- fit_time_post_module_non_cum %>%
                   estimate ~ "**Beta**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("StGB = German penalty law") %>%
+    modify_abbreviation("GCC = German Criminal Code") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
     modify_table_styling(
         columns = c(estimate, conf.low, conf.high),
@@ -455,14 +455,14 @@ ggsave(
 )
 ```
 
-![Estimated marginal means of the MMRM for time to finish a module. The time to finish a module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI).](_figures/fig-time-to-finish-module-estimated-marginal-means.png){#fig-time-to-finish-module-estimated-marginal-means width=100%}
+![Estimated marginal means of the MMRM for time to finish a module. The time to finish a module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided exercises (and an undefined error term for doing things not related to the web-based intervention).](_figures/fig-time-to-finish-module-estimated-marginal-means.png){#fig-time-to-finish-module-estimated-marginal-means}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-time-to-finish-module-pairwise-comparisons
-#| tbl-cap: "Results of the Brunner-Munzel tests for unpaired data for time to finish a module. Note, that this time consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided tasks (and an undefined error term for doing things not related to the WBI)."
+#| tbl-cap: "Results of the Brunner-Munzel tests for unpaired data for time to finish a module. Note, that this time consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided exercises (and an undefined error term for doing things not related to the web-based intervention)."
 
 df_m1toEndModule <- tmp_tmp %>%
   mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
@@ -511,7 +511,7 @@ tbl <- df_m1toEndModule %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviation, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviation.")
 
 tbl_a <- tbl %>%
     as_gt() %>%
@@ -720,7 +720,7 @@ ggsave(
 )
 ```
 
-![Distribution of time working on content for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are log-transformed scores for each module. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot width=100%}
+![Distribution of time working on content for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are log-transformed scores for each module. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a web-based intervention without the time needed for filling in questionnaires, reviews of guided exercises, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot}
 
 ```{r}
 #| echo: false
@@ -815,7 +815,7 @@ ggsave(
 #| message: false
 #| warning: false
 #| label: tbl-time-working-on-module-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for time working on content of one module of the WBI. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
+#| tbl-cap: "Mixed model for repeated measures (MMRM) for time working on content of one module of the web-based intervention. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a web-based intervention without the time needed for filling in questionnaires, reviews of guided exercises, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
 
 tbl <- fit_time_post_module_log %>%
     tbl_regression(
@@ -833,7 +833,7 @@ tbl <- fit_time_post_module_log %>%
                   p.value ~ "**p**",
                   estimate ~ "**Beta**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("CI = Confidence Interval, StGB = German penalty law.") %>%
+    modify_abbreviation("CI = Confidence Interval, GCC = German Criminal Code.") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
     modify_table_styling(
         columns = c(estimate, conf.low, conf.high),
@@ -934,14 +934,14 @@ ggsave(
 )
 ```
 
-![Estimated marginal means for for time working on content of one module of the WBI. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-estimated-marginal-means.png){#fig-time-working-on-module-estimated-marginal-means width=100%}
+![Estimated marginal means for for time working on content of one module of the web-based intervention. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a web-based intervention without the time needed for filling in questionnaires, reviews of guided exercises, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-estimated-marginal-means.png){#fig-time-working-on-module-estimated-marginal-means}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-time-working-on-module
-#| tbl-cap: "Results of the Brunner-Munzel tests for unpaired data for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of a lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a WBI without the time needed for filling in questionnaires, reviews of guided tasks, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
+#| tbl-cap: "Results of the Brunner-Munzel tests for unpaired data for time working on content by module. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of a lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a web-based intervention without the time needed for filling in questionnaires, reviews of guided exercises, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
 
 df_working_time <- log2_joined %>%
   mutate(timepoint = gsub(".*([0-9]+).*", "\\1", timepoint)) %>%
@@ -1002,7 +1002,7 @@ tbl <- df_wide %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviance, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviance.")
 
 tbl_a <- tbl %>%
     as_gt() %>%

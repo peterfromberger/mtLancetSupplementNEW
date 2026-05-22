@@ -144,7 +144,7 @@ create_who_mmrm_table <- function() {
             missing_symbol = "Ref."
         ) %>%
         bold_labels() %>%
-        modify_abbreviation("CI = Confidence interval, StGB = German penalty law.")
+        modify_abbreviation("CI = Confidence interval, GCC = German Criminal Code.")
 
     return(lm_Table)
 }
@@ -657,7 +657,7 @@ ggsave(
 )
 ```
 
-![Rainplot for the WHO-5 Well-Being Index (WHO-5, total score). Distribution of the WHO-5 Well-Being Index (WHO-5, total score) scores by trial arms. Shown are scores before and after (post) each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores.](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot}
+![Distribution of the WHO-5 Well-Being Index (WHO-5, total score) scores by trial arms. Shown are scores before and after each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores.](_figures/fig-anc-who-5-rainplot.png){#fig-anc-who-5-rainplot}
 
 ```{r}
 #| echo: false
@@ -767,14 +767,14 @@ ggsave(
 )
 ```
 
-![Estimated marginal means of the MMRM for the WHO-5 Well-Being Index (WHO-5 total score).](_figures/fig-anc-who-estimated-marginal-means.png){#fig-anc-who-estimated-marginal-means}
+![Estimated marginal means of the MMRM for the WHO-5 Well-Being Index (WHO-5, total score).](_figures/fig-anc-who-estimated-marginal-means.png){#fig-anc-who-estimated-marginal-means}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-pre-post-pairwise-intervention
-#| tbl-cap: "Pairwise comparison of the WHO-5 Well-Being Index (WHO-5, total score, pre-post module) for the intervention arm."
+#| tbl-cap: "Pre-post comparisons of the WHO-5 Well-Being Index (WHO-5, total score) for the intervention arm. Shown are descriptive values in both time points and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
 
 create_prim_pairwise_tbl <- function(data, dvs, label_list, type_list, abbreviations) {
 
@@ -800,8 +800,10 @@ create_prim_pairwise_tbl <- function(data, dvs, label_list, type_list, abbreviat
       q.value = "**q**"
     ) %>%
     bold_labels() %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviation.")
     
 
   return(tbl)
@@ -892,8 +894,10 @@ tbl <- data_intervention %>%
       q.value = "**q**"
     ) %>%
     bold_labels() %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviation.")
 
 
 tbl_a <- tbl %>%
@@ -937,7 +941,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-pre-post-pairwise-placebo
-#| tbl-cap: "Pairwise comparison of the WHO-5 Well-Being Index (WHO-5, total score, pre-post module) for the placebo arm."
+#| tbl-cap: "Pre-post comparisons of the WHO-5 Well-Being Index (WHO-5, total score) for the placebo arm. Shown are descriptive values in both time points and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
 
 tbl <- data_placebo %>%
     dplyr::select(all_of(dvs_mbsb), timepoint) %>%
@@ -961,8 +965,10 @@ tbl <- data_placebo %>%
       q.value = "**q**"
     ) %>%
     bold_labels() %>%
+    # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
+    remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviation.")
 
 tbl_a <- tbl %>%
       as_gt() %>%
@@ -974,8 +980,6 @@ tbl_a <- tbl %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
@@ -1005,7 +1009,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-who-difference-from-baseline
-#| tbl-cap: "Pairwise comparisons of the WHO-5 Well-Being Index (WHO-5, total score, difference score)."
+#| tbl-cap: "Difference of the WHO-5 Well-Being Index (WHO-5, total score) between before (pre) and after (post) each module by trial arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
 
 tbl <- create_who_diffscore_tbl()
 
@@ -1122,7 +1126,7 @@ plt <- ggplot(
     ),
   ) +
   labs(
-    y = "WHO-5 (total score)",
+    y = "WHO-5 (difference of scores, pre-post module)",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -1147,9 +1151,9 @@ ggsave(
 )
 ```
 
-![Distribution of the WHO-5 Well-Being Index (WHO-5 difference from baseline) scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants.](_figures/fig-anc-who-5-difference-from-baseline-rainplot.png){#fig-anc-who-5-difference-from-baseline-rainplot}
+![Distribution of the WHO-5 Well-Being Index (WHO-5, difference of scores, pre-post module) scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are difference of scores at baseline and after modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants.](_figures/fig-anc-who-5-difference-from-baseline-rainplot.png){#fig-anc-who-5-difference-from-baseline-rainplot}
 
-### WAI-SR-ST
+### WAI-SR-T
 
 ```{r}
 #| echo: false
@@ -1315,7 +1319,7 @@ create_wai_mmrm_table <- function(variable, var_name) {
         ) %>%
         bold_labels() %>%
         # abbreviations
-        modify_abbreviation("CI = Confidence interval, StGB = German penalty law.")
+        modify_abbreviation("GCC = German Criminal Code.")
 
     return(lm_Table)
 }
@@ -1621,8 +1625,9 @@ create_prim_wai_diff_tbl <- function(data, dvs, label_list, grouping_var, abbrev
       q.value = "**q**"
     ) %>%
     bold_labels() %>%
+    remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviance, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, SD = Standard deviance.")
 
   return(tbl)
 }
@@ -1689,7 +1694,7 @@ create_wai_diffscore_tbl <- function(
 #| label: r-prepare-rainplot-anc-wai-coach
 
 variable <- "wai_calc_total_coach"
-var_name <- "WAI-SR-ST (total score)"
+var_name <- "WAI-SR-T (total score)"
 
 # RAIN plot (descriptive)
 plt <- ggplot(
@@ -1734,7 +1739,7 @@ plt <- ggplot(
     ),
   ) +
   labs(
-    y = "WAI-SR-ST (total score)",
+    y = "WAI-SR-T (total score)",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -1759,7 +1764,7 @@ ggsave(
 )
 ```
 
-![Distribution of the WAI-SR-ST (total score) scores by trial arms. Shown are scores before and after (post) each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available.](_figures/fig-anc-wai-coach-rainplot.png){#fig-anc-wai-coach-rainplot}
+![Distribution of the Working Alliance Inventory-Short Revised (WAI-SR-T, total score) scores by trial arms. Shown are scores before and after each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available.](_figures/fig-anc-wai-coach-rainplot.png){#fig-anc-wai-coach-rainplot}
 
 
 ```{r}
@@ -1767,10 +1772,10 @@ ggsave(
 #| warning: false
 #| message: false
 #| label: tbl-anc-wai-coach-mmrm
-#| tbl-cap: Mixed model for repeated measures (MMRM) for the Working Alliance Inventory-Short Revised (WAI-SR-ST).
+#| tbl-cap: Mixed model for repeated measures (MMRM) for the Working Alliance Inventory-Short Revised (WAI-SR-T).
 
 variable <- "wai_calc_total_coach"
-var_name <- "WAI-SR-ST (total score)"
+var_name <- "WAI-SR-T (total score)"
 
 tbl <- create_wai_mmrm_table(variable, var_name)
 
@@ -1784,8 +1789,6 @@ tbl_a <- tbl %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
         ) %>%
         tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
@@ -1815,7 +1818,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: fig-anc-wai-coach-estimated-marginal-means
-#| fig-cap: "Estimated marginal means with 95% confidence intervals of the mixed model for repeated measures (MMRM) for the Working Alliance Inventory-Short Revised (WAI-SR-ST). Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
+#| fig-cap: "Estimated marginal means with 95% confidence intervals (CI) of the mixed model for repeated measures (MMRM) for the Working Alliance Inventory-Short Revised (WAI-SR-T). Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
 
 variable <- "wai_calc_total_coach"
 who_clean <- create_wai_clean_data(variable)
@@ -1881,14 +1884,14 @@ ggsave(
 )
 ```
 
-![Estimated marginal means from the MMRM of the Working Alliance Inventory-Short Revised (WAI-SR-ST).](_figures/fig-anc-wai-coach-estimated-marginal-means.png){#fig-anc-wai-coach-estimated-marginal-means}
+![Estimated marginal means from the MMRM of the Working Alliance Inventory-Short Revised (WAI-SR-T).](_figures/fig-anc-wai-coach-estimated-marginal-means.png){#fig-anc-wai-coach-estimated-marginal-means}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-pre-post-pairwise-intervention
-#| tbl-cap: "Pairwise comparison of the Working Alliance Inventory-Short Revised (WAI-SR-ST total score) for the intervention arm. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
+#| tbl-cap: "Pre-post comparison of the Working Alliance Inventory-Short Revised (WAI-SR-T, total score) for the intervention arm. Shown are descriptive values in both time points and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
 
 tbl <- create_wai_pairwise_tbls("Intervention", variable)
 
@@ -1901,8 +1904,6 @@ tbl_a <- tbl %>% as_gt() %>%
           data_row.padding = px(1),
           summary_row.padding = gt::px(1),
           grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
           row_group.padding = gt::px(1)
     ) %>%
   tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
@@ -1932,7 +1933,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-pre-post-pairwise-placebo
-#| tbl-cap: "Pairwise comparison of the Working Alliance Inventory-Short Revised (WAI-SR-ST) for the placebo arm. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
+#| tbl-cap: "Pre-post comparison of the Working Alliance Inventory-Short Revised (WAI-SR-T, total score) for the placebo arm. Shown are descriptive values in both time points and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
 
 tbl <- create_wai_pairwise_tbls("Placebo", variable)
 
@@ -1978,7 +1979,7 @@ tbl
 #| label: r-prepare-rainplot-diffscore-anc-wai-coach
 
 variable <- "wai_calc_total_coach"
-var_name <- "WAI-SR-ST (total score)"
+var_name <- "WAI-SR-T (total score)"
 
 data <- create_wai_diffscore_dataframe(variable) %>%
       pivot_longer(
@@ -2037,7 +2038,7 @@ plt <- ggplot(
     ),
   ) +
   labs(
-    y = "WAI-SR-ST (difference from baseline)",
+    y = "WAI-SR-T (difference from baseline)",
     x = "Timepoint",
     color = "Treatment",
     fill = "Treatment"
@@ -2062,14 +2063,14 @@ ggsave(
 )
 ```
 
-![Distribution of the WAI-SR-ST (difference from baseline) scores by trial arms. Shown are scores before and after (post) each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available.](_figures/fig-anc-wai-coach-difference-from-baseline-rainplot.png){#fig-anc-wai-coach-difference-from-baseline-rainplot}
+![Distribution of the Working Alliance Inventory-Short Revised (WAI-SR-T, difference of scores, pre-post) scores by trial arms. Shown are scores before and after each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available.](_figures/fig-anc-wai-coach-difference-from-baseline-rainplot.png){#fig-anc-wai-coach-difference-from-baseline-rainplot}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-coach-difference-from-baseline
-#| tbl-cap: "Pairwise comparisons of the pre-post differences of the Working Alliance Inventory-Short Revised (WAI-SR-ST)."
+#| tbl-cap: "Difference of the Working Alliance Inventory-Short Revised (WAI-SR-T, total score) between before (pre) and after (post) each module by trial arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
 
 tbl <- create_wai_diffscore_tbl(variable)
 
@@ -2188,7 +2189,7 @@ ggsave(
 )
 ```
 
-![Distribution of the WAI-SR-PO (total score) scores by trial arms. Shown are scores before and after (post) each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available.](_figures/fig-anc-wai-supervisor-rainplot.png){#fig-anc-wai-supervisor-rainplot}
+![Distribution of the Working Alliance Inventory-Short Revised (WAI-SR-PO, total score) scores by trial arms. Shown are scores before and after each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available.](_figures/fig-anc-wai-supervisor-rainplot.png){#fig-anc-wai-supervisor-rainplot}
 
 ```{r}
 #| echo: false
@@ -2315,7 +2316,7 @@ ggsave(
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-supervisor-pre-post-pairwise-intervention
-#| tbl-cap: "Pairwise comparison of the Working Alliance Inventory-Short Revised (WAI-SR-PO) for the intervention arm."
+#| tbl-cap: "Pre-post comparisons of the Working Alliance Inventory-Short Revised (WAI-SR-PO) for the intervention arm. Shown are descriptive values in both time points and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
 
 tbl <- create_wai_pairwise_tbls("Intervention", variable)
 
@@ -2359,7 +2360,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-anc-wai-supervisor-pre-post-pairwise-placebo
-#| tbl-cap: "Pairwise comparisons of the Working Alliance Inventory-Short Revised (WAI-SR-PO) for the placebo arm. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
+#| tbl-cap: "Pre-post comparisons of the Working Alliance Inventory-Short Revised (WAI-SR-PO, total score) for the placebo arm. Shown are descriptive values in both time points and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available."
 
 tbl <- create_wai_pairwise_tbls("Placebo", variable)
 
@@ -2489,7 +2490,7 @@ ggsave(
 )
 ```
 
-![Distribution of the WAI-SR-PO (difference from baseline) scores by trial arms. Shown are scores before and after (post) each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Please note, that the WAI-SR was not assessed after module six, thus only data for the first five modules were available.](_figures/fig-anc-wai-supervisor-difference-from-baseline-rainplot.png){#fig-anc-wai-supervisor-difference-from-baseline-rainplot}
+![Distribution of the Working Alliance Inventory-Short Revised (WAI-SR-PO, difference of scores, pre-post) scores by trial arms. Shown are scores before and after each module. Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Please note, that the WAI-SR was not assessed after module six, thus, only data for the first five modules were available.](_figures/fig-anc-wai-supervisor-difference-from-baseline-rainplot.png){#fig-anc-wai-supervisor-difference-from-baseline-rainplot}
 
 ```{r}
 #| echo: false

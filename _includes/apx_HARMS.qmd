@@ -6,7 +6,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-mrq-frequency-highest-value-post
-#| tbl-cap: "Frequencies of adverse events during working on the WBI. The MRQ Post questionnaire explicitly asks for the time during working on one session. Shown are the frequency of participants reported at least once the highest possible score (= adverse event) on one of the measurement time-points (after each session of the WBI)."
+#| tbl-cap: "Frequencies of adverse events during working on the web-based intervention. The MRQ Post questionnaire explicitly asks for the time during working on one session. Shown are the frequency of participants reported at least once the highest possible score (adverse event) on one of the measurement time-points (after each session of the web-based intervention)."
 #| html-table-processing: none
 
 library(gtsummary)
@@ -240,7 +240,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-mrq-frequency-highest-value-pre
-#| tbl-cap: "Frequencies of adverse events between working on sessions of the WBI. The MRQ pre questionnaire explicitly asks asks for the last week before beginning a new session. Shown are the frequency of participants reported at least once the highest possible score (= adverse event) on one of the measurement time-points (after each session of the WBI)."
+#| tbl-cap: "Frequencies of adverse events between working on sessions of the web-based intervention. The MRQ pre questionnaire explicitly asks for the last week before beginning a new session. Adverse events were defined as the occurence of the highest possible score (adverse event) on one of the measurement time-points (after each session of the web-based intervention)."
 
 tbl <- mrq_at_least_one_highest_score_group %>%
     filter(q_type == "pre") %>%

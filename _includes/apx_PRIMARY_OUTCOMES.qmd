@@ -1,420 +1,10 @@
-### CARES
-
-<!-- RAIN PLOT -->
-![Distribution of CARES total scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Higher CARES scores indicate higher risk to re-offense.](_figures/fig-cares-rainplot.png){#fig-cares-rainplot}
-
-<!-- ESTIMATED MARGINAL MEANS -->
-![Estimated marginal means of the MMRM for the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score).](_figures/fig-cares-estimated-marginal-means.png){#fig-cares-estimated-marginal-means}
-
-<!-- MMRM -->
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: tbl-prim-cares-mmrm-time-since-baseline
-#| tbl-cap: "Explorative MMRM for the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score) with time since baseline as additional factor. Time since baseline is defined as the time between the baseline measurement and the respective consecutive measurement time-point."
-
-library(gtsummary)
-library(gt)
-library(stringr)
-
-# global theme for gtsummary
-gtsummary::theme_gtsummary_journal(journal = "lancet")
-
-tbl <- fit2_c %>%
-    tbl_regression(
-      add_estimate_to_reference_rows = TRUE,
-      intercept = TRUE,
-      label = list(
-        static99_modified_calc = "Static recidivism risk",
-        Aktuelle_Betreuung = "Type of supervision",
-        Aktuelle_zusatzliche_Behandlung = "Additional treatment",
-        Indexdelikt = "Offense type",
-        IoD_reduced_baseline = "Baseline value",
-        Zeit_seit_Beginn_Modul_1_in_Jahren = "Time since baseline (years)",
-        treatment = "Treatment",
-        timepoint = "Timepoint",
-        `Timepoint * treatment` = "Timepoint * treatment"
-      )
-    ) %>%
-    modify_header(label ~ "**Variable**", p.value ~ "**p**") %>%
-    remove_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("StGB = German penalty law") %>%
-    modify_column_alignment(columns = everything(), align = "left") %>%
-    modify_table_styling(
-        columns = c(estimate, conf.low, conf.high),
-        rows = reference_row %in% TRUE,
-        missing_symbol = "Ref."
-    ) %>%
-    bold_labels() %>%
-    modify_table_body(
-      ~ .x %>%
-        mutate(label = case_when(
-          variable %in% c("timepoint", "timepoint:treatment") ~ stringr::str_remove(label, fixed(" (post)")),
-          TRUE ~ label
-        ))
-    )
-
-tbl_a <- tbl %>% as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-          table.font.size = 10,
-          quarto.use_bootstrap = FALSE,
-          quarto.disable_processing = TRUE,
-          data_row.padding = px(1),
-          summary_row.padding = gt::px(1),
-          grand_summary_row.padding = gt::px(1),
-          row_group.padding = gt::px(1)
-    ) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
-
-# save tbl as image
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.pdf")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.docx")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.png")))
-
-tbl <- tbl %>%
-    as_kable_extra(
-        booktabs = TRUE,
-        linesep = ""
-    ) %>%
-    kable_styling(
-        latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
-        font_size = 8
-    )
-
-tbl
-```
-
-![Estimated marginal means  of the MMRM for the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score) with time since baseline as additional factor.](_figures/fig-cares-estimated-marginal-means-time-since-baseline.png){#fig-cares-estimated-marginal-means-time-since-baseline}
-
-<!-- SENSITIVITY ANALYSIS -->
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: tbl-prim-cares-sensitivity-analysis
-#| tbl-cap: "Sensitivity analysis for primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score). The table summarizes the results of a reference-based multiple imputation followed by ANCOVA models for the difference in the CARES compared to baseline. Group differences represent the estimated difference in score change between the intervention and placebo group after completing each module (negative values favour the intervention). Least square means represent the estimated average score for each group at the end of each module, adjusted for baseline scores."
-
-library(gt)
-
-tbl <- rbmi_cares_tab %>%
-  gt() %>%
-  gt::cols_label(
-    "est" = "Estimate",
-    "ci" = "95% CI",
-    "pval" = "p",
-    "parameter" = "Parameter"
-  ) %>%
-  # Gruppenspalte verstecken
-  cols_hide(columns = group) %>%
-  # Row groups über die group Spalte
-  tab_row_group(label = "Module 6", rows = group == "Module 6") %>%
-  tab_row_group(label = "Module 5", rows = group == "Module 5") %>%
-  tab_row_group(label = "Module 4", rows = group == "Module 4") %>%
-  tab_row_group(label = "Module 3", rows = group == "Module 3") %>%
-  tab_row_group(label = "Module 2", rows = group == "Module 2") %>%
-  tab_row_group(label = "Module 1", rows = group == "Module 1") %>%
-  gt::tab_options(
-    table.font.names = "Times New Roman",
-    table.font.size = 10,
-    quarto.use_bootstrap = FALSE,
-    quarto.disable_processing = TRUE,
-    data_row.padding = px(1),
-    summary_row.padding = px(1),
-    grand_summary_row.padding = px(1),
-    row_group.padding = px(1),
-    row_group.border.top.style = "none",
-    row_group.border.bottom.style = "none",
-    stub.border.style = "none",
-    row_group.background.color = "white",
-    column_labels.background.color = "white",
-    table.background.color = "white"
-  ) %>%
-  cols_align(align = "left",   columns = parameter) %>%
-  cols_align(align = "center", columns = c(est, ci, pval)) %>%
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_row_groups()
-  ) %>%
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_column_labels()
-  ) %>%
-  tab_style(
-    style = cell_text(indent = px(15)),
-    locations = cells_body(
-      columns = parameter,
-      rows = grepl("Least square mean|Group differences", parameter)
-    )
-  ) %>%
-  tab_style(
-    style = cell_text(align = "left"),
-    locations = cells_source_notes()
-  ) %>%
-  tab_style(
-    style = cell_text(align = "left"),
-    locations = cells_footnotes()
-  ) %>%
-  tab_style(
-    style = cell_borders(sides = "all", style = "hidden"),
-    locations = cells_body()
-  ) %>%
-  tab_source_note(
-    source_note = "Abbreviations: CI = Confidence Interval."
-  )
-
-# save tbl as image
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-sensitivity-analysis.pdf")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-sensitivity-analysis.docx")))
-gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-sensitivity-analysis.png")))
-
-tbl
-```
-
-<!-- PAIRWISE COMPARISONS -->
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: tbl-prim-cares-pairwise-intervention
-#| tbl-cap: "Pairwise comparisons of the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score) for the intervention arm."
-
-library(here)
-source(here::here("_scripts/prim_pairwise_functions.R"))
-
-# global theme for gtsummary
-gtsummary::theme_gtsummary_journal(journal = "lancet")
-
-variable <- "IoD_reduced"
-tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Intervention")
-
-tbl_a <- tbl %>%
-    as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-          table.font.size = 10,
-          quarto.use_bootstrap = FALSE,
-          quarto.disable_processing = TRUE,
-          data_row.padding = px(1),
-          summary_row.padding = gt::px(1),
-          grand_summary_row.padding = gt::px(1),
-          row_group.padding = gt::px(1)
-    ) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
-
-# save tbl as image
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.pdf")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.docx")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.png")))
-
-tbl <- tbl %>%
-    as_kable_extra(
-        booktabs = TRUE,
-        linesep = ""
-    ) %>%
-    kable_styling(
-        latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
-        font_size = 8
-    )
-
-tbl
-```
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: tbl-prim-cares-pairwise-placebo
-#| tbl-cap: "Pairwise comparisons of the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score) for the placebo arm."
-
-variable <- "IoD_reduced"
-tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Placebo")
-
-tbl_a <- tbl %>%
-    as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-          table.font.size = 10,
-          quarto.use_bootstrap = FALSE,
-          quarto.disable_processing = TRUE,
-          data_row.padding = px(1),
-          summary_row.padding = gt::px(1),
-          grand_summary_row.padding = gt::px(1),
-          row_group.padding = gt::px(1)
-    ) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
-
-# save tbl as image
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.pdf")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.docx")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.png")))
-
-tbl <- tbl %>%
-    as_kable_extra(
-        booktabs = TRUE,
-        linesep = ""
-    ) %>%
-    kable_styling(
-        latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
-        font_size = 8
-    )
-
-tbl
-```
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: tbl-prim-cares-diffscore
-#| tbl-cap: "Pairwise comparisons of difference from baseline of the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES total score)."
-
-library(here)
-source(here::here("_scripts/prim_diffscore_functions.R"))
-
-# global theme for gtsummary
-gtsummary::theme_gtsummary_journal(journal = "lancet")
-
-variable <- "IoD_reduced"
-tbl <- create_prim_diffscore_tbl(variable)
-
-tbl_a <- tbl %>%
-    as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-          table.font.size = 10,
-          quarto.use_bootstrap = FALSE,
-          quarto.disable_processing = TRUE,
-          data_row.padding = px(1),
-          summary_row.padding = gt::px(1),
-          grand_summary_row.padding = gt::px(1),
-          row_group.padding = gt::px(1)
-    ) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
-
-# save tbl as image
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.pdf")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.docx")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.png")))
-
-tbl <- tbl %>%
-    as_kable_extra(
-        booktabs = TRUE,
-        linesep = ""
-    ) %>%
-    kable_styling(
-        latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
-        font_size = 8
-    )
-
-tbl
-```
-
-<!-- RAIN PLOT -->
-![Distribution of the difference from baseline for the CARES total scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease.](_figures/fig-cares-rainplot-difference-from-baseline.png){#fig-cares-rainplot-difference-from-baseline}
-
 ### Index of Desistance (IoD)
 
 <!-- RAIN PLOT -->
-![Distribution of the Index of Desistance (IoD) total scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Higher CARES scores indicate high risk to re-offense. Note, that the IoD is the preliminary version of the CARES and mentioned in the Statistical analysis protocol as primary outcome.](_figures/fig-iod-rainplot.png){#fig-iod-rainplot}
-
-
-<!-- MMRM -->
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| label: tbl-prim-iod-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for the Index of Desistance (IoD total score)."
-
-library(gtsummary)
-library(gt)
-
-# global theme for gtsummary
-gtsummary::theme_gtsummary_journal(journal = "lancet")
-
-tbl <- fit1 %>%
-    tbl_regression(
-      add_estimate_to_reference_rows = TRUE,
-      intercept = TRUE,
-      label = list(
-        static99_modified_calc = "Static recidivism risk",
-        Aktuelle_Betreuung = "Type of supervision",
-        Aktuelle_zusatzliche_Behandlung = "Additional treatment",
-        Indexdelikt = "Offense type",
-        IoD_baseline = "Baseline value",
-        Zeit_seit_Beginn_Modul_1_in_Jahren = "Time since baseline (years)",
-        treatment = "Treatment",
-        timepoint = "Timepoint",
-        `Timepoint * treatment` = "Timepoint * Treatment"
-      )
-    ) %>%
-    modify_header(label ~ "**Variable**", p.value ~ "**p**") %>%
-    remove_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("CI = Confidence Interval, StGB = German penalty law.") %>%
-    modify_column_alignment(columns = everything(), align = "left") %>%
-    modify_table_styling(
-        columns = c(estimate, conf.low, conf.high),
-        rows = reference_row %in% TRUE,
-        missing_symbol = "Ref."
-    ) %>%
-    bold_labels() %>%
-    modify_table_body(
-      ~ .x %>%
-        mutate(label = case_when(
-          variable %in% c("timepoint", "timepoint:treatment") ~ stringr::str_remove(label, fixed(" (post)")),
-          TRUE ~ label
-        ))
-    )
-
-tbl_a <- tbl %>%
-    as_gt() %>%
-    gt::tab_options(
-      table.font.names = "Times New Roman",
-          table.font.size = 10,
-          quarto.use_bootstrap = FALSE,
-          quarto.disable_processing = TRUE,
-          data_row.padding = px(1),
-          summary_row.padding = gt::px(1),
-          grand_summary_row.padding = gt::px(1),
-          #footnotes.padding = gt::px(2),
-          #source_notes.padding = gt::px(2),
-          row_group.padding = gt::px(1)
-    ) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
-  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
-
-# save tbl as image
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.png")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.pdf")))
-gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm.docx")))
-
-tbl <- tbl %>%
-    as_kable_extra(
-        booktabs = TRUE,
-        linesep = ""
-    ) %>%
-    kable_styling(
-        latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
-        font_size = 8
-    )
-
-tbl
-```
+![Distribution of the primary outcome Index of Desistance (IoD, total score) across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Higher IoD scores are assumed to indicate higher risk to re-offense.](_figures/fig-iod-rainplot.png){#fig-iod-rainplot}
 
 <!-- ESTIMATED MARGINAL MEANS -->
-![Estimated marginal means of the MMRM for the IoD total score.](_figures/fig-iod-estimated-marginal-means.png){#fig-iod-estimated-marginal-means}
+![Estimated marginal means of the MMRM for the primary endpoint Index of Desistance (IoD, total score).](_figures/fig-iod-estimated-marginal-means.png){#fig-iod-estimated-marginal-means}
 
 <!-- MMRM -->
 ```{r}
@@ -422,7 +12,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-mmrm-time-since-baseline
-#| tbl-cap: "Explorative MMRM for Index of Desistance (IoD total score) with the additional factor time since baseline. Time since baseline is defined as the time between the baseline measurement and the respective consecutive measurement time-point."
+#| tbl-cap: "Explorative MMRM for the primary endpoint Index of Desistance (IoD, total score) with the additional factor time since baseline. Time since baseline is defined as the time between the baseline measurement and the respective consecutive measurement time-point."
 
 library(gtsummary)
 library(gt)
@@ -448,7 +38,7 @@ tbl <- fit1_c %>%
     ) %>%
     modify_header(label ~ "**Variable**", p.value ~ "**p**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
-    modify_abbreviation("CI = Confidence Interval, StGB = German penalty law.") %>%
+    modify_abbreviation("CI = Confidence Interval, GCC = German Criminal Code.") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
     modify_table_styling(
         columns = c(estimate, conf.low, conf.high),
@@ -459,7 +49,7 @@ tbl <- fit1_c %>%
     modify_table_body(
       ~ .x %>%
         mutate(label = case_when(
-          variable %in% c("timepoint", "timepoint:treatment") ~ stringr::str_remove(label, fixed(" (post)")),
+          variable %in% c("timepoint", "timepoint:treatment") ~ stringr::str_remove(label, stringr::fixed(" (post)")),
           TRUE ~ label
         ))
     )
@@ -500,7 +90,7 @@ tbl <- tbl %>%
 tbl
 ```
 
-![Estimated marginal means of the MMRM for the Index of Desistance (IoD total score) with time since baseline as additional factor.](_figures/fig-iod-estimated-marginal-means-time-since-baseline.png){#fig-iod-estimated-marginal-means-time-since-baseline}
+![Estimated marginal means of the MMRM for the primary endpoint Index of Desistance (IoD, total score) with time since baseline as additional factor.](_figures/fig-iod-estimated-marginal-means-time-since-baseline.png){#fig-iod-estimated-marginal-means-time-since-baseline}
 
 <!-- SENSITIVITY ANALYSIS -->
 ```{r}
@@ -508,7 +98,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-sensitivity-analysis
-#| tbl-cap: "Sensitivity analysis for the Index of Desistance (IoD total score). Summarized are the results of the reference-based multiple imputation followed by ANCOVA models for the difference in the IoD (total score) compared to baseline."
+#| tbl-cap: "Sensitivity analysis for the primary outcome Index of Desistance (IoD total score). Summarized are the results of the reference-based multiple imputation followed by ANCOVA models for the difference in the IoD (total score) compared to baseline."
 library(gt)
 
 # global theme for gtsummary
@@ -595,7 +185,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-pairwise-intervention
-#| tbl-cap: "Explorative pairwise comparison of the Index of Desistance (IoD total score) for the intervention arm."
+#| tbl-cap: "Pre- and post module scores of the primary outcome Index of Desistance (IoD, total score) within the intervention arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
 
 library(here)
 source(here::here("_scripts/prim_pairwise_functions.R"))
@@ -645,7 +235,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-pairwise-placebo
-#| tbl-cap: "Explorative pairwise comparison of the Index of Desistance (IoD total score) for the placebo arm."
+#| tbl-cap: "Pre- and post module scores of the primary outcome Index of Desistance (IoD, total score) within the placebo arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
 
 variable <- "IoD"
 tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Placebo")
@@ -691,7 +281,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-diffscore
-#| tbl-cap: "Difference of the Index of Desistance (IoD total score) between before (pre) and after (post) each module."
+#| tbl-cap: "Difference of the primary outcome Index of Desistance (IoD total score) between before (pre) and after (post) each module by trial arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
 
 library(here)
 source(here::here("_scripts/prim_diffscore_functions.R"))
@@ -737,5 +327,402 @@ tbl
 ```
 
 <!-- RAIN PLOT -->
-![Distribution of the difference from baseline for the Index of Desistance (IoD) total scores across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease](_figures/fig-iod-rainplot-difference-from-baseline.png){#fig-iod-rainplot-difference-from-baseline}
+![Distribution of the difference of the primary outcome Index of Desistance (IoD, total score) between before (pre) and after (post) each module by trial arm. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease.](_figures/fig-iod-rainplot-difference-from-baseline.png){#fig-iod-rainplot-difference-from-baseline}
+
+### CARES
+
+<!-- RAIN PLOT -->
+![Distribution of a newer version of the IoD, the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) across study timepoints for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants.](_figures/fig-cares-rainplot.png){#fig-cares-rainplot}
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-prim-cares-mmrm
+#| tbl-cap: "Mixed model for repeated measures for a newer version of the IoD, the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score). Shown are model coefficients with 95% confidence intervals and p-values testing against the null hypothesis of no association."
+
+library(gtsummary)
+library(gt)
+library(dplyr)
+library(stringr)
+
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
+tbl <- fit2 %>%
+    tbl_regression(
+      add_estimate_to_reference_rows = TRUE,
+      intercept = TRUE,
+      label = list(
+        static99_modified_calc = "Static recidivism risk",
+        Aktuelle_Betreuung = "Type of supervision",
+        Aktuelle_zusatzliche_Behandlung = "Additional treatment",
+        Indexdelikt = "Offense type",
+        IoD_reduced_baseline = "Baseline value",
+        Zeit_seit_Beginn_Modul_1_in_Jahren = "Time since baseline (years)",
+        treatment = "Treatment",
+        timepoint = "Timepoint",
+        `Timepoint * treatment` = "Timepoint * Treatment"
+      )
+    ) %>%
+    modify_header(label ~ "**Variable**", p.value ~ "**p**") %>%
+    remove_abbreviation("CI = Confidence Interval") %>%
+    modify_abbreviation("CI = Confidence Interval, GCC = German Criminal Code.") %>%
+    modify_column_alignment(columns = everything(), align = "left") %>%
+    modify_table_styling(
+        columns = c(estimate, conf.low, conf.high),
+        rows = reference_row %in% TRUE,
+        missing_symbol = "Ref."
+    ) %>%
+    bold_labels() %>%
+    modify_table_body(
+      ~ .x %>%
+        mutate(label = case_when(
+          variable %in% c("timepoint", "timepoint:treatment") ~ str_remove(label, stringr::fixed(" (post)")),
+          TRUE ~ label
+        ))
+    ) %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+      table.font.size = 12,
+      quarto.use_bootstrap = FALSE,
+      quarto.disable_processing = TRUE,
+      data_row.padding = px(2),
+      summary_row.padding = gt::px(2),
+      grand_summary_row.padding = gt::px(2),
+      #footnotes.padding = gt::px(2),
+      #source_notes.padding = gt::px(2),
+      row_group.padding = gt::px(2)
+    ) %>%
+    tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+    tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-mmrm.png")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-mmrm.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-mmrm.docx")))
+
+tbl
+```
+
+<!-- ESTIMATED MARGINAL MEANS -->
+![Estimated marginal means of the MMRM for the primary endpoint Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score).](_figures/fig-cares-estimated-marginal-means.png){#fig-cares-estimated-marginal-means}
+
+<!-- MMRM -->
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-prim-cares-mmrm-time-since-baseline
+#| tbl-cap: "Explorative MMRM for the newer version of the IoD, the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) with time since baseline as additional factor. Time since baseline is defined as the time between the baseline measurement and the respective consecutive measurement time-point."
+
+library(gtsummary)
+library(gt)
+library(stringr)
+
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
+tbl <- fit2_c %>%
+    tbl_regression(
+      add_estimate_to_reference_rows = TRUE,
+      intercept = TRUE,
+      label = list(
+        static99_modified_calc = "Static recidivism risk",
+        Aktuelle_Betreuung = "Type of supervision",
+        Aktuelle_zusatzliche_Behandlung = "Additional treatment",
+        Indexdelikt = "Offense type",
+        IoD_reduced_baseline = "Baseline value",
+        Zeit_seit_Beginn_Modul_1_in_Jahren = "Time since baseline (years)",
+        treatment = "Treatment",
+        timepoint = "Timepoint",
+        `Timepoint * treatment` = "Timepoint * treatment"
+      )
+    ) %>%
+    modify_header(label ~ "**Variable**", p.value ~ "**p**") %>%
+    remove_abbreviation("CI = Confidence Interval") %>%
+    modify_abbreviation("CI = Confidence Interval") %>%
+    modify_abbreviation("GCC = German Criminal Code") %>%
+    modify_column_alignment(columns = everything(), align = "left") %>%
+    modify_table_styling(
+        columns = c(estimate, conf.low, conf.high),
+        rows = reference_row %in% TRUE,
+        missing_symbol = "Ref."
+    ) %>%
+    bold_labels() %>%
+    modify_table_body(
+      ~ .x %>%
+        mutate(label = case_when(
+          variable %in% c("timepoint", "timepoint:treatment") ~ stringr::str_remove(label, stringr::fixed(" (post)")),
+          TRUE ~ label
+        ))
+    )
+
+tbl_a <- tbl %>% as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
+# save tbl as image
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-since-baseline.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
+
+tbl
+```
+
+![Estimated marginal means  of the MMRM for the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) with time since baseline as additional factor.](_figures/fig-cares-estimated-marginal-means-time-since-baseline.png){#fig-cares-estimated-marginal-means-time-since-baseline}
+
+<!-- SENSITIVITY ANALYSIS -->
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-prim-cares-sensitivity-analysis
+#| tbl-cap: "Sensitivity analysis for the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score). The table summarizes the results of a reference-based multiple imputation followed by ANCOVA models for the difference in the CARES compared to baseline. Group differences represent the estimated difference in score change between the intervention and placebo group after completing each module (negative values favour the intervention). Least square means represent the estimated average score for each group at the end of each module, adjusted for baseline scores."
+
+library(gt)
+
+tbl <- rbmi_cares_tab %>%
+  gt() %>%
+  gt::cols_label(
+    "est" = "Estimate",
+    "ci" = "95% CI",
+    "pval" = "p",
+    "parameter" = "Parameter"
+  ) %>%
+  # Gruppenspalte verstecken
+  cols_hide(columns = group) %>%
+  # Row groups über die group Spalte
+  tab_row_group(label = "Module 6", rows = group == "Module 6") %>%
+  tab_row_group(label = "Module 5", rows = group == "Module 5") %>%
+  tab_row_group(label = "Module 4", rows = group == "Module 4") %>%
+  tab_row_group(label = "Module 3", rows = group == "Module 3") %>%
+  tab_row_group(label = "Module 2", rows = group == "Module 2") %>%
+  tab_row_group(label = "Module 1", rows = group == "Module 1") %>%
+  gt::tab_options(
+    table.font.names = "Times New Roman",
+    table.font.size = 10,
+    quarto.use_bootstrap = FALSE,
+    quarto.disable_processing = TRUE,
+    data_row.padding = px(1),
+    summary_row.padding = px(1),
+    grand_summary_row.padding = px(1),
+    row_group.padding = px(1),
+    row_group.border.top.style = "none",
+    row_group.border.bottom.style = "none",
+    stub.border.style = "none",
+    row_group.background.color = "white",
+    column_labels.background.color = "white",
+    table.background.color = "white"
+  ) %>%
+  cols_align(align = "left",   columns = parameter) %>%
+  cols_align(align = "center", columns = c(est, ci, pval)) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_row_groups()
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+  tab_style(
+    style = cell_text(indent = px(15)),
+    locations = cells_body(
+      columns = parameter,
+      rows = grepl("Least square mean|Group differences", parameter)
+    )
+  ) %>%
+  tab_style(
+    style = cell_text(align = "left"),
+    locations = cells_source_notes()
+  ) %>%
+  tab_style(
+    style = cell_text(align = "left"),
+    locations = cells_footnotes()
+  ) %>%
+  tab_style(
+    style = cell_borders(sides = "all", style = "hidden"),
+    locations = cells_body()
+  ) %>%
+  tab_source_note(
+    source_note = "Abbreviations: CI = Confidence Interval."
+  )
+
+# save tbl as image
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-sensitivity-analysis.pdf")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-sensitivity-analysis.docx")))
+gt::gtsave(tbl, file = file.path(here::here("_tables/tbl-prim-cares-sensitivity-analysis.png")))
+
+tbl
+```
+
+<!-- PAIRWISE COMPARISONS -->
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-prim-cares-pairwise-intervention
+#| tbl-cap: "Pre- and post module scores of Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) within the intervention arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
+
+library(here)
+source(here::here("_scripts/prim_pairwise_functions.R"))
+
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
+variable <- "IoD_reduced"
+tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Intervention")
+
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
+# save tbl as image
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-prim-cares-pairwise-placebo
+#| tbl-cap: "Pre- and post module scores of Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) within the placebo arm. Shown are descriptive values in and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
+
+variable <- "IoD_reduced"
+tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Placebo")
+
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
+# save tbl as image
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-intervention.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
+
+tbl
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-prim-cares-diffscore
+#| tbl-cap: "Difference of the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) between before (pre) and after (post) each module by trial arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
+
+library(here)
+source(here::here("_scripts/prim_diffscore_functions.R"))
+
+# global theme for gtsummary
+gtsummary::theme_gtsummary_journal(journal = "lancet")
+
+variable <- "IoD_reduced"
+tbl <- create_prim_diffscore_tbl(variable)
+
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+  tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
+# save tbl as image
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.png")))
+
+tbl <- tbl %>%
+    as_kable_extra(
+        booktabs = TRUE,
+        linesep = ""
+    ) %>%
+    kable_styling(
+        latex_options = c("scale_down", "hold_position"),
+        full_width = TRUE,
+        font_size = 8
+    )
+
+tbl
+```
+
+<!-- RAIN PLOT -->
+![Distribution of the difference of the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) between before (pre) and after (post) each module by trial arm. Red denotes the intervention arm and blue denotes the placebo arm. Shown are scores at baseline and after Modules one to six. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. Positive difference scores indicate an increase of the risk to re-offend, negative values a decrease.](_figures/fig-cares-rainplot-difference-from-baseline.png){#fig-cares-rainplot-difference-from-baseline}
 

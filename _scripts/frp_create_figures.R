@@ -659,7 +659,7 @@ labels <- c(
   "BMS (total score)",
   "ESIQ (subscore child)",
   "ESIQ (subscore adult)",
-  "SOI (Item 2a)",
+  "SOI (subscale desire for sexual activity with children)",
   "SSIC (total score)",
   "EKK-R (total score)",
   "HBI-19 (total score)"
@@ -672,7 +672,48 @@ dv_map <- tibble::tibble(
   var_nice = gsub("_", "-", dvs)
 )
 
+get_upper_fence <- function(x, percentile = 0.99) {
+  quantile(x, percentile, na.rm = TRUE)
+}
+
+# Variablen, die geclippt werden sollen
+clip_vars <- c("soi_total_score", "ders_calc_imp", 
+               "esiq_calc_total_child", "esiq_calc_total_adult", 
+               "ssik_calc_total")
+
 plot_and_save_dv <- function(var, label, var_nice, data) {
+
+  # Y-Limit nur für bestimmte Variablen berechnen
+  y_upper <- if (var %in% clip_vars) {
+    get_upper_fence(data[[var]], 0.99)
+  } else {
+    NULL
+  }
+
+  # Anzahl geclippter Punkte für Caption-Info
+  n_clipped <- if (!is.null(y_upper)) {
+    sum(data[[var]] > y_upper, na.rm = TRUE)
+  } else {
+    0
+  }
+
+  if (n_clipped > 0) {
+    n_clipped_by_treatment <- data |>
+      dplyr::filter(.data[[var]] > y_upper) |>
+      dplyr::count(treatment)
+
+    clipped_info <- paste(
+      apply(n_clipped_by_treatment, 1, function(row) {
+        glue::glue("{row['treatment']}: n = {row['n']}")
+      }),
+      collapse = ", "
+    )
+
+    message(glue::glue(
+      "[{var_nice}]:",
+      "Please note, that the y-axis is truncated at the 99th percentile of the observed values for visual clarity; all statistical summaries (violin, boxplot, mean) were computed on the full sample. Numbers of observations outside the displayed range are n = {n_clipped} ({clipped_info}) data points."
+    ))
+  }
 
   plt <- ggplot(
     data,
@@ -717,8 +758,24 @@ plot_and_save_dv <- function(var, label, var_nice, data) {
   plt <- add_gg_theme(plt)
 
   plt <- plt +
-    stat_summary(fun = mean, geom = "line", aes(group = treatment, color = treatment)) +
-    stat_summary(fun = mean, geom = "point", aes(group = treatment, color = treatment))
+    stat_summary(
+      fun = mean, geom = "line",
+      aes(group = treatment, color = treatment)
+    ) +
+    stat_summary(
+      fun = mean, geom = "point",
+      aes(group = treatment, color = treatment)
+    )
+
+  if (!is.null(y_upper)) {
+    y_lower <- min(data[[var]], na.rm = TRUE)
+    y_lower <- y_lower - 0.05 * (y_upper - y_lower)
+
+    plt <- plt + coord_cartesian(
+      ylim = c(y_lower, y_upper),
+      clip = "off"
+    )
+  }
 
   name_png <- glue::glue("_figures/fig-sec-rainplot-{var_nice}.png")
   name_pdf <- glue::glue("_figures/fig-sec-rainplot-{var_nice}.pdf")

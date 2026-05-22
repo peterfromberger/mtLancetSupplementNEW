@@ -5,7 +5,7 @@
 #| message: false
 #| warning: false
 #| label: tbl-measurement-timepoints
-#| tbl-cap: "Measurement timepoints for all trial endpoints. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ Pre was assessed before each session, the MRQ Post after each session. The measurement time-points of the WAI-SR-ST and WAI-SR-PO have been administered before session two in each module. Please see Fromberger et al. [@frombergerMyTabuAPlaceboControlled2021] for table of measurement timepoints with a higher time resolution."
+#| tbl-cap: "Measurement timepoints for all trial endpoints. Please note, that the Mood and Risk Questionnaire (MRQ) is not listed in the table. The MRQ Pre was assessed before each session, the MRQ Post after each session. The measurement time-points of the WAI-SR-T and WAI-SR-PO have been administered before session two in each module. Please see Fromberger et al. [@frombergerMyTabuAPlaceboControlled2021] for table of measurement timepoints with a higher time resolution."
 
 library(dplyr)
 library(gt)
@@ -21,7 +21,7 @@ df <- data.frame(
             "ANCILLARY OUTCOMES", "ANCILLARY OUTCOMES"),
   Measure = c("SSQ-P", "SSQ-PO", "SSQ-CF", "PHQ-D", "SSPI-2", "ICD-11-Screener", "CARES", "Official re-offences", 
               "CVTRQ", "RCQ", "OQMPR", "F-SozU", "UCLA", "DERS", "NARQ", "BIS-15", "CUSI", "SPSI-R", "BMS", 
-              "HBI-19", "SSIC", "SOI-R", "EKK-R", "ESIQ", "SBV-R", "ATQ", "WHO-5", "QNP", "WAI-SR-ST", "WAI-SR-PO"),
+              "HBI-19", "SSIC", "SOI-R", "EKK-R", "ESIQ", "SBV-R", "ATQ", "WHO-5", "QNP", "WAI-SR-T", "WAI-SR-PO"),
   Allocation = c("", "", "X", "", "X", "", "", "", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "", "X", "", ""),
   Intro_pre = c("X", "", "", "X", "", "X", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "X", "", "", "", "", ""),
   Intro_post = c("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""),

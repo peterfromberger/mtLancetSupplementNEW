@@ -76,7 +76,7 @@ labels <- c(
   "SPSI-R (total score)",
   "BMS (total score)",
   "ESIQ (subscale child)",
-  "SOI (Item 2a)",
+  "SOI (subscale desire for sexual activity with children)",
   "SSIC (total score)",
   "EKK-R (total score)",
   "HBI-19 (total score)"
@@ -306,7 +306,7 @@ get_kable_table <- function(tbl, abbreviations) {
 #| message: false
 #| warning: false
 #| label: tbl-sec-diffscore
-#| tbl-cap: "Difference from pre to post of the scores for each secondary endpoint. Differences (from pre to post) of secondary endpoints have been compared between the treatment groups using the Brunner-Munzel test for unpaired data."
+#| tbl-cap: "Difference from pre to post of the scores for each secondary endpoint. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
 
 mbsb <- TRUE
 sample_str <- "itt"
@@ -321,7 +321,7 @@ tbl <- create_tbl_diffscore_bm_unpaired(mbsb, sample_str, dvs, dvs_mbsb, labels,
 # tbl <- tbl %>%
 #     tab_options(latex.use_longtable = TRUE)
 
-tbl <- get_kable_table(tbl, "BIS-15 = Barratt Impulsiveness Scale-15, BMS = Bumby Molest Scale, CUSI = Coping Using Sex Inventory, CVTRQ = Corrections Victoria Treatment Readiness Questionnaire, DERS = Difficulties in Emotion Regulation Scale, EKK-R = Questionnaire on Emotional Congruence with Children-Revised, ESIQ = Explicit Sexual Interest Questionnaire, F-Soz-U = Seven-item short version of the Social Support Questionnaire, HBI-19 = Hypersexual Behavior Inventory-19, NARQ = Negative Affect Repair Questionnaire, OQMPR = Questionnaire for the Measurement of Psychological Reactance, Q1 = 25th percentile, Q3 = 75th percentile, RCQ = Readiness to Change Questionnaire - German version, SOI-R = Sexual Outlet Inventory revised, subscale desire for sexual activity with children, SPSI-R = Social Problem-Solving Inventory Revised, SSIC = Specific self-efficacy for modifying Sexual Interest in Children, UCLA = UCLA Loneliness Scale - German short version, q = Holm-Bonferroni adjusted p.")
+tbl <- get_kable_table(tbl, "BIS-15 = Barratt Impulsiveness Scale-15, BMS = Bumby Molest Scale, CUSI = Coping Using Sex Inventory, CVTRQ = Corrections Victoria Treatment Readiness Questionnaire, DERS = Difficulties in Emotion Regulation Scale, EKK-R = Questionnaire on Emotional Congruence with Children-Revised, ESIQ = Explicit Sexual Interest Questionnaire, F-Soz-U = Seven-item short version of the Social Support Questionnaire, HBI-19 = Hypersexual Behavior Inventory-19, NARQ = Negative Affect Repair Questionnaire, OQMPR = Questionnaire for the Measurement of Psychological Reactance, Q1 = 25th percentile, Q3 = 75th percentile, RCQ = Readiness to Change Questionnaire - German version, SOI-R = Sexual Outlet Inventory revised, subscale desire for sexual activity with children, SPSI-R = Social Problem-Solving Inventory Revised, SSIC = Specific self-efficacy for modifying Sexual Interest in Children, UCLA = UCLA Loneliness Scale - German short version.")
 
 tbl
 ```
@@ -340,7 +340,7 @@ q_name <- "CVTRQ, total score"
 fit <- fit_cvtrq_calc_total
 lm_table <- lm_Table_cvtrq_calc_total
 module <- "module one (motivation)"
-tbl_cap <- paste0("Linear regression model for the Corrections Victoria Treatment Readiness Questionnaire (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Corrections Victoria Treatment Readiness Questionnaire (", q_name, ") with n = ", as.character(nobs(fit)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
   
@@ -442,7 +442,7 @@ fit1 <- fit_rcq_calc_total
 fit2 <- fit_rcq_calc_total3
 lm_table <- lm_Table_rcq_calc_total
 module <- "module one (motivation)"
-tbl_cap <- paste0("Linear regression model for the Readiness to Change Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Readiness to Change Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, "). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
 ```
   
@@ -543,7 +543,7 @@ q_name <- "F-Soz-U, total score"
 fit <- fit_fsozu_calc_total
 lm_table <- lm_Table_fsozu_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for the Social Support Questionnaire (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Social Support Questionnaire (", q_name, ") with n = ", as.character(nobs(fit)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
   
@@ -646,7 +646,7 @@ q_name <- "OQMPR, total score"
 fit <- fit_ors_calc_total
 lm_table <- lm_Table_ors_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for the Questionnaire for the Measurement of Psychological Reactance (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Questionnaire for the Measurement of Psychological Reactance (", q_name, ") with n = ", as.character(nobs(fit)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
   
@@ -750,7 +750,7 @@ fit1 <- fit_soi_calc_total_ordinal_diff
 fit2 <- fit_soi_calc_total
 lm_table <- glm_Table_soi_calc_total_ordinal_diff
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Ordinal regression model for the Sexual Outlet Inventory Revised (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
+tbl_cap <- paste0("Ordinal regression model for the Sexual Outlet Inventory Revised (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q). Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
 fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.")
 ```
   
@@ -761,7 +761,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name
 
 <!-- RAIN PLOT -->
 
-![Distribution of the Sexual Outlet Inventory Revised (SOI-R, subscale desire for sexual activity with children) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
+![Distribution of the Sexual Outlet Inventory Revised (SOI-R, subscale desire for sexual activity with children) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time. Please note, that the y-axis is truncated at the 99th percentile of the observed values for visual clarity; all statistical summaries (violin, boxplot, mean) were computed on the full sample. Numbers of observations outside the displayed range are n = 2 (intervention arm: n = 2) data points.](_figures/fig-sec-rainplot-soi-total-score.png){#fig-sec-rainplot-soi-total-score}
 
 
 ```{r}
@@ -852,7 +852,7 @@ fit1 <- fit_ucla_calc_total
 fit2 <- fit_ucla_calc_total3
 lm_table <- lm_Table_ucla_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for the UCLA Loneliness Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations.")
+tbl_cap <- paste0("Linear regression model for the UCLA Loneliness Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, "). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
 ```
   
@@ -954,7 +954,7 @@ fit1 <- fit_bis_calc_total
 fit2 <- fit_bis_calc_total2
 lm_table <- lm_Table_bis_calc_total
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Linear regression model for the Barratt Impulsiveness Scale-15 (", q_name, " with n = ", as.character(nobs(fit1)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Barratt Impulsiveness Scale-15 (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, "). The plots on the left correspond to an ordinary linear model, the plots on the right correspond to the model where the score was log-transformed. Both models showed similar results.")
 ```
   
@@ -1056,7 +1056,7 @@ fit1 <- fit_cusi_calc_total
 fit2 <- fit_cusi_calc_total3
 lm_table <- lm_Table_cusi_calc_total
 module <- "module two (supervision and social relationship)"
-tbl_cap <- paste0("Linear regression model for the Coping Using Sex Inventory (", q_name, ") with n = ", as.character(nobs(fit1)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Coping Using Sex Inventory (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, "). The plots on the left correspond to the model fitted with all data points, the plots on the right correspond to the model after the removal of identified outliers. Both models showed similar results.")
 ```
   
@@ -1157,7 +1157,7 @@ q_name <- "SPSI-R, total score"
 fit <- fit_spsi_calc_total
 lm_table <- lm_Table_spsi_calc_total
 module <- "module four (problem solving)"
-tbl_cap <- paste0("Linear regression model for the Social Problem-Solving Inventory Revised (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Social Problem-Solving Inventory Revised (", q_name, ") with n = ", as.character(nobs(fit)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
   
@@ -1258,7 +1258,7 @@ q_name <- "EKK-R, total score"
 fit <- fit_ekk_calc_total
 lm_table <- lm_Table_ekk_calc_total
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Linear regression model for the Emotional Congruence with Children-Revised (", q_name, ") with n = ", as.character(nobs(fit)), " observations.")
+tbl_cap <- paste0("Linear regression model for the Emotional Congruence with Children-Revised (", q_name, ") with n = ", as.character(nobs(fit)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q).")
 fig_cap <- paste("Diagnostic plots for linear regression models with (", q_name, ").")
 ```
   
@@ -1360,7 +1360,7 @@ fit1 <- fit_ders_calc_imp_ordinal
 fit2 <- fit_ders_calc_imp
 lm_table <- glm_Table_ders_calc_imp
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Ordinal regression model for the Difficulties in Emotion Regulation Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values greater than 9 were merged into a single category.")
+tbl_cap <- paste0("Ordinal regression model for the Difficulties in Emotion Regulation Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q). Note, that for the dependent variable, values greater than 9 were merged into a single category.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.")
 ```
   
@@ -1371,7 +1371,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name
 
 <!-- RAIN PLOT -->
 
-![Distribution of the Difficulties in Emotion Regulation Scale (DERS, subscore impulsivity) scores by trial arms. Shown are scores before (pre) and after (post) module three (emotion management). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-ders-calc-imp.png){#fig-sec-rainplot-ders-calc-imp}
+![Distribution of the Difficulties in Emotion Regulation Scale (DERS, subscore impulsivity) scores by trial arms. Shown are scores before (pre) and after (post) module three (emotion management). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time. Please note, that the y-axis is truncated at the 99th percentile of the observed values for visual clarity; all statistical summaries (violin, boxplot, mean) were computed on the full sample. Numbers of observations outside the displayed range are n = 3 (intervention arm: n = 2, placebo arm: n = 1) data points.](_figures/fig-sec-rainplot-ders-calc-imp.png){#fig-sec-rainplot-ders-calc-imp}
 
 
 ```{r}
@@ -1462,7 +1462,7 @@ fit1 <- fit_narq_calc_ris_ordinal
 fit2 <- fit_narq_calc_ris
 lm_table <- glm_Table_narq_calc_ris
 module <- "module three (emotion management)"
-tbl_cap <- paste0("Ordinal regression model for the Negative Affect Repair Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values greater than 4 were merged into a single category.")
+tbl_cap <- paste0("Ordinal regression model for the Negative Affect Repair Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q). Note, that for the dependent variable, values greater than 4 were merged into a single category.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.")
 ```
   
@@ -1564,7 +1564,7 @@ fit1 <- fit_esiq_calc_total_child_ordinal_diff
 fit2 <- fit_esiq_calc_total_child
 lm_table <- glm_Table_esiq_calc_total_child_ordinal_diff
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Ordinal regression model for the Explicit Sexual Interest Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
+tbl_cap <- paste0("Ordinal regression model for the Explicit Sexual Interest Questionnaire (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q). Note, that the dependent variable has 3 ordered categories: worsening (increase), no change, improvement (decrease).")
 fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with an ordinal regression model.")
 ```
   
@@ -1575,7 +1575,7 @@ fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name
 
 <!-- RAIN PLOT -->
 
-![Distribution of the Explicit Sexual Interest Questionnaire (ESIQ, subsale child) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time.](_figures/fig-sec-rainplot-esiq-calc-total-child.png){#fig-sec-rainplot-esiq-calc-total-child}
+![Distribution of the Explicit Sexual Interest Questionnaire (ESIQ, subsale child) scores by trial arms. Shown are scores before (pre) and after (post) module six (sexuality). Red denotes to the intervention arm and blue denotes the placebo arm. For each timepoint, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants scores. Solid lines connect the group means across timepoints, indicating mean trajectories over time. Please note, that the y-axis is truncated at the 99th percentile of the observed values for visual clarity; all statistical summaries (violin, boxplot, mean) were computed on the full sample. Numbers of observations outside the displayed range are n = 2 (placebo arm: n = 2) data points.](_figures/fig-sec-rainplot-esiq-calc-total-child.png){#fig-sec-rainplot-esiq-calc-total-child}
 
 
 ```{r}
@@ -1666,7 +1666,7 @@ fit1 <- fit_kvm_score_logistic
 fit2 <- fit_kvm_score
 lm_table <- glm_Table_kvm_score
 module <- "module five (offense-supportive attitudes)"
-tbl_cap <- paste0("Logistic regression model for the Bumby Molest Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.")
+tbl_cap <- paste0("Logistic regression model for the Bumby Molest Scale (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 43.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.")
 ```
   
@@ -1766,7 +1766,7 @@ fit1 <- fit_hbi_calc_total_logistic
 fit2 <- fit_hbi_calc_total
 lm_table <- glm_Table_hbi_calc_total
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Logistic regression model for the Hypersexual Behavior Inventory-19 (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.")
+tbl_cap <- paste0("Logistic regression model for the Hypersexual Behavior Inventory-19 (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 24.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.")
 ```
   
@@ -1868,7 +1868,7 @@ fit1 <- fit_ssik_calc_total_logistic
 fit2 <- fit_ssik_calc_total
 lm_table <- glm_Table_ssik_calc_total
 module <- "module six (sexuality)"
-tbl_cap <- paste0("Logistic regression model for the Specific self-efficacy for modifying Sexual Interest in Children (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.")
+tbl_cap <- paste0("Logistic regression model for the Specific self-efficacy for modifying Sexual Interest in Children (", q_name, ") with n = ", as.character(nobs(fit1)), " observations. Shown are p-values as well as Bonferroni-Holm adjusted p-values (q). Note, that for the dependent variable, values were dichotomized based on the cut-off greater or equal to 30.")
 fig_cap <- paste("Diagnostic plot for a linear regression models with (", q_name, "). Diagnostic plots indicate violations of the normality assumption; therefore, the model was replaced with a logistic regression model.")
 ```
   

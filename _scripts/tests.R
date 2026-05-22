@@ -25,7 +25,7 @@ create_prim_pairwise_tbl <- function(data, dvs, label_list, type_list, abbreviat
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile.")
 
 
   tbl <- tbl %>%
@@ -157,7 +157,7 @@ tbl_placebo <- data_placebo %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile.")
 
 tbl_intervention <- data_intervention %>%
     dplyr::select(all_of(dvs_mbsb), timepoint) %>%
@@ -184,4 +184,4 @@ tbl_intervention <- data_intervention %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
     # abbreviations
-    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile, q = Holm-Bonferroni adjusted p.")
+    modify_abbreviation("Q1 = 25th percentile, Q3 = 75th percentile.")
