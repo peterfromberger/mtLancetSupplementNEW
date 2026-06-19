@@ -2292,7 +2292,7 @@ dat_clean <- dat_clean %>%
     Indexdelikt = factor(
       Indexdelikt,
       levels = c("Nur § 184b", "Auch §§ 176, 176a, 176b StGB"),
-      labels = c("Non-contact (only GCC §184b)", "Contact (at least one conviction GCC §176ff)")
+      labels = c("Non-contact (only Section 184b GCC)", "Contact (at least one conviction Section 176 GCC))")
     ),
     Aktuelle_zusatzliche_Behandlung = factor(
       Aktuelle_zusatzliche_Behandlung,
@@ -3342,147 +3342,150 @@ tests <- generate_named_vector(variable_names, "w.npar.t.test")
 
 #### Kaplan-Meier
 
-library(bpcp)
-dat_clean_first <- dat_clean %>%
-  filter(timepoint!="Baseline") %>%
-  group_by(client_id) %>%
-  summarise_all(first) %>%
-  ungroup()
-sfit <- bpcpfit(Surv(`Zeit zwischen Beginn Modul 1 und Ausschluss (Tage)`/365.25, recidivism) ~ treatment, data = dat_clean_first %>%
-                  mutate(recidivism = if_else(recidivism=="Ja", 1, 0)))
-sfit.ci <- tidykmciLR(sfit)
-p_km_itt <-
-  sfit.ci %>%
-  mutate(group = factor(group, levels = levels(dat_clean_first$treatment))) %>%
-  ggplot(aes(x = time, y = surv, ymin = lower, ymax = upper, col = group)) +
-  ##geom_vline(aes(xintercept = day), data = lvisitplan) +
-  ## geom_ribbon(aes(xmin = xmin, xmax = xmax, y = y, group = VisitId), inherit.aes = FALSE,
-  ##             data = (lvisitplan %>%
-  ##                     mutate(ymin = -Inf, ymax = Inf) %>%
-  ##                     tidyr::gather(what, y, ymin, ymax)),
-  ##             alpha = 0.2) +
-  geom_ribbon(alpha = .2, aes(fill=group), colour = NA) +
-  geom_line(aes(lty = group)) +
-  geom_point(aes(x = `Zeit zwischen Beginn Modul 1 und Ausschluss (Tage)`, y = 1, col = group),
-             inherit.aes = FALSE,
-             pch = "|",
-             size = 3,
-             data = (dat_clean_first  %>% filter(recidivism == 0) %>% dplyr::rename(group = treatment))) +
-  # scale_x_continuous(breaks = as.numeric(lvisitplan$day %>% gsub(171, 180, .)),
-  #                    ##labels = glue("{lvisitplan$day}\n({lvisitplan$VisitId})"),
-  #                    labels = glue("{lvisitplan$day %>% gsub(minV23, 180, .)}"),
-  #                    ##limits = c(0, max(lvisitplan$xmax)),
-  #                    expand = c(0.05, 0, 0, 0)) +
-  scale_y_continuous(labels = scales::percent) +
-  expand_limits(y = 0:1) +
-  # scale_colour_manual(values = clrs$treatment) +
-  # scale_fill_manual(values = clrs$treatment) +
-  xlab("Time [years] since beginning of module 1") +
-  ylab("Safety event free probability") +
-  ggtitle("Kaplan Meier Curves for Time to recidivism") +
-  theme_bw()
+# library(bpcp)
 
-sfit2 <- survfit(Surv(`Zeit zwischen Beginn Modul 1 und Ausschluss (Tage)`/365.25, recidivism) ~ treatment, data = dat_clean_first %>%
-                   mutate(recidivism = if_else(recidivism=="Ja", 1, 0)))
-p_risktab_itt <-
-  survminer::ggsurvtable(sfit2, data = (dat_clean_first %>% mutate(treatment = factor(treatment, levels = levels(treatment)))),
-                         survtable = "risk.table",
-                         risk.table.type = "absolute",
-                         color = "treatment",
-                         ##xlim = c(0, max(lvisitplan$xmax)),
-                         break.time.by = 0.5) +
-  scale_x_continuous(breaks = 0:2) +
-  # scale_x_continuous(breaks = lvisitplan$day,
-  #                    labels = glue("{lvisitplan$VisitId}"),
-  #                    ##labels = glue("{lvisitplan$day}\n({lvisitplan$VisitId})"),
-  #                    ##limits = c(0, max(lvisitplan$xmax)),
-  #                    expand = c(0.01, 0, 0, 0)) +
-  # ##scale_colour_manual(values = scales::hue_pal()(3)[c(2,3,1)]) + ## hack
-  # scale_colour_manual(values = clrs$Arm) +
-  theme_bw() +
-  theme(legend.position = "none")
+# dat_clean_first <- dat_clean %>%
+#   filter(timepoint!="Baseline") %>%
+#   group_by(client_id) %>%
+#   summarise_all(first) %>%
+#   ungroup()
 
-library(patchwork)
-p_km_risktab_itt <-
-  p_km_itt +
-  (p_risktab_itt +
-     labs(x = "Time [years] since beginning of module 1",
-          y= NULL) +
-     theme(panel.grid = element_blank())) +
-  plot_layout(ncol = 1, heights = c(0.8, 0.2))
 
-kmciLRextract <- function(fit, time)
-{
-  fit_df <-
-    fit %>%
-    summary %>%
-    mutate(time.lower = gsub(",.*", "", `time interval`),
-           time.lower = gsub("^\\[", "", time.lower),
-           time.lower = as.numeric(time.lower)) %>%
-    mutate(time.upper = gsub(".*,", "", `time interval`),
-           time.upper = gsub(")$", "", time.upper),
-           time.upper = as.numeric(time.upper)) %>%
-    as_tibble
-  fit_df %>% filter(time.lower <= time, time.upper > time)
-}
+# sfit <- bpcpfit(Surv(`Zeit zwischen Beginn Modul 1 und Ausschluss (Tage)`/365.25, recidivism) ~ treatment, data = dat_clean_first %>%
+#                   mutate(recidivism = if_else(recidivism=="Ja", 1, 0)))
+# sfit.ci <- tidykmciLR(sfit)
+# p_km_itt <-
+#   sfit.ci %>%
+#   mutate(group = factor(group, levels = levels(dat_clean_first$treatment))) %>%
+#   ggplot(aes(x = time, y = surv, ymin = lower, ymax = upper, col = group)) +
+#   ##geom_vline(aes(xintercept = day), data = lvisitplan) +
+#   ## geom_ribbon(aes(xmin = xmin, xmax = xmax, y = y, group = VisitId), inherit.aes = FALSE,
+#   ##             data = (lvisitplan %>%
+#   ##                     mutate(ymin = -Inf, ymax = Inf) %>%
+#   ##                     tidyr::gather(what, y, ymin, ymax)),
+#   ##             alpha = 0.2) +
+#   geom_ribbon(alpha = .2, aes(fill=group), colour = NA) +
+#   geom_line(aes(lty = group)) +
+#   geom_point(aes(x = `Zeit zwischen Beginn Modul 1 und Ausschluss (Tage)`, y = 1, col = group),
+#              inherit.aes = FALSE,
+#              pch = "|",
+#              size = 3,
+#              data = (dat_clean_first  %>% filter(recidivism == 0) %>% dplyr::rename(group = treatment))) +
+#   # scale_x_continuous(breaks = as.numeric(lvisitplan$day %>% gsub(171, 180, .)),
+#   #                    ##labels = glue("{lvisitplan$day}\n({lvisitplan$VisitId})"),
+#   #                    labels = glue("{lvisitplan$day %>% gsub(minV23, 180, .)}"),
+#   #                    ##limits = c(0, max(lvisitplan$xmax)),
+#   #                    expand = c(0.05, 0, 0, 0)) +
+#   scale_y_continuous(labels = scales::percent) +
+#   expand_limits(y = 0:1) +
+#   # scale_colour_manual(values = clrs$treatment) +
+#   # scale_fill_manual(values = clrs$treatment) +
+#   xlab("Time [years] since beginning of module 1") +
+#   ylab("Safety event free probability") +
+#   ggtitle("Kaplan Meier Curves for Time to recidivism") +
+#   theme_bw()
 
-proportions_noevent_safety_itt <-
-  sfit %>%
-  kmciLRextract(time = 1) %>%
-  mutate(ci = descutils::prettyCI(`lower 95% CL`, `upper 95% CL`, digits = 2))
+# sfit2 <- survfit(Surv(`Zeit zwischen Beginn Modul 1 und Ausschluss (Tage)`/365.25, recidivism) ~ treatment, data = dat_clean_first %>%
+#                    mutate(recidivism = if_else(recidivism=="Ja", 1, 0)))
+# p_risktab_itt <-
+#   survminer::ggsurvtable(sfit2, data = (dat_clean_first %>% mutate(treatment = factor(treatment, levels = levels(treatment)))),
+#                          survtable = "risk.table",
+#                          risk.table.type = "absolute",
+#                          color = "treatment",
+#                          ##xlim = c(0, max(lvisitplan$xmax)),
+#                          break.time.by = 0.5) +
+#   scale_x_continuous(breaks = 0:2) +
+#   # scale_x_continuous(breaks = lvisitplan$day,
+#   #                    labels = glue("{lvisitplan$VisitId}"),
+#   #                    ##labels = glue("{lvisitplan$day}\n({lvisitplan$VisitId})"),
+#   #                    ##limits = c(0, max(lvisitplan$xmax)),
+#   #                    expand = c(0.01, 0, 0, 0)) +
+#   # ##scale_colour_manual(values = scales::hue_pal()(3)[c(2,3,1)]) + ## hack
+#   # scale_colour_manual(values = clrs$Arm) +
+#   theme_bw() +
+#   theme(legend.position = "none")
 
-## from https://stackoverflow.com/a/31198761
-mytidy_survfitsummary <- function(sfit, time)
-{
-  sfit_summary <-
-    sfit %>%
-    summary(times = time)
-  cols <- lapply(c(2:6, 8:11) , function(x) sfit_summary[x])
-  tbl <- do.call(data.frame, cols) %>% as_tibble
-  tbl
-}
-survfitExtractN <- function(fit, time)
-{
-  num  <- fit %>% mytidy_survfitsummary(time)
-  num0 <- fit %>% mytidy_survfitsummary(0)
+# library(patchwork)
+# p_km_risktab_itt <-
+#   p_km_itt +
+#   (p_risktab_itt +
+#      labs(x = "Time [years] since beginning of module 1",
+#           y= NULL) +
+#      theme(panel.grid = element_blank())) +
+#   plot_layout(ncol = 1, heights = c(0.8, 0.2))
 
-  num0 %>% dplyr::select(strata, n = n.risk) %>% full_join((num %>% dplyr::select(strata, n.event, n.censor)))
-}
-Ns <- sfit2 %>% survfitExtractN(1) %>%
-  dplyr::rename(treatment = strata) %>%
-  mutate(treatment = gsub("^treatment=", "", treatment))
+# kmciLRextract <- function(fit, time)
+# {
+#   fit_df <-
+#     fit %>%
+#     summary %>%
+#     mutate(time.lower = gsub(",.*", "", `time interval`),
+#            time.lower = gsub("^\\[", "", time.lower),
+#            time.lower = as.numeric(time.lower)) %>%
+#     mutate(time.upper = gsub(".*,", "", `time interval`),
+#            time.upper = gsub(")$", "", time.upper),
+#            time.upper = as.numeric(time.upper)) %>%
+#     as_tibble
+#   fit_df %>% filter(time.lower <= time, time.upper > time)
+# }
 
-proportions_noevent_safety_itt <-
-  proportions_noevent_safety_itt %>%
-  dplyr::select(treatment, proportion = survival, `95% CI` = ci) %>%
-  inner_join(Ns) %>%
-  dplyr::select(treatment, n, n.event, n.censor, everything())
+# proportions_noevent_safety_itt <-
+#   sfit %>%
+#   kmciLRextract(time = 1) %>%
+#   mutate(ci = descutils::prettyCI(`lower 95% CL`, `upper 95% CL`, digits = 2))
 
-cidelta_safety_pp <-
-  lapply(c("Intervention"), function(dose)
-  {
-    prop.diff <-
-      dat_clean_first %>%
-      mutate(recidivism = if_else(recidivism=="Ja", 1, 0)) %>%
-      {
-        bpcp2samp(.$`Zeit zwischen Beginn Modul 1 und Ausschluss (Tage)`/365.25, .$recidivism, .$treatment, testtime = 1,
-                  parmtype = "difference")
-      }
-    prop.diff %>%
-      tidy %>%
-      mutate(treatment = dose) %>%
-      mutate(comparison = prop.diff$data.name) %>%
-      mutate(conf.level = attr(prop.diff$conf.int, "conf.level")) %>%
-      dplyr::rename(!!sym(attr(prop.diff$estimate, "names")) := estimate)
-  }) %>%
-  bind_rows %>%
-  dplyr::select(comparison, difference, conf.low, conf.high, conf.level, p.value) %>%
-  mutate(ci = descutils::prettyCI(conf.low, conf.high, digits = 2)) %>%
-  mutate(`P value` = descutils::prettyPvalues(p.value, digits = 2)) %>%
-  dplyr::rename(!!sym(glue::glue("{.$conf.level[[1]]*100}%-CI")) := ci) %>%
-  dplyr::select(-conf.low, -conf.high, -conf.level, -p.value) %>%
-  mutate(comparison = gsub("\\)-S\\(", ") - S(", comparison)) %>%
-  mutate(comparison = gsub("S\\([[:digit:]]+;group=([^)]+)\\)", "\\1", comparison))
+# ## from https://stackoverflow.com/a/31198761
+# mytidy_survfitsummary <- function(sfit, time)
+# {
+#   sfit_summary <-
+#     sfit %>%
+#     summary(times = time)
+#   cols <- lapply(c(2:6, 8:11) , function(x) sfit_summary[x])
+#   tbl <- do.call(data.frame, cols) %>% as_tibble
+#   tbl
+# }
+# survfitExtractN <- function(fit, time)
+# {
+#   num  <- fit %>% mytidy_survfitsummary(time)
+#   num0 <- fit %>% mytidy_survfitsummary(0)
+
+#   num0 %>% dplyr::select(strata, n = n.risk) %>% full_join((num %>% dplyr::select(strata, n.event, n.censor)))
+# }
+# Ns <- sfit2 %>% survfitExtractN(1) %>%
+#   dplyr::rename(treatment = strata) %>%
+#   mutate(treatment = gsub("^treatment=", "", treatment))
+
+# proportions_noevent_safety_itt <-
+#   proportions_noevent_safety_itt %>%
+#   dplyr::select(treatment, proportion = survival, `95% CI` = ci) %>%
+#   inner_join(Ns) %>%
+#   dplyr::select(treatment, n, n.event, n.censor, everything())
+
+# cidelta_safety_pp <-
+#   lapply(c("Intervention"), function(dose)
+#   {
+#     prop.diff <-
+#       dat_clean_first %>%
+#       mutate(recidivism = if_else(recidivism=="Ja", 1, 0)) %>%
+#       {
+#         bpcp2samp(.$`Zeit zwischen Beginn Modul 1 und Ausschluss (Tage)`/365.25, .$recidivism, .$treatment, testtime = 1,
+#                   parmtype = "difference")
+#       }
+#     prop.diff %>%
+#       tidy %>%
+#       mutate(treatment = dose) %>%
+#       mutate(comparison = prop.diff$data.name) %>%
+#       mutate(conf.level = attr(prop.diff$conf.int, "conf.level")) %>%
+#       dplyr::rename(!!sym(attr(prop.diff$estimate, "names")) := estimate)
+#   }) %>%
+#   bind_rows %>%
+#   dplyr::select(comparison, difference, conf.low, conf.high, conf.level, p.value) %>%
+#   mutate(ci = descutils::prettyCI(conf.low, conf.high, digits = 2)) %>%
+#   mutate(`P value` = descutils::prettyPvalues(p.value, digits = 2)) %>%
+#   dplyr::rename(!!sym(glue::glue("{.$conf.level[[1]]*100}%-CI")) := ci) %>%
+#   dplyr::select(-conf.low, -conf.high, -conf.level, -p.value) %>%
+#   mutate(comparison = gsub("\\)-S\\(", ") - S(", comparison)) %>%
+#   mutate(comparison = gsub("S\\([[:digit:]]+;group=([^)]+)\\)", "\\1", comparison))
 
 
 # CONSORT diagram

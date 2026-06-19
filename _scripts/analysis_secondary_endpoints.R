@@ -202,8 +202,8 @@ dat_complete_sec <- dat_complete_sec %>%
     ),
     `Indexdelikt` = fct_recode(
       `Indexdelikt`,
-      "Non-contact (only GCC §184b)" = "Nur § 184b",
-      "Contact (at least one conviction GCC §176ff)" = "Auch §§ 176, 176a, 176b StGB"
+      "Non-contact (only Section 184b GCC)" = "Nur § 184b",
+      "Contact (at least one conviction Section 176 GCC)" = "Auch §§ 176, 176a, 176b StGB"
       # weitere Kategorien nach Bedarf
     )
   )

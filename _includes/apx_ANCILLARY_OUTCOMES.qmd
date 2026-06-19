@@ -699,7 +699,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -929,7 +929,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -997,7 +997,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -1058,7 +1058,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -1806,7 +1806,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -1921,7 +1921,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -1965,7 +1965,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -2103,7 +2103,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -2232,7 +2232,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -2348,7 +2348,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -2392,7 +2392,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
@@ -2530,7 +2530,7 @@ tbl <- tbl %>%
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        full_width = TRUE,
+        
         font_size = 8
     )
 
