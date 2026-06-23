@@ -69,7 +69,7 @@ create_pairwise_tbl <- function(data, dvs, label_list, type_list, abbreviations,
     add_q(method = "holm") %>%
     modify_header(
       p.value = "**p**",
-      q.value = "**q**"
+      q.value = "**adjusted p**"
     ) %>%
     bold_labels() %>%
     # abbreviations

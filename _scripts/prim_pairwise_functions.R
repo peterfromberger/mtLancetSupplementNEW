@@ -96,7 +96,7 @@ create_prim_pairwise_tbl <- function(data, dvs, label_list, type_list, abbreviat
     modify_header(
       label = "**Module**",
       p.value = "**p**",
-      q.value = "**q**"
+      q.value = "**adjusted p**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!

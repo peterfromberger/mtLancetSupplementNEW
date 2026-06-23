@@ -1,0 +1,40 @@
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-sec-diffscore
+#| tbl-cap: "Difference from pre to post of the scores for each secondary endpoint. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
+
+mbsb <- TRUE
+sample_str <- "itt"
+
+tbl <- create_tbl_diffscore_bm_unpaired(mbsb, sample_str, dvs, dvs_mbsb, labels, types, abbreviations)
+
+tbl_a <- tbl %>%
+    as_gt() %>%
+    gt::tab_options(
+      table.font.names = "Times New Roman",
+          table.font.size = 10,
+          quarto.use_bootstrap = FALSE,
+          quarto.disable_processing = TRUE,
+          data_row.padding = px(1),
+          summary_row.padding = gt::px(1),
+          grand_summary_row.padding = gt::px(1),
+          row_group.padding = gt::px(1)
+    ) %>%
+    tab_style(style = cell_text(align = "left"), locations = cells_source_notes()) %>%
+    tab_style(style = cell_text(align = "left"), locations = cells_footnotes())
+
+# # save tbl as image
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-diffscore.pdf")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-diffscore.docx")))
+gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-sec-diffscore.png")))
+
+# tbl <- tbl %>%
+#     tab_options(latex.use_longtable = TRUE)
+
+tbl <- get_kable_table(tbl, "BIS-15 = Barratt Impulsiveness Scale-15, BMS = Bumby Molest Scale, CUSI = Coping Using Sex Inventory, CVTRQ = Corrections Victoria Treatment Readiness Questionnaire, DERS = Difficulties in Emotion Regulation Scale, EKK-R = Questionnaire on Emotional Congruence with Children-Revised, ESIQ = Explicit Sexual Interest Questionnaire, F-Soz-U = Seven-item short version of the Social Support Questionnaire, HBI-19 = Hypersexual Behavior Inventory-19, NARQ = Negative Affect Repair Questionnaire, OQMPR = Questionnaire for the Measurement of Psychological Reactance, Q1 = 25th percentile, Q3 = 75th percentile, RCQ = Readiness to Change Questionnaire - German version, SOI-R = Sexual Outlet Inventory revised, subscale desire for sexual activity with children, SPSI-R = Social Problem-Solving Inventory Revised, SSIC = Specific self-efficacy for modifying Sexual Interest in Children, UCLA = UCLA Loneliness Scale - German short version.")
+
+# tbl
+```
+  

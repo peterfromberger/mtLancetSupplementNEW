@@ -79,13 +79,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-mmrm-time-si
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -185,9 +191,10 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-pairwise-intervention
-#| tbl-cap: "Pre- and post module scores of the primary outcome Index of Desistance (IoD, total score) within the intervention arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
+#| tbl-cap: "Pre- and post module scores of the primary outcome Index of Desistance (IoD, total score) within the intervention arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
 
 library(here)
+library(kableExtra)
 source(here::here("_scripts/prim_pairwise_functions.R"))
 
 # global theme for gtsummary
@@ -219,13 +226,18 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-int
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
-        
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -235,7 +247,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-pairwise-placebo
-#| tbl-cap: "Pre- and post module scores of the primary outcome Index of Desistance (IoD, total score) within the placebo arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
+#| tbl-cap: "Pre- and post module scores of the primary outcome Index of Desistance (IoD, total score) within the placebo arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
 
 variable <- "IoD"
 tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Placebo")
@@ -263,13 +275,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-pairwise-int
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -281,7 +299,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-iod-diffscore
-#| tbl-cap: "Difference of the primary outcome Index of Desistance (IoD total score) between before (pre) and after (post) each module by trial arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
+#| tbl-cap: "Difference of the primary outcome Index of Desistance (IoD total score) between before (pre) and after (post) each module by trial arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
 
 library(here)
 source(here::here("_scripts/prim_diffscore_functions.R"))
@@ -315,13 +333,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-iod-diffscore.pn
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -481,13 +505,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-mmrm-time-
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -584,7 +614,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-cares-pairwise-intervention
-#| tbl-cap: "Pre- and post module scores of Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) within the intervention arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
+#| tbl-cap: "Pre- and post module scores of Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) within the intervention arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
 
 library(here)
 source(here::here("_scripts/prim_pairwise_functions.R"))
@@ -618,13 +648,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-i
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -634,7 +670,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-cares-pairwise-placebo
-#| tbl-cap: "Pre- and post module scores of Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) within the placebo arm. Shown are descriptive values in and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
+#| tbl-cap: "Pre- and post module scores of Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) within the placebo arm. Shown are descriptive values in and raw as well as Bonferroni-Holm adjusted p-values testing the null hypothesis of no change. p-values were computed using paired non-parametric Brunner–Munzel tests."
 
 variable <- "IoD_reduced"
 tbl <- create_prim_pairwise_tbls(variable, subgroup_str = "Placebo")
@@ -662,13 +698,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-pairwise-i
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -678,7 +720,7 @@ tbl
 #| message: false
 #| warning: false
 #| label: tbl-prim-cares-diffscore
-#| tbl-cap: "Difference of the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) between before (pre) and after (post) each module by trial arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values (q) testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
+#| tbl-cap: "Difference of the Child Sexual Abuse Risk Evaluation Self-Report (CARES, total score) between before (pre) and after (post) each module by trial arm. Shown are descriptive values and raw as well as Bonferroni-Holm adjusted p-values testing the null hypothesis of no difference. p-values were computed using unpaired non-parametric Brunner–Munzel tests."
 
 library(here)
 source(here::here("_scripts/prim_diffscore_functions.R"))
@@ -712,13 +754,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-prim-cares-diffscore.
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```

@@ -396,7 +396,7 @@ tab_lm <- function(fit, exponentiate=FALSE)
     modify_header(
         label ~ "**Variable**",
         p.value = "**p**",
-        q.value = "**q**"
+        q.value = "**adjusted p**"
     ) %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
@@ -447,7 +447,7 @@ tab_lm <- function(fit, exponentiate=FALSE)
     modify_header(
         label ~ "**Variable**",
         p.value = "**p**",
-        q.value = "**q**"
+        q.value = "**adjusted p**"
     ) %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
     remove_footnote_header(columns = "q.value") %>%
@@ -504,7 +504,7 @@ tab_glm <- function(fit)
     modify_header(
       label ~ "**Variable**",
       p.value = "**p**",
-      adjusted_p_value = "**q**"
+      adjusted_p_value = "**adjusted p**"
     ) 
 else
   fit %>%
@@ -547,7 +547,7 @@ else
     modify_header(
           label ~ "**Variable**",
           p.value = "**p**",
-          adjusted_p_value = "**q**"
+          adjusted_p_value = "**adjusted p**"
       )
 }
 
@@ -648,7 +648,7 @@ else
 #     modify_header(
 #         label ~ "**Variable**",
 #         p.value = "**p**",
-#         q.value = "**q**"
+#         q.value = "**adjusted p**"
 #     ) %>%
 #     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
 #     remove_footnote_header(columns = "q.value") %>%

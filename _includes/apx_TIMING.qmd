@@ -221,7 +221,7 @@ ggsave(
 )
 ```
 
-![Distribution of time to finish module for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are log-transformed scores for each module. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided exercises (and an undefined error term for doing things not related to the web-based intervention).](_figures/fig-time-to-finish-module-rainplot.png){#fig-time-to-finish-module-rainplot}
+![Distribution of time to finish module for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. The y-axis is shown on a logarithmic scale. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time to finish the module is defined as time from end of the previous module to the end of the respective module. Note, that the time to finish the module consists of the time of working on the content and time for filling in questionnaires and time needed to revise guided exercises (and an undefined error term for doing things not related to the web-based intervention).](_figures/fig-time-to-finish-module-rainplot.png){#fig-time-to-finish-module-rainplot}
 
 ```{r}
 #| echo: false
@@ -315,7 +315,7 @@ ggsave(
 ```
   
 
-![Diagnostic plots for time to finish module. The plots on the left correspond to the model fitted with raw scores, the plots on the right correspond to the model fitted with log-transformed scores. The plots indicate violations of the normality assumption; therefore, the model was fitted with log-transformed scores.](_figures/fig-time-to-finish-module-diagnostic-plots.png){#fig-time-to-finish-module-diagnostic-plots}
+![Diagnostic plots for time to finish module. The Q-Q plots and residual plots of standardized residuals on the left correspond to the model fitted with raw scores, the plots on the right correspond to the model fitted with log-transformed scores. The plots indicate violations of the normality assumption; therefore, the model was fitted with log-transformed scores.](_figures/fig-time-to-finish-module-diagnostic-plots.png){#fig-time-to-finish-module-diagnostic-plots}
 
 ```{r}
 #| echo: false
@@ -351,7 +351,7 @@ tbl <- fit_time_post_module_non_cum %>%
     ) %>%
     modify_header(label ~ "**Variable**",
                   p.value ~ "**p**",
-                  estimate ~ "**Beta**") %>%
+                  estimate ~ "**exp(Beta)**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("GCC = German Criminal Code") %>%
@@ -386,13 +386,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-to-finish-module
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "",
+      escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -505,7 +511,7 @@ tbl <- df_m1toEndModule %>%
     add_q(method = "holm") %>%
     modify_header(
       p.value = "**p**",
-      q.value = "**q**"
+      q.value = "**adjusted p**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
@@ -536,13 +542,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-to-finish-module
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "",
+      escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -720,7 +732,7 @@ ggsave(
 )
 ```
 
-![Distribution of time working on content for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. Shown are log-transformed scores for each module. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a web-based intervention without the time needed for filling in questionnaires, reviews of guided exercises, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot}
+![Distribution of time working on content for the intervention and placebo arms. Red denotes the intervention arm and blue denotes the placebo arm. SThe y-axis is shown on a logarithmic scale. For each module, violin plots illustrate the score distributions, overlaid with boxplots indicating the median and interquartile range, and jittered points representing individual participants. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a web-based intervention without the time needed for filling in questionnaires, reviews of guided exercises, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection.](_figures/fig-time-working-on-module-rainplot.png){#fig-time-working-on-module-rainplot}
 
 ```{r}
 #| echo: false
@@ -808,14 +820,14 @@ ggsave(
 ```
   
 
-![Diagnostic plots for time working on content module. The plots on the left correspond to the model fitted with raw scores, the plots on the right correspond to the model fitted with log-transformed scores. The plots indicate violations of the normality assumption; therefore, the model was fitted with log-transformed scores.](_figures/fig-time-working-on-module-diagnostic-plots.png){#fig-time-working-on-module-diagnostic-plots}
+![Diagnostic plots for time working on content module. The Q-Q plots and residual plots of standardized residuals on the left correspond to the model fitted with raw scores, the plots on the right correspond to the model fitted with log-transformed scores.  The plots indicate violations of the normality assumption; therefore, the model was fitted with log-transformed scores.](_figures/fig-time-working-on-module-diagnostic-plots.png){#fig-time-working-on-module-diagnostic-plots}
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| label: tbl-time-working-on-module-mmrm
-#| tbl-cap: "Mixed model for repeated measures (MMRM) for time working on content of one module of the web-based intervention. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a web-based intervention without the time needed for filling in questionnaires, reviews of guided exercises, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection."
+#| tbl-cap: "Mixed model for repeated measures (MMRM) for time working on content of one module of the web-based intervention. The time working on content is defined as the sum of the time from creating a data base entry for lection data (at first visit of the lection page) to the time last change of database entry for this lection data occured for each lection the participant worked on in one module. This time difference can be interpreted as a narrow estimator for the time needed to finish the content of a web-based intervention without the time needed for filling in questionnaires, reviews of guided exercises, or waiting times. But it includes the time needed for first answer of a guided exercise and times, in which the participant not logged in or logged in but not worked on the lection. Note that the model is fitted on log-transformed data."
 
 tbl <- fit_time_post_module_log %>%
     tbl_regression(
@@ -831,7 +843,7 @@ tbl <- fit_time_post_module_log %>%
     ) %>%
     modify_header(label ~ "**Variable**",
                   p.value ~ "**p**",
-                  estimate ~ "**Beta**") %>%
+                  estimate ~ "**exp(Beta)**") %>%
     remove_abbreviation("CI = Confidence Interval") %>%
     modify_abbreviation("CI = Confidence Interval, GCC = German Criminal Code.") %>%
     modify_column_alignment(columns = everything(), align = "left") %>%
@@ -865,13 +877,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-working-on-modul
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "",
+      escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -996,7 +1014,7 @@ tbl <- df_wide %>%
     add_q(method = "holm") %>%
     modify_header(
       p.value = "**p**",
-      q.value = "**q**"
+      q.value = "**adjusted p**"
     ) %>%
     bold_labels() %>%
     # damit quarto citations im footer erkeent, dürfen keine footnotes vorhanden sein!
@@ -1027,13 +1045,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-time-working-on-modul
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "",
+      escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```

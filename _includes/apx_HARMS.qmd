@@ -192,7 +192,7 @@ tbl <- mrq_at_least_one_highest_score_group %>%
         label = "**MRQ subscale**",
         estimate = "**Cramer's V**",
         p.value = "**p**",
-        q.value = "**q**"
+        q.value = "**adjusted p**"
     ) %>%
     add_overall() %>%
     bold_labels()
@@ -223,13 +223,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-mrq-frequency-highest
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -271,7 +277,7 @@ tbl <- mrq_at_least_one_highest_score_group %>%
         label = "**MRQ subscale**",
         estimate = "**Cramer's V**",
         p.value = "**p**",
-        q.value = "**q**"
+        q.value = "**adjusted p**"
     ) %>%
     add_overall() %>%
     bold_labels()
@@ -301,13 +307,19 @@ gt::gtsave(tbl_a, file = file.path(here::here("_tables/tbl-mrq-frequency-highest
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
@@ -511,7 +523,7 @@ tbl <- tmp_wide %>%
         label = "**Exclusion reason**",
         estimate = "**Cramer's V**",
         p.value = "**p**",
-        q.value = "**q**"
+        q.value = "**adjusted p**"
     ) %>%
     add_overall() %>%
     bold_labels()
@@ -535,13 +547,19 @@ tbl_a <- tbl %>% as_gt() %>%
 tbl <- tbl %>%
     as_kable_extra(
         booktabs = TRUE,
-        linesep = ""
+        linesep = "", 
+        escape = FALSE
     ) %>%
     kable_styling(
         latex_options = c("scale_down", "hold_position"),
         
         font_size = 8
     )
+
+# kable-Objekt ist intern ein character-String
+attr_backup <- attributes(tbl)
+tbl <- gsub("p_adj", "$p_{adj}$", tbl, fixed = TRUE)
+attributes(tbl) <- attr_backup
 
 tbl
 ```
