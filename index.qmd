@@ -163,7 +163,7 @@ consort_data <- tibble::tribble(
   NA, "Ancillary analyses", "28", "Any other analyses performed, including subgroup and sensitivity analyses, distinguishing prespecified from post hoc", "p. 15",
   # Discussion
   "Discussion", NA, NA, NA, NA,
-  NA, "Interpretation", "29", "Interpretation consistent with results, balancing benefits and harms, and considering other relevant evidence", "p. 16-17",
+  NA, "Interpretation", "29", "Interpretation consistent with results, balancing benefits and harms, and considering other relevant evidence", "p. 15-17",
   NA, "Limitations", "30", "Trial limitations, addressing sources of potential bias, imprecision, generalisability, and, if relevant, multiplicity of analyses", "p. 17"
 )
 
